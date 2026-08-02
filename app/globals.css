@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0B0D10;
+  color: #E8EAED;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Barra de rolagem combinando com o tema escuro */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #13171C; }
+::-webkit-scrollbar-thumb { background: #2A313B; border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: #3A424F; }
+
+@layer components {
+  .container-site {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+
+  .botao {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3
+           text-sm font-medium transition-colors;
+  }
+
+  .botao-primario {
+    @apply botao bg-marca text-white hover:bg-pink-700;
+  }
+
+  .botao-secundario {
+    @apply botao border border-borda bg-superficie text-texto hover:bg-superficie2;
+  }
+
+  .cartao {
+    @apply rounded-xl border border-borda bg-superficie;
+  }
+}
