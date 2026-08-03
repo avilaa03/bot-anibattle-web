@@ -4,11 +4,13 @@ services:
 
     build:
       context: .
-
-    restart: unless-stopped
+      args:
+        MONGODB_URI: ${MONGODB_URI}
 
     env_file:
       - .env
+
+    restart: unless-stopped
 
     ports:
       - "3000:3000"
