@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import CartaVisual from '@/components/CartaVisual';
 import { cartasDestaque, estatisticas, REVALIDATE } from '@/lib/consultas';
-import { NOTICIAS, ETIQUETAS, formatarData } from '@/data/noticias';
+import { ETIQUETAS, formatarData } from '@/lib/noticias';
+import { listarNoticias } from '@/lib/noticiasDb';
 import { RARIDADES, ORDEM_RARIDADES } from '@/lib/raridades';
 
 // Revalida a cada 5 min: os números mudam devagar e assim a home é
@@ -44,9 +45,12 @@ const RECURSOS = [
 ];
 
 export default async function PaginaInicial() {
-  const [stats, destaques] = await Promise.all([
+  const [stats, destaques, noticias] = await Promise.all([
     estatisticas(),
-    cartasDestaque(5)
+    cartasDestaque(5),
+    // As notícias vêm do banco (editadas em /admin/noticias). Rascunhos
+    // não entram: `listarNoticias` filtra por `publicada` por padrão.
+    listarNoticias({ limite: 4 })
   ]);
 
   const numeros = [
@@ -56,8 +60,8 @@ export default async function PaginaInicial() {
     { valor: stats.totalDescobertas, rotulo: 'cartas descobertas' }
   ];
 
-  const noticiaDestaque = NOTICIAS.find((n) => n.destaque) ?? NOTICIAS[0];
-  const outrasNoticias = NOTICIAS.filter((n) => n.slug !== noticiaDestaque?.slug).slice(0, 3);
+  const noticiaDestaque = noticias.find((n) => n.destaque) ?? noticias[0];
+  const outrasNoticias = noticias.filter((n) => n.id !== noticiaDestaque?.id).slice(0, 3);
 
   return (
     <>
@@ -217,7 +221,7 @@ export default async function PaginaInicial() {
 
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             {outrasNoticias.map((n) => (
-              <article key={n.slug} className="cartao p-6">
+              <article key={n.id} className="cartao p-6">
                 <div className="flex flex-wrap items-center gap-3">
                   <span
                     className="rounded-full px-2.5 py-0.5 text-[11px] font-medium"

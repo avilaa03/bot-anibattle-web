@@ -43,4 +43,21 @@ body {
   .cartao {
     @apply rounded-xl border border-borda bg-superficie;
   }
+
+  /* Campos de formulário do painel administrativo */
+  .campo {
+    @apply w-full rounded-lg border border-borda bg-superficie2 px-3 py-2 text-sm
+           text-texto outline-none transition-colors
+           placeholder:text-textoFraco/60
+           focus:border-marca
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .rotulo {
+    @apply block text-xs font-medium text-textoFraco;
+  }
+
+  .etiqueta {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium;
+  }
 }

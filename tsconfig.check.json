@@ -1,0 +1,6 @@
+{
+  "//": "Typecheck só do código-fonte. O .next é artefato de build e nesta cópia do projeto tem arquivos duplicados ('nome 2.ts') que geram erros falsos.",
+  "extends": "./tsconfig.json",
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", ".next"]
+}
