@@ -6,7 +6,7 @@ import FiltrosCartas from '@/components/FiltrosCartas';
 import { listarCartas, listarSeries, contarCartas, REVALIDATE } from '@/lib/consultas';
 import { getRaridade } from '@/lib/raridades';
 
-export const revalidate = REVALIDATE;
+export const revalidate = 300;
 
 const POR_PAGINA = 24;
 

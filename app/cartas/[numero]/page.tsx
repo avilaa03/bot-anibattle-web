@@ -5,7 +5,7 @@ import CartaVisual from '@/components/CartaVisual';
 import { buscarCartaPorNumero, cartasDaMesmaSerie, contarCartas, REVALIDATE } from '@/lib/consultas';
 import { getRaridade, formatarNumero, formatarMoedas } from '@/lib/raridades';
 
-export const revalidate = REVALIDATE;
+export const revalidate = 300;
 
 interface Props {
   params: Promise<{ numero: string }>;

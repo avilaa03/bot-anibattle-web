@@ -7,7 +7,7 @@ import { RARIDADES, ORDEM_RARIDADES } from '@/lib/raridades';
 
 // Revalida a cada 5 min: os números mudam devagar e assim a home é
 // servida do cache, sem bater no Mongo a cada visita.
-export const revalidate = REVALIDATE;
+export const revalidate = 300;
 
 const INVITE = process.env.NEXT_PUBLIC_INVITE_URL || '#';
 
