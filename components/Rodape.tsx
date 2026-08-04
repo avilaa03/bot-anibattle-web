@@ -64,11 +64,11 @@ export default function Rodape() {
             © {new Date().getFullYear()} AniBattle.
             {' • '}
             {/*
-              Caminho de entrada da administração.
-              Fica aqui, discreto, porque o login não serve para mais nada
-              hoje — um botão "Entrar" no topo do site prometia uma área de
-              jogador que não existe. Quem não é admin que clicar aqui vê a
-              tela de "sem permissão", que já explica a situação.
+              Segundo caminho de entrada da administração — o primeiro é o
+              botão "Admin" no cabeçalho. Mantido aqui porque é onde se
+              procura um link de serviço quando o topo está cheio (mobile).
+              Quem não é admin e clicar vê a tela de "sem permissão", que já
+              explica a situação.
             */}
             <Link href="/admin" className="hover:text-texto">Administração</Link>
           </p>

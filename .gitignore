@@ -6,6 +6,7 @@ build/
 .env
 .env.local
 .env*.local
+.claude
 
 .DS_Store
 *.pem
