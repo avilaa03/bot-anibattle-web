@@ -80,6 +80,14 @@ data/
 
 **Filtros ficam na URL.** `?raridade=master&serie=Naruto` sobrevive ao recarregar, pode ser compartilhado e funciona com o botão voltar.
 
+**A página /vip é uma página de vendas — e pode mentir sem quebrar.** Ela promete cooldown menor, daily maior e um número de molduras, tudo lido de `lib/vip.ts`. Se alguém ajustar um plano no bot e esquecer do site, ninguém percebe: nada falha, o site só passa a prometer errado para quem está pagando. Antes de mexer em preço ou vantagem, rode:
+
+```bash
+npm run vip:conferir
+```
+
+Ele compara `lib/vip.ts` com o `vip.js` do bot campo a campo e confere que nenhum plano ganhou campo de combate.
+
 **Três arquivos espelham o bot** e precisam ser atualizados junto se o bot mudar: `lib/raridades.ts` (cores e rótulos), `lib/tipos.ts` (schemas) e as páginas legais (`PRIVACIDADE.md` / `TERMOS.md`).
 
 **Arquivo que chama `getDb()` só pode ser importado por Server Component ou rota de API.** Se um componente com `'use client'` importar um desses — mesmo que só para pegar uma constante do arquivo — o Next tenta empacotar o driver do Mongo para o navegador e a compilação quebra com `Module not found: Can't resolve 'net'`, mensagem que não diz nada sobre a causa real.

@@ -1,0 +1,69 @@
+name: Testes e deploy
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  testes:
+    name: Verificação de tipos
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm ci
+
+      # Só o typecheck, não o `next build`.
+      #
+      # O build de produção executa os Server Components para gerar as
+      # páginas, e isso exige uma MONGODB_URI válida — que não vai (nem
+      # deve) existir num runner do GitHub. O build de verdade acontece na
+      # VPS, onde o .env está.
+      #
+      # O typecheck sozinho já pega o que mais quebra aqui: campo de banco
+      # digitado errado, prop faltando, import de módulo de servidor dentro
+      # de componente de cliente.
+      - name: Conferir tipos
+        run: npx tsc --noEmit
+
+  implantar:
+    name: Publicar na VPS
+    needs: testes
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: producao
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar chave SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H -p "${{ secrets.VPS_PORT || 22 }}" "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Rodar o deploy na VPS
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT || 22 }}
+          DEPLOY_DIR: ${{ secrets.DEPLOY_DIR }}
+        run: |
+          ssh -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" \
+            "DEPLOY_DIR='$DEPLOY_DIR' bash -s" < deploy/implantar.sh
+
+      - name: Resumo
+        if: always()
+        run: |
+          echo "Commit publicado: ${{ github.sha }}"

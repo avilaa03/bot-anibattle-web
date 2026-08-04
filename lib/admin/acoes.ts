@@ -135,6 +135,21 @@ function escaparRegex(texto: string): string {
 function montarCopia(carta: Carta) {
   const marketValue = (carta.overall ?? 0) * 10;
   return {
+    // ⚠️ O `_id` PRECISA estar aqui, e é fácil achar que não.
+    //
+    // O bot usa Mongoose, que gera `_id` sozinho para cada item de array
+    // de subdocumento. Aqui usamos o driver nativo, que NÃO gera — e o
+    // documento entra no banco sem `_id`.
+    //
+    // O estrago aparece longe daqui: a escolha de cartas na batalha, a
+    // mesa de troca e o inventário identificam a cópia por `card._id`
+    // (não por `cardId`). Sem ele, a carta aparece na lista mas o botão
+    // devolve "essa carta não está mais no seu inventário" — foi
+    // exatamente o bug relatado com cartas dadas pelo painel.
+    //
+    // Cartas dadas pelo script `npm run cards:grant` não tinham o
+    // problema porque aquele script passa por Mongoose.
+    _id: new ObjectId(),
     cardId: new ObjectId(),
     originalCardId: carta._id,
     name: carta.name,

@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "vip:conferir": "node scripts/conferirVip.mjs"
   },
   "dependencies": {
     "mongodb": "^6.10.0",

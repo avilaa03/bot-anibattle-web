@@ -24,6 +24,7 @@ export default function Rodape() {
             <li><Link href="/cartas" className="hover:text-texto">Catálogo de cartas</Link></li>
             <li><Link href="/#recursos" className="hover:text-texto">Como funciona</Link></li>
             <li><Link href="/#noticias" className="hover:text-texto">Notícias</Link></li>
+            <li><Link href="/vip" className="hover:text-texto">Planos VIP</Link></li>
           </ul>
         </div>
 
@@ -59,7 +60,18 @@ export default function Rodape() {
             detentores dos direitos das obras retratadas. Nomes e imagens de
             personagens pertencem aos seus respectivos criadores e distribuidoras.
           </p>
-          <p className="mt-2">© {new Date().getFullYear()} AniBattle.</p>
+          <p className="mt-2">
+            © {new Date().getFullYear()} AniBattle.
+            {' • '}
+            {/*
+              Caminho de entrada da administração.
+              Fica aqui, discreto, porque o login não serve para mais nada
+              hoje — um botão "Entrar" no topo do site prometia uma área de
+              jogador que não existe. Quem não é admin que clicar aqui vê a
+              tela de "sem permissão", que já explica a situação.
+            */}
+            <Link href="/admin" className="hover:text-texto">Administração</Link>
+          </p>
         </div>
       </div>
     </footer>

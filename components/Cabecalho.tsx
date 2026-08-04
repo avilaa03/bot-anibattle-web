@@ -5,6 +5,7 @@ const INVITE = process.env.NEXT_PUBLIC_INVITE_URL || '#';
 
 const LINKS = [
   { href: '/cartas', label: 'Cartas' },
+  { href: '/vip', label: 'VIP' },
   { href: '/#recursos', label: 'Recursos' },
   { href: '/#noticias', label: 'Notícias' },
   { href: '/#contato', label: 'Contato' }
@@ -40,27 +41,35 @@ export default async function Cabecalho() {
           ))}
         </nav>
 
+        {/*
+          Não existe mais botão "Entrar" para o público.
+
+          O login só serve para o painel administrativo — não há área de
+          jogador, perfil nem compra pelo site ainda. Um "Entrar" no topo
+          prometia algo que não existe: quem clicava entrava com o Discord
+          e caía numa tela dizendo que não tem permissão.
+
+          Para o admin, o caminho é o link "Administração" no rodapé, e
+          uma vez logado o botão "Painel" aparece aqui.
+
+          Quando existir perfil público de jogador ou compra de VIP pelo
+          site, o "Entrar" volta — aí ele passa a servir para todo mundo.
+        */}
         <div className="flex items-center gap-3">
-          {sessao ? (
+          {sessao && ehAdmin(sessao) && (
             <>
-              {ehAdmin(sessao) && (
-                <Link
-                  href="/admin"
-                  className="hidden text-sm text-textoFraco transition-colors hover:text-texto sm:block"
-                >
-                  Admin
-                </Link>
-              )}
-              <div className="flex items-center gap-2">
+              <Link href="/admin" className="botao-secundario !py-2 !px-4 text-sm">
+                Painel
+              </Link>
+              <div className="hidden items-center gap-2 sm:flex">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={urlAvatar(sessao.id, sessao.avatar)}
                   alt=""
-                  width={32}
-                  height={32}
+                  width={28}
+                  height={28}
                   className="rounded-full"
                 />
-                <span className="hidden text-sm sm:block">{sessao.nome}</span>
               </div>
               <form action="/api/auth/logout" method="post">
                 <button type="submit" className="botao-secundario !py-2 !px-3 text-xs">
@@ -68,21 +77,16 @@ export default async function Cabecalho() {
                 </button>
               </form>
             </>
-          ) : (
-            <>
-              <a href="/api/auth/login" className="botao-secundario !py-2 !px-4 text-sm">
-                Entrar
-              </a>
-              <a
-                href={INVITE}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="botao-primario !py-2 !px-4"
-              >
-                Adicionar ao Discord
-              </a>
-            </>
           )}
+
+          <a
+            href={INVITE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="botao-primario !py-2 !px-4"
+          >
+            Adicionar ao Discord
+          </a>
         </div>
       </div>
     </header>
