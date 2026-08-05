@@ -36,6 +36,17 @@ jobs:
       - name: Conferir tipos
         run: npx tsc --noEmit
 
+      # O typecheck não pega preço errado: `(overall ?? 0) * 10` tem o
+      # tipo certo e o número errado. Foi exatamente assim que o site
+      # passou a anunciar uma Mestra por 950 enquanto o Discord cobrava
+      # 190.500, sem nada quebrar.
+      #
+      # Aqui roda só a varredura da fórmula antiga. A comparação com as
+      # constantes do bot se pula sozinha quando o outro repositório não
+      # está por perto — que é sempre, num runner do GitHub.
+      - name: Conferir a fórmula de valor
+        run: npm run valores:conferir
+
   implantar:
     name: Publicar na VPS
     needs: testes

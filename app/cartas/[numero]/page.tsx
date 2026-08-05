@@ -133,7 +133,7 @@ export default async function PaginaCarta({ params }: Props) {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-textoFraco">Venda rápida</dt>
-                  <dd className="font-bold">🪙 {formatarMoedas(carta.valorMercado / 2)}</dd>
+                  <dd className="font-bold">🪙 {formatarMoedas(carta.valorVenda)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-textoFraco">Raridade</dt>

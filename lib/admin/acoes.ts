@@ -3,6 +3,7 @@ import { getDb } from '@/lib/mongodb';
 import { ErroAdmin, texto, inteiro, idDiscord } from './guarda';
 import { TIERS, calcularExpiracao, type VipDoJogador } from '@/lib/vip';
 import { ORDEM_RARIDADES } from '@/lib/raridades';
+import { valoresDaCarta } from '@/lib/valores';
 import type { Carta } from '@/lib/tipos';
 
 /**
@@ -131,9 +132,18 @@ function escaparRegex(texto: string): string {
  *
  * Espelha `montarCopia` em scripts/grantCards.js, que por sua vez espelha
  * o rollCollect.js. Se um mudar, os três mudam.
+ *
+ * ⚠️ E foi exatamente isso que não aconteceu. Quando a fórmula do preço
+ * passou a depender da raridade, o bot mudou e estes dois ficaram para
+ * trás: o painel continuou entregando Mestra a 950 em vez de 190.500. O
+ * preço fica GRAVADO na cópia, então não era só a tela errada — cada
+ * "dar cartas" criava acervo com a tabela velha, inclusive depois da
+ * migração ter arrumado o resto.
+ *
+ * O `valores.ts` existe para isto: um lugar só, espelhando o do bot.
  */
 function montarCopia(carta: Carta) {
-  const marketValue = (carta.overall ?? 0) * 10;
+  const { marketValue, valueToSell } = valoresDaCarta(carta);
   return {
     // ⚠️ O `_id` PRECISA estar aqui, e é fácil achar que não.
     //
@@ -164,7 +174,7 @@ function montarCopia(carta: Carta) {
     POW: carta.POW,
     obtainedAt: new Date(),
     marketValue,
-    valueToSell: Math.floor(marketValue / 2)
+    valueToSell
   };
 }
 
