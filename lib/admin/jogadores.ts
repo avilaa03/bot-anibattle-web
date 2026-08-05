@@ -5,6 +5,8 @@ import { lerBolsa } from '@/lib/itens';
 import { baseDaCarta, nivelValido, custoEmGemas, chances } from '@/lib/aprimoramento';
 import { resumirTelemetria, type ResumoTelemetria } from '@/lib/telemetria';
 import { PROTECOES } from '@/lib/sorteio';
+import { progresso as progressoDeNivel, maxCargas, cargasDisponiveis, type ProgressoDeNivel } from '@/lib/nivel';
+import { getPerks } from '@/lib/vip';
 import {
   missaoPorChave,
   pontosDeConquistas,
@@ -121,10 +123,28 @@ export interface FichaJogador {
   missoes: MissaoDoJogador[];
   cartasAprimoradas: number;
   rolls: number;
+  // ---- nível (Fase 6) ----
+  nivel: ProgressoDeNivel;
+  /** Até quantos rolls não usados ele acumula (nível + VIP). */
+  tetoDeCargas: number;
+  /** Quantos estão disponíveis agora. */
+  cargasAgora: number;
+  /** Até onde as recompensas já foram pagas. */
+  nivelEntregue: number;
+  rollExtraGuardado: number;
 }
 
 /** Quantas cartas do inventário a ficha carrega. Acima disso a tela trava. */
 const LIMITE_INVENTARIO = 300;
+
+/**
+ * Cooldown padrão do /roll.
+ *
+ * Espelha `ROLL_COOLDOWN_MS` do bot. Se você mudar lá pelo .env, mude
+ * aqui também — senão o painel mostra "cargas disponíveis" com uma conta
+ * diferente da que o jogo pratica.
+ */
+const COOLDOWN_PADRAO_MS = 15 * 60 * 1000;
 
 export async function buscarFicha(id: string): Promise<FichaJogador | null> {
   const db = await getDb();
@@ -188,6 +208,15 @@ export async function buscarFicha(id: string): Promise<FichaJogador | null> {
   const beta = (doc.beta as Record<string, unknown>) || {};
 
   const tierKey = (vip.tier as string) || null;
+
+  // ---- nível e cargas ----
+  //
+  // O cooldown efetivo depende do VIP, então o teto de cargas e quantas
+  // estão disponíveis precisam da mesma conta que o bot faz no /roll.
+  const perks = getPerks(vip);
+  const progressoDoJogador = progressoDeNivel(doc.xp as number);
+  const teto = maxCargas(progressoDoJogador.nivel) + (perks.cargasExtras || 0);
+  const cooldown = Math.round(COOLDOWN_PADRAO_MS * perks.rollCooldownMultiplier);
 
   // ---- bolsa ----
   const bolsa: ItemDaBolsa[] = lerBolsa(doc.bolsa).map((linha) => ({
@@ -311,7 +340,12 @@ export async function buscarFicha(id: string): Promise<FichaJogador | null> {
     // 500 cartas veria "0 aprimoradas" só porque a +12 dele ficou fora do
     // corte de 300.
     cartasAprimoradas: inventarioBruto.filter((c) => nivelValido(c.nivel as number) > 0).length,
-    rolls: Number(stats.rolls ?? 0)
+    rolls: Number(stats.rolls ?? 0),
+    nivel: progressoDoJogador,
+    tetoDeCargas: teto,
+    cargasAgora: cargasDisponiveis(Number(doc.lastRoll) || 0, cooldown, teto),
+    nivelEntregue: Math.max(1, Number(doc.nivelEntregue) || 1),
+    rollExtraGuardado: bolsa.find((i) => i.chave === 'roll_extra')?.quantidade ?? 0
   };
 }
 

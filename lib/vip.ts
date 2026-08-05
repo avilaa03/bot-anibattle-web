@@ -15,6 +15,13 @@ export interface TierVip {
   cor: string;
   /** Multiplicador do cooldown do /roll. 0.9 = 10% mais rápido. */
   rollCooldownMultiplier: number;
+  /**
+   * Cargas de roll a mais que o plano concede.
+   *
+   * Quantidade, nunca sorte: o assinante ACUMULA mais rolls não usados e
+   * continua com exatamente a mesma chance de raridade.
+   */
+  cargasExtras: number;
   /** Multiplicador da recompensa diária. */
   dailyMultiplier: number;
   /** Molduras de carta liberadas. */
@@ -29,25 +36,25 @@ export interface TierVip {
 export const TIERS: Record<string, TierVip> = {
   bronze: {
     key: 'bronze', nome: 'Bronze', emoji: '🥉', precoBRL: 5, ordem: 1, cor: '#CD7F32',
-    rollCooldownMultiplier: 0.90, dailyMultiplier: 1.25,
+    rollCooldownMultiplier: 0.90, cargasExtras: 0, dailyMultiplier: 1.25,
     molduras: ['Bronze'], limiteDesejos: 15,
     podeCorPerfil: true, podeBanner: false, destaqueRanking: false
   },
   prata: {
     key: 'prata', nome: 'Prata', emoji: '🥈', precoBRL: 15, ordem: 2, cor: '#C0C0C0',
-    rollCooldownMultiplier: 0.80, dailyMultiplier: 1.5,
+    rollCooldownMultiplier: 0.80, cargasExtras: 0, dailyMultiplier: 1.5,
     molduras: ['Bronze', 'Prata'], limiteDesejos: 20,
     podeCorPerfil: true, podeBanner: true, destaqueRanking: false
   },
   ouro: {
     key: 'ouro', nome: 'Ouro', emoji: '🥇', precoBRL: 30, ordem: 3, cor: '#FFD700',
-    rollCooldownMultiplier: 0.70, dailyMultiplier: 2,
+    rollCooldownMultiplier: 0.70, cargasExtras: 1, dailyMultiplier: 2,
     molduras: ['Bronze', 'Prata', 'Ouro', 'Sakura'], limiteDesejos: 30,
     podeCorPerfil: true, podeBanner: true, destaqueRanking: true
   },
   master: {
     key: 'master', nome: 'Master', emoji: '🌟', precoBRL: 50, ordem: 4, cor: '#E91E63',
-    rollCooldownMultiplier: 0.60, dailyMultiplier: 3,
+    rollCooldownMultiplier: 0.60, cargasExtras: 1, dailyMultiplier: 3,
     molduras: ['Bronze', 'Prata', 'Ouro', 'Sakura', 'Holográfica', 'Neon'], limiteDesejos: 50,
     podeCorPerfil: true, podeBanner: true, destaqueRanking: true
   }
@@ -83,6 +90,29 @@ export interface VipDoJogador {
   tier?: string | null;
   since?: Date | null;
   expiresAt?: Date | null;
+}
+
+/**
+ * As vantagens efetivas de um jogador.
+ *
+ * Espelha `getPerks` do bot. Recebe o objeto `vip` do documento, não o
+ * usuário inteiro — o painel só precisa dessa parte.
+ */
+export function getPerks(vip: VipDoJogador | null | undefined) {
+  const ativo = vipAtivo(vip);
+  const tier = ativo && vip?.tier ? TIERS[vip.tier] : null;
+
+  if (!tier) {
+    return { vip: false, tier: null, rollCooldownMultiplier: 1, cargasExtras: 0, dailyMultiplier: 1 };
+  }
+
+  return {
+    vip: true,
+    tier,
+    rollCooldownMultiplier: tier.rollCooldownMultiplier,
+    cargasExtras: tier.cargasExtras || 0,
+    dailyMultiplier: tier.dailyMultiplier
+  };
 }
 
 export function vipAtivo(vip: VipDoJogador | null | undefined): boolean {

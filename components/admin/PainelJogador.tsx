@@ -29,7 +29,7 @@ const ITENS_DISPONIVEIS = todosOsItens();
 // Espelha `ehPerigosa` em lib/admin/acoes.ts.
 const SEMPRE_PERIGOSAS = new Set([
   'remover_cartas', 'remover_vip', 'limpar_pokedex', 'banir', 'resetar',
-  'ajustar_nivel', 'marcar_staff'
+  'ajustar_nivel', 'marcar_staff', 'ajustar_xp'
 ]);
 const LIMITE_CARTAS = 25;
 const LIMITE_MOEDAS = 100_000;
@@ -81,6 +81,8 @@ export default function PainelJogador({ ficha }: { ficha: FichaJogador }) {
 
   const [itemEscolhido, setItemEscolhido] = useState('gema');
   const [deltaItem, setDeltaItem] = useState(0);
+
+  const [deltaXp, setDeltaXp] = useState(0);
 
   // Qual carta do inventário está com o editor de nível aberto.
   const [editandoNivel, setEditandoNivel] = useState<string | null>(null);
@@ -337,6 +339,51 @@ export default function PainelJogador({ ficha }: { ficha: FichaJogador }) {
             ))}
           </div>
         )}
+      </section>
+
+      {/* ---------- Nível ---------- */}
+      <section className="cartao p-5">
+        <h3 className="font-semibold">⭐ Nível e XP</h3>
+        <p className="mt-1 text-sm text-textoFraco">
+          Ajusta o <strong className="text-texto">XP</strong>, não o nível: o nível é derivado dele.
+          Gravar um nível direto criaria dois campos que precisam concordar, e quando discordassem não
+          haveria como saber qual está certo.
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-end gap-3">
+          <label className="text-sm">
+            <span className="mb-1 block text-xs text-textoFraco">XP (negativo para tirar)</span>
+            <input
+              type="number"
+              value={deltaXp}
+              onChange={(e) => setDeltaXp(Number(e.target.value))}
+              className="campo w-44"
+            />
+          </label>
+
+          <button
+            type="button"
+            disabled={ocupado || deltaXp === 0}
+            onClick={() => acionar(
+              'ajustar_xp',
+              { delta: deltaXp },
+              `${deltaXp > 0 ? 'Dar' : 'Tirar'} ${Math.abs(deltaXp)} XP`,
+              deltaXp > 0
+                ? 'Se ele subir de nível, o bot entrega as recompensas na próxima ação que der XP.'
+                : 'Reduzir XP faz a marca de entrega recuar junto, para ele não perder as recompensas '
+                  + 'caso volte a subir.'
+            )}
+            className="botao-primario disabled:opacity-40"
+          >
+            Aplicar
+          </button>
+
+          <div className="text-sm text-textoFraco">
+            Hoje: nível <strong className="text-texto">{ficha.nivel.nivel}</strong> •{' '}
+            {ficha.nivel.xp.toLocaleString('pt-BR')} XP • acumula{' '}
+            <strong className="text-texto">{ficha.tetoDeCargas}</strong> roll(s)
+          </div>
+        </div>
       </section>
 
       {/* ---------- Selos ---------- */}

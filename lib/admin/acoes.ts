@@ -4,6 +4,7 @@ import { ErroAdmin, texto, inteiro, idDiscord } from './guarda';
 import { TIERS, calcularExpiracao, type VipDoJogador } from '@/lib/vip';
 import { ORDEM_RARIDADES } from '@/lib/raridades';
 import { valoresDaCarta } from '@/lib/valores';
+import { nivelDoXp } from '@/lib/nivel';
 import { existe as existeItem, getItem } from '@/lib/itens';
 import { cartaNoNivel } from '@/lib/aprimoramento';
 import type { Carta } from '@/lib/tipos';
@@ -112,6 +113,11 @@ export const ACOES: Record<string, DefinicaoAcao> = {
     rotulo: 'Marcar/desmarcar staff',
     perigosa: true,
     descricao: 'Liga ou desliga o selo de equipe.'
+  },
+  ajustar_xp: {
+    rotulo: 'Ajustar XP',
+    perigosa: true,
+    descricao: 'Soma ou subtrai XP. O nível é recalculado, e recompensas de níveis novos são entregues pelo bot.'
   }
 };
 
@@ -817,6 +823,61 @@ async function marcarStaff(alvo: string, params: Record<string, unknown>): Promi
   };
 }
 
+// ---------- Nível ----------
+
+/**
+ * Soma ou subtrai XP.
+ *
+ * ## Por que mexer em XP e não em nível
+ *
+ * `xp` é a única fonte: o nível sai dele. Gravar um nível direto criaria
+ * dois campos que precisam concordar, e quando discordassem não haveria
+ * como saber qual está certo.
+ *
+ * ## A marca de entrega recua junto quando o XP cai
+ *
+ * `nivelEntregue` guarda até onde as recompensas já foram PAGAS. Se o XP
+ * for reduzido e a marca ficasse onde estava, o jogador que voltasse a
+ * subir não receberia de novo — perderia as recompensas em silêncio.
+ *
+ * Subindo o XP a marca NÃO é tocada: quem entrega é o bot, na próxima
+ * ação que der XP, e é assim que ele sabe o que falta pagar.
+ */
+async function ajustarXp(alvo: string, params: Record<string, unknown>): Promise<ResultadoAcao> {
+  const db = await getDb();
+  const jogador = await exigirJogador(alvo);
+
+  const delta = inteiro(params.delta, 'delta', { min: -10_000_000, max: 10_000_000 });
+  if (delta === 0) throw new ErroAdmin('Informe um valor diferente de zero.');
+
+  const antes = Math.max(0, Number(jogador.xp) || 0);
+  const depois = Math.max(0, antes + delta);
+
+  const nivelAntes = nivelDoXp(antes);
+  const nivelDepois = nivelDoXp(depois);
+
+  const atualizacao: Record<string, unknown> = { xp: depois };
+
+  if (nivelDepois < nivelAntes) {
+    atualizacao.nivelEntregue = Math.min(
+      Math.max(1, Number(jogador.nivelEntregue) || 1),
+      nivelDepois
+    );
+  }
+
+  await db.collection(COL_JOGADORES).updateOne({ id: alvo }, { $set: atualizacao });
+
+  const mudouNivel = nivelDepois !== nivelAntes;
+  return {
+    resumo:
+      `XP: ${antes.toLocaleString('pt-BR')} → ${depois.toLocaleString('pt-BR')}`
+      + (mudouNivel ? ` • nível ${nivelAntes} → ${nivelDepois}` : ` • nível ${nivelAntes} (sem mudança)`)
+      + (nivelDepois > nivelAntes ? '. As recompensas são entregues na próxima ação que der XP.' : '.'),
+    antes: { xp: antes, nivelEntregue: Number(jogador.nivelEntregue) || 1 },
+    detalhes: { delta, nivelAntes, nivelDepois }
+  };
+}
+
 // ---------- Despachante ----------
 
 export async function executarAcaoJogador(opcoes: {
@@ -843,6 +904,7 @@ export async function executarAcaoJogador(opcoes: {
     case 'ajustar_nivel': return ajustarNivel(alvo, params);
     case 'marcar_beta': return marcarBeta(alvo, params);
     case 'marcar_staff': return marcarStaff(alvo, params);
+    case 'ajustar_xp': return ajustarXp(alvo, params);
     default:
       throw new ErroAdmin(`Ação desconhecida: "${acao}".`);
   }
