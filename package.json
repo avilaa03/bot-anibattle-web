@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "vip:conferir": "node scripts/conferirVip.mjs"
+    "vip:conferir": "node scripts/conferirVip.mjs",
+    "valores:conferir": "node scripts/conferirValores.mjs"
   },
   "dependencies": {
     "mongodb": "^6.10.0",

@@ -1,4 +1,5 @@
 import type { ObjectId } from 'mongodb';
+import { valoresDaCarta } from './valores';
 
 /**
  * Tipos das coleções do bot.
@@ -39,9 +40,13 @@ export interface CartaSimples {
   LIF: number;
   POW: number;
   valorMercado: number;
+  /** Venda rápida. Vem pronto porque a fatia depende da raridade — quem
+   *  consome não tem como derivar do valor de mercado. */
+  valorVenda: number;
 }
 
 export function paraCartaSimples(carta: Carta): CartaSimples {
+  const preco = valoresDaCarta(carta);
   return {
     id: String(carta._id),
     numero: carta.numero ?? null,
@@ -53,7 +58,8 @@ export function paraCartaSimples(carta: Carta): CartaSimples {
     ATA: carta.ATA ?? 0,
     LIF: carta.LIF ?? 0,
     POW: carta.POW ?? 0,
-    valorMercado: (carta.overall ?? 0) * 10
+    valorMercado: preco.marketValue,
+    valorVenda: preco.valueToSell
   };
 }
 
