@@ -60,10 +60,33 @@ export const RARIDADES: Record<string, MetaRaridade> = {
     corTexto: '#FFEDA1',
     gradiente: ['#8A7410', '#332B06'],
     peso: 4
+  },
+  event: {
+    chave: 'event',
+    label: 'Evento',
+    emoji: '🎗️',
+    cor: '#00E5A0',
+    corTexto: '#9CFFE0',
+    gradiente: ['#0B6A50', '#062B22'],
+    // Acima da Mestra: é a mais exclusiva do jogo — não sai de roll nem
+    // de caixa, só de distribuição direta.
+    peso: 5
   }
 };
 
+/**
+ * As raridades SORTEÁVEIS.
+ *
+ * `event` fica de fora de propósito: ela nunca sai de um sorteio, então
+ * não deve aparecer em filtro de catálogo público nem em "dar carta
+ * aleatória de uma raridade" no painel.
+ */
 export const ORDEM_RARIDADES = ['common', 'rare', 'ultra rare', 'legendary', 'master'];
+
+/** Todas, incluindo Evento. Para criar carta e para a Pokédex de eventos. */
+export const TODAS_AS_RARIDADES = [...ORDEM_RARIDADES, 'event'];
+
+export const RARIDADE_EVENTO = 'event';
 
 export function getRaridade(chave?: string | null): MetaRaridade {
   const k = String(chave || 'common').toLowerCase().trim();

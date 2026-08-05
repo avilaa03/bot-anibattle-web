@@ -36,7 +36,9 @@ export const VALOR_BASE: Record<string, number> = {
   rare: 350,
   'ultra rare': 2000,
   legendary: 18000,
-  master: 150000
+  master: 150000,
+  // Acima da Mestra: escassez permanente é o que o mercado precifica.
+  event: 400000
 };
 
 /** Quanto da venda rápida o jogador recebe. Cai conforme a raridade sobe. */
@@ -45,7 +47,8 @@ export const QUICKSELL_PCT: Record<string, number> = {
   rare: 0.45,
   'ultra rare': 0.35,
   legendary: 0.25,
-  master: 0.15
+  master: 0.15,
+  event: 0.1
 };
 
 // O overall desloca o valor entre 70% e 130% da base.

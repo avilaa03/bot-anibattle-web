@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/mongodb';
 import { ErroAdmin, texto, inteiro } from './guarda';
-import { ORDEM_RARIDADES } from '@/lib/raridades';
+import { ORDEM_RARIDADES, TODAS_AS_RARIDADES, RARIDADE_EVENTO } from '@/lib/raridades';
 import type { Carta } from '@/lib/tipos';
 
 /**
@@ -33,7 +33,10 @@ export const FAIXAS: Record<string, { overall: [number, number]; ATA: [number, n
   rare: { overall: [50, 65], ATA: [45, 65], LIF: [90, 130], POW: [45, 65] },
   'ultra rare': { overall: [62, 78], ATA: [60, 80], LIF: [120, 160], POW: [60, 80] },
   legendary: { overall: [75, 90], ATA: [75, 95], LIF: [150, 190], POW: [75, 95] },
-  master: { overall: [88, 99], ATA: [90, 99], LIF: [180, 220], POW: [90, 99] }
+  master: { overall: [88, 99], ATA: [90, 99], LIF: [180, 220], POW: [90, 99] },
+  // Faixa larga de propósito: carta de evento é feita à mão para uma
+  // ocasião, e não precisa caber na escada das outras.
+  event: { overall: [50, 110], ATA: [40, 120], LIF: [80, 260], POW: [40, 120] }
 };
 
 /** Maior número já usado. Cartas removidas não devolvem o número. */
@@ -69,6 +72,10 @@ export interface EntradaCarta {
   ATA: unknown;
   LIF: unknown;
   POW: unknown;
+  /** Sai em sorteio? Carta de evento entra com false. */
+  distribuivel?: unknown;
+  /** Pode ser vendida, trocada ou transferida? */
+  comercializavel?: unknown;
 }
 
 export async function salvarCarta(entrada: EntradaCarta): Promise<{
@@ -81,9 +88,29 @@ export async function salvarCarta(entrada: EntradaCarta): Promise<{
   const colecao = db.collection<Carta>(COL_CARTAS);
 
   const rarity = texto(entrada.rarity, 'raridade', { max: 20 }).toLowerCase();
-  if (!ORDEM_RARIDADES.includes(rarity)) {
-    throw new ErroAdmin(`Raridade "${rarity}" não existe. Use: ${ORDEM_RARIDADES.join(', ')}.`);
+  if (!TODAS_AS_RARIDADES.includes(rarity)) {
+    throw new ErroAdmin(`Raridade "${rarity}" não existe. Use: ${TODAS_AS_RARIDADES.join(', ')}.`);
   }
+
+  const ehEvento = rarity === RARIDADE_EVENTO;
+
+  /**
+   * Carta de evento NUNCA é distribuível.
+   *
+   * O bot já a excluiria pelo outro caminho (a raridade `event` não
+   * aparece em nenhuma tabela de sorteio), mas deixar o painel gravar
+   * `true` criaria um documento que se contradiz — e a próxima pessoa a
+   * ler o banco não saberia qual das duas regras vale.
+   *
+   * Para as outras raridades o padrão é distribuível, e desmarcar serve
+   * para recolher uma carta de rotação sem apagá-la.
+   */
+  const distribuivel = ehEvento ? false : entrada.distribuivel !== false;
+
+  // Negociável por padrão, inclusive nas de evento: vincular é escolha,
+  // e uma carta de evento negociável é o que cria a história de "aquele
+  // cara vendeu a carta da beta".
+  const comercializavel = entrada.comercializavel !== false;
 
   const dados = {
     name: texto(entrada.name, 'nome', { max: 120 }),
@@ -95,7 +122,10 @@ export async function salvarCarta(entrada: EntradaCarta): Promise<{
     overall: inteiro(entrada.overall, 'overall', { min: 1, max: 100, padrao: 50 }),
     ATA: inteiro(entrada.ATA, 'ATA', { min: 1, max: 300, padrao: 50 }),
     LIF: inteiro(entrada.LIF, 'LIF', { min: 1, max: 999, padrao: 100 }),
-    POW: inteiro(entrada.POW, 'POW', { min: 1, max: 300, padrao: 50 })
+    POW: inteiro(entrada.POW, 'POW', { min: 1, max: 300, padrao: 50 }),
+    origem: ehEvento ? 'evento' : 'roll',
+    distribuivel,
+    comercializavel
   };
 
   // Avisos, não erros: uma carta de evento pode sair da faixa de propósito.
