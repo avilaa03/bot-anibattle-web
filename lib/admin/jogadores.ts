@@ -26,7 +26,7 @@ const COL_JOGADORES = 'users';
 const COL_CARTAS = 'new-cards';
 
 export interface CartaDoInventario {
-  /** `_id` da cópia — é por ele que batalha, troca e mercado a encontram. */
+  /** `cardId` da cópia — o identificador que as ações do painel usam. */
   inventoryId: string;
   cartaId: string | null;
   nome: string;
@@ -145,11 +145,15 @@ export async function buscarFicha(id: string): Promise<FichaJogador | null> {
       const p = chances(raridade, nivel);
 
       return {
-        // O `_id` é o que a batalha e a troca usam para achar a cópia.
-        // `cardId` é outro campo e não serve para identificar a carta nas
-        // ações do painel — usar o errado aqui foi a origem do bug de
-        // "essa carta não está mais no seu inventário".
-        inventoryId: String(c._id ?? ''),
+        // `cardId`, não `_id`.
+        //
+        // Os dois são únicos por cópia (o bot gera um `cardId` novo a cada
+        // roll, e o Mongoose gera o `_id`), mas `cardId` é o mais seguro
+        // aqui por dois motivos: é o que as ações do painel já usam, e ele
+        // está presente até nas cartas antigas dadas pelo painel — que por
+        // um tempo entraram no banco SEM `_id`, porque o driver nativo não
+        // gera um para subdocumento.
+        inventoryId: String(c.cardId ?? ''),
         cartaId: c.originalCardId ? String(c.originalCardId) : null,
         nome: String(c.name ?? '—'),
         serie: String(c.series ?? '—'),
