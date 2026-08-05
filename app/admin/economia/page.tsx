@@ -1,4 +1,5 @@
 import { carregarAnalytics, SEM_DADO } from '@/lib/admin/analytics';
+import { fluxoDeMoeda } from '@/lib/admin/transacoes';
 import { listarConfiguracao, projetarMestras, tabelaEmVigor } from '@/lib/admin/configuracao';
 import { getRaridade } from '@/lib/raridades';
 
@@ -35,9 +36,10 @@ function Barra({ valor, maximo, cor = 'bg-indigo-500' }: { valor: number; maximo
 }
 
 export default async function PaginaEconomia() {
-  const [dados, config] = await Promise.all([
+  const [dados, config, fluxo] = await Promise.all([
     carregarAnalytics(),
-    Promise.resolve(listarConfiguracao())
+    Promise.resolve(listarConfiguracao()),
+    fluxoDeMoeda(7)
   ]);
 
   const { economia, raridades, mercado, itens, aprimoramento, protecoes } = dados;
@@ -86,6 +88,90 @@ export default async function PaginaEconomia() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ---------- Fluxo de moeda ---------- */}
+      <section className="cartao p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-semibold">🔁 Fluxo de moeda (7 dias)</h3>
+          <span className="text-xs text-textoFraco">{nf.format(fluxo.totalLinhas)} movimento(s)</span>
+        </div>
+        <p className="mt-1 text-sm text-textoFraco">
+          A pergunta que o livro-razão existe para responder:{' '}
+          <strong className="text-texto">os sinks estão dando conta?</strong> Enquanto o líquido
+          ficar positivo mês após mês, a moeda em circulação cresce e os preços do mercado sobem
+          junto.
+        </p>
+
+        {!fluxo.temDados ? (
+          <p className="mt-4 rounded-lg border border-borda bg-superficie2 p-3 text-sm text-textoFraco">
+            Nenhum movimento nos últimos {fluxo.dias} dias. O livro-razão grava a partir do momento
+            em que entrou no ar — se o deploy foi agora, é normal.
+          </p>
+        ) : (
+          <>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <div>
+                <div className="text-xl font-bold text-emerald-400">+{moeda(fluxo.entrou)}</div>
+                <div className="text-xs text-textoFraco">criada (torneiras)</div>
+              </div>
+              <div>
+                <div className="text-xl font-bold text-red-400">−{moeda(fluxo.saiu)}</div>
+                <div className="text-xs text-textoFraco">destruída (sinks)</div>
+              </div>
+              <div>
+                <div
+                  className={`text-xl font-bold ${fluxo.liquido > 0 ? 'text-amber-400' : 'text-emerald-400'}`}
+                >
+                  {fluxo.liquido > 0 ? '+' : ''}
+                  {moeda(fluxo.liquido)}
+                </div>
+                <div className="text-xs text-textoFraco">
+                  {fluxo.liquido > 0 ? 'inflando' : 'segurando'}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 overflow-x-auto rounded-lg border border-borda">
+              <table className="w-full text-sm">
+                <thead className="bg-superficie2 text-left text-xs text-textoFraco">
+                  <tr>
+                    <th className="px-3 py-2">Tipo</th>
+                    <th className="px-3 py-2 text-right">Movimentos</th>
+                    <th className="px-3 py-2 text-right">Jogadores</th>
+                    <th className="px-3 py-2 text-right">Moeda</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-borda">
+                  {fluxo.linhas.map((l) => (
+                    <tr key={l.tipo}>
+                      <td className="px-3 py-2">
+                        {l.emoji} {l.rotulo}
+                      </td>
+                      <td className="px-3 py-2 text-right">{nf.format(l.linhas)}</td>
+                      <td className="px-3 py-2 text-right text-textoFraco">
+                        {nf.format(l.jogadores)}
+                      </td>
+                      <td
+                        className={`px-3 py-2 text-right ${
+                          l.moeda > 0 ? 'text-emerald-400' : l.moeda < 0 ? 'text-red-400' : 'text-textoFraco'
+                        }`}
+                      >
+                        {l.moeda === 0 ? SEM_DADO : `${l.moeda > 0 ? '+' : '−'}${moeda(Math.abs(l.moeda))}`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="mt-3 text-xs text-textoFraco">
+              O desmanche aparece com {SEM_DADO} de propósito: a carta vira item e{' '}
+              <strong className="text-texto">nenhuma moeda é criada</strong>. Cada desmanche é uma
+              venda rápida que deixou de imprimir dinheiro.
+            </p>
+          </>
+        )}
       </section>
 
       {/* ---------- Drops por raridade ---------- */}

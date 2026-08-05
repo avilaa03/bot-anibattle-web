@@ -3,6 +3,8 @@ import { buscarFicha } from '@/lib/admin/jogadores';
 import { ultimasAcoesDoAlvo } from '@/lib/admin/auditoria';
 import PainelJogador from '@/components/admin/PainelJogador';
 import DiagnosticoJogador from '@/components/admin/DiagnosticoJogador';
+import ExtratoJogador from '@/components/admin/ExtratoJogador';
+import { extratoDoJogador } from '@/lib/admin/transacoes';
 import { formatarMoedas } from '@/lib/raridades';
 
 export const dynamic = 'force-dynamic';
@@ -36,7 +38,12 @@ export default async function FichaDoJogador({ params }: { params: Promise<{ id:
     );
   }
 
-  const historico = await ultimasAcoesDoAlvo(ficha.id, 8);
+  // As duas consultas são independentes: em paralelo o tempo da página é o
+  // da mais lenta, não a soma.
+  const [historico, extrato] = await Promise.all([
+    ultimasAcoesDoAlvo(ficha.id, 8),
+    extratoDoJogador(ficha.id, 40)
+  ]);
   const totalPartidas = ficha.vitorias + ficha.derrotas;
   const aproveitamento = totalPartidas > 0 ? (ficha.vitorias / totalPartidas) * 100 : 0;
 
@@ -126,6 +133,8 @@ export default async function FichaDoJogador({ params }: { params: Promise<{ id:
       </div>
 
       <DiagnosticoJogador ficha={ficha} />
+
+      <ExtratoJogador linhas={extrato} />
 
       <PainelJogador ficha={ficha} />
 
