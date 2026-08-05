@@ -13,6 +13,7 @@ const MENU = [
   { href: '/admin', label: 'Visão geral' },
   { href: '/admin/jogadores', label: 'Jogadores' },
   { href: '/admin/cartas', label: 'Cartas' },
+  { href: '/admin/economia', label: 'Economia' },
   { href: '/admin/noticias', label: 'Notícias' },
   { href: '/admin/sistema', label: 'Sistema' },
   { href: '/admin/auditoria', label: 'Auditoria' }
