@@ -4,6 +4,8 @@ import { ErroAdmin, texto, inteiro, idDiscord } from './guarda';
 import { TIERS, calcularExpiracao, type VipDoJogador } from '@/lib/vip';
 import { ORDEM_RARIDADES } from '@/lib/raridades';
 import { valoresDaCarta } from '@/lib/valores';
+import { existe as existeItem, getItem } from '@/lib/itens';
+import { cartaNoNivel } from '@/lib/aprimoramento';
 import type { Carta } from '@/lib/tipos';
 
 /**
@@ -90,6 +92,26 @@ export const ACOES: Record<string, DefinicaoAcao> = {
     rotulo: 'Resetar a conta',
     perigosa: true,
     descricao: 'Apaga inventário, moedas, Pokédex, troféus e estatísticas. VIP pago é preservado.'
+  },
+  ajustar_itens: {
+    rotulo: 'Dar ou tirar itens',
+    perigosa: false,
+    descricao: 'Soma ou subtrai gemas e pergaminhos da bolsa. Nunca deixa a quantidade negativa.'
+  },
+  ajustar_nivel: {
+    rotulo: 'Ajustar nível da carta',
+    perigosa: true,
+    descricao: 'Muda o nível de aprimoramento de UMA carta e recalcula atributos e preço a partir dos valores naturais.'
+  },
+  marcar_beta: {
+    rotulo: 'Marcar/desmarcar beta',
+    perigosa: false,
+    descricao: 'Liga ou desliga o selo de participante da beta.'
+  },
+  marcar_staff: {
+    rotulo: 'Marcar/desmarcar staff',
+    perigosa: true,
+    descricao: 'Liga ou desliga o selo de equipe.'
   }
 };
 
@@ -105,6 +127,10 @@ export function ehPerigosa(acao: string, params: Record<string, unknown>): boole
   // uma operação destrutiva, porque infla a economia do mesmo jeito.
   if (acao === 'dar_cartas' && Number(params.quantidade) > LIMITE_CARTAS_SEM_CONFIRMAR) return true;
   if (acao === 'ajustar_moedas' && Math.abs(Number(params.delta)) > 100_000) return true;
+
+  // Uma gema é rotina; mil gemas é o mesmo que dar dinheiro, porque gema
+  // tem preço na loja. O limite acompanha o valor, não a quantidade.
+  if (acao === 'ajustar_itens' && Math.abs(Number(params.delta)) > 500) return true;
 
   return false;
 }
@@ -595,6 +621,195 @@ async function resetar(alvo: string): Promise<ResultadoAcao> {
   };
 }
 
+// ---------- Itens da bolsa ----------
+
+/**
+ * Soma ou subtrai um item da bolsa.
+ *
+ * ## A escrita é atômica, e isso não é preciosismo
+ *
+ * O filtro carrega o `$gte` quando o delta é negativo, então o Mongo só
+ * aplica se ainda houver saldo no instante EXATO da escrita. Ler antes e
+ * conferir no Node deixa uma janela: dois pedidos simultâneos leriam "10
+ * gemas" e os dois tirariam 10, deixando -10.
+ *
+ * É a mesma regra que o `/loja` do bot segue (ver `utils/bolsa.js`).
+ *
+ * ## Item não vira moeda
+ *
+ * Dar gema é dar poder de aprimoramento, não dinheiro. Por isso esta ação
+ * NÃO mexe em saldo e não existe "converter gema em moeda" — com caminho
+ * de volta, a diferença entre comprar e converter vira renda infinita.
+ */
+async function ajustarItens(alvo: string, params: Record<string, unknown>): Promise<ResultadoAcao> {
+  const db = await getDb();
+  const jogador = await exigirJogador(alvo);
+
+  const chave = texto(params.item, 'item', { max: 40 }).toLowerCase();
+  if (!existeItem(chave)) {
+    throw new ErroAdmin(`Item "${chave}" não existe no catálogo. Use um dos itens da bolsa.`);
+  }
+
+  const delta = inteiro(params.delta, 'delta', { min: -100_000, max: 100_000 });
+  if (delta === 0) throw new ErroAdmin('Informe uma quantidade diferente de zero.');
+
+  const item = getItem(chave)!;
+  const campo = `bolsa.${chave}`;
+  const bolsaAtual = (jogador.bolsa as Record<string, unknown>) || {};
+  const antes = Number(bolsaAtual[chave] ?? 0);
+
+  const filtro: Record<string, unknown> = { id: alvo };
+  if (delta < 0) filtro[campo] = { $gte: Math.abs(delta) };
+
+  const resultado = await db.collection(COL_JOGADORES).updateOne(filtro, { $inc: { [campo]: delta } });
+
+  if (resultado.matchedCount === 0) {
+    throw new ErroAdmin(
+      `${jogador.id} tem ${antes} ${item.nome}, e você tentou tirar ${Math.abs(delta)}. `
+      + 'A bolsa nunca fica negativa.'
+    );
+  }
+
+  const verbo = delta > 0 ? 'Adicionou' : 'Removeu';
+  return {
+    resumo: `${verbo} ${Math.abs(delta)} ${item.emoji} ${item.nome} (de ${antes} para ${antes + delta}).`,
+    antes: { [chave]: antes },
+    detalhes: { item: chave, delta }
+  };
+}
+
+// ---------- Aprimoramento ----------
+
+/**
+ * Ajusta o nível de UMA carta do inventário.
+ *
+ * ## Por que o painel edita nível, e não atributo
+ *
+ * O bot recalcula ATA/LIF/POW **sempre a partir dos valores naturais**
+ * (`base`), nunca do valor já aprimorado. Se o painel deixasse editar
+ * `overall` direto, a carta ficaria com atributos que não correspondem a
+ * `base + nivel` — e o estrago só apareceria no `/aprimorar` SEGUINTE,
+ * quando o bot recalculasse tudo e os números do jogador mudassem sozinhos.
+ *
+ * Mexer no nível e deixar `cartaNoNivel()` derivar o resto é a única forma
+ * de a carta continuar coerente. Por isso esta ação também GRAVA `base`
+ * quando ela não existe: carta anterior ao aprimoramento não tem o campo,
+ * e sem ele o primeiro ajuste perderia os valores naturais para sempre.
+ */
+async function ajustarNivel(alvo: string, params: Record<string, unknown>): Promise<ResultadoAcao> {
+  const db = await getDb();
+  const jogador = await exigirJogador(alvo);
+
+  const inventarioId = texto(params.inventarioId, 'inventarioId', { max: 32 });
+  if (!ObjectId.isValid(inventarioId)) {
+    throw new ErroAdmin(`"${inventarioId}" não é um ID de carta válido.`);
+  }
+
+  const novoNivel = inteiro(params.nivel, 'nivel', { min: 0, max: 100 });
+
+  const inventario = (jogador.inventory as Record<string, unknown>[]) || [];
+  const indice = inventario.findIndex((c) => String(c._id) === inventarioId);
+  if (indice < 0) {
+    throw new ErroAdmin('Essa carta não está no inventário desse jogador.', 404);
+  }
+
+  const carta = inventario[indice];
+  const nivelAntes = Number(carta.nivel ?? 0);
+  const calculada = cartaNoNivel(carta, novoNivel);
+
+  await db.collection(COL_JOGADORES).updateOne(
+    { id: alvo, 'inventory._id': new ObjectId(inventarioId) },
+    {
+      $set: {
+        'inventory.$.nivel': calculada.nivel,
+        'inventory.$.overall': calculada.overall,
+        'inventory.$.ATA': calculada.ATA,
+        'inventory.$.LIF': calculada.LIF,
+        'inventory.$.POW': calculada.POW,
+        'inventory.$.marketValue': calculada.marketValue,
+        'inventory.$.valueToSell': calculada.valueToSell,
+        // Grava os naturais se a carta ainda não os tinha. Sem isto, o
+        // primeiro ajuste passaria a tratar o valor JÁ aprimorado como
+        // natural, e a carta nunca mais voltaria ao overall de origem.
+        'inventory.$.base': calculada.base
+      }
+    }
+  );
+
+  return {
+    resumo:
+      `${String(carta.name ?? 'Carta')}: nível ${nivelAntes} → ${calculada.nivel} `
+      + `(overall ${Number(carta.overall ?? 0)} → ${calculada.overall}).`,
+    antes: {
+      nivel: nivelAntes,
+      overall: Number(carta.overall ?? 0),
+      ATA: Number(carta.ATA ?? 0),
+      LIF: Number(carta.LIF ?? 0),
+      POW: Number(carta.POW ?? 0),
+      marketValue: Number(carta.marketValue ?? 0),
+      valueToSell: Number(carta.valueToSell ?? 0),
+      base: carta.base ?? null
+    },
+    detalhes: { inventarioId, nivel: novoNivel }
+  };
+}
+
+// ---------- Selos ----------
+
+async function marcarBeta(alvo: string, params: Record<string, unknown>): Promise<ResultadoAcao> {
+  const db = await getDb();
+  const jogador = await exigirJogador(alvo);
+
+  const ligar = params.ligar !== false;
+  const beta = (jogador.beta as Record<string, unknown>) || {};
+  const antes = Boolean(beta.participou);
+
+  if (antes === ligar) {
+    throw new ErroAdmin(`O selo de beta já está ${ligar ? 'ligado' : 'desligado'} para esse jogador.`);
+  }
+
+  await db.collection(COL_JOGADORES).updateOne(
+    { id: alvo },
+    ligar
+      ? {
+        $set: {
+          'beta.participou': true,
+          'beta.marcadoEm': new Date(),
+          // Fotografia auditável: daqui a um ano, é o que explica por que
+          // esse jogador recebeu a carta da beta.
+          'beta.rollsNaEpoca': Number((jogador.stats as Record<string, unknown>)?.rolls ?? 0)
+        }
+      }
+      : { $set: { 'beta.participou': false } }
+  );
+
+  return {
+    resumo: ligar ? 'Marcado como participante da beta.' : 'Selo de beta removido.',
+    antes: { participou: antes },
+    detalhes: { ligar }
+  };
+}
+
+async function marcarStaff(alvo: string, params: Record<string, unknown>): Promise<ResultadoAcao> {
+  const db = await getDb();
+  const jogador = await exigirJogador(alvo);
+
+  const ligar = params.ligar !== false;
+  const antes = Boolean(jogador.staff);
+
+  if (antes === ligar) {
+    throw new ErroAdmin(`O selo de staff já está ${ligar ? 'ligado' : 'desligado'} para esse jogador.`);
+  }
+
+  await db.collection(COL_JOGADORES).updateOne({ id: alvo }, { $set: { staff: ligar } });
+
+  return {
+    resumo: ligar ? 'Marcado como staff.' : 'Selo de staff removido.',
+    antes: { staff: antes },
+    detalhes: { ligar }
+  };
+}
+
 // ---------- Despachante ----------
 
 export async function executarAcaoJogador(opcoes: {
@@ -617,6 +832,10 @@ export async function executarAcaoJogador(opcoes: {
     case 'banir': return banir(alvo, params, motivo, adminId);
     case 'desbanir': return desbanir(alvo);
     case 'resetar': return resetar(alvo);
+    case 'ajustar_itens': return ajustarItens(alvo, params);
+    case 'ajustar_nivel': return ajustarNivel(alvo, params);
+    case 'marcar_beta': return marcarBeta(alvo, params);
+    case 'marcar_staff': return marcarStaff(alvo, params);
     default:
       throw new ErroAdmin(`Ação desconhecida: "${acao}".`);
   }

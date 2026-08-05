@@ -1,6 +1,17 @@
 import { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/mongodb';
 import { vipAtivo, TIERS } from '@/lib/vip';
+import { lerBolsa } from '@/lib/itens';
+import { baseDaCarta, nivelValido, custoEmGemas, chances } from '@/lib/aprimoramento';
+import { resumirTelemetria, type ResumoTelemetria } from '@/lib/telemetria';
+import { PROTECOES } from '@/lib/sorteio';
+import {
+  missaoPorChave,
+  pontosDeConquistas,
+  nivelDeConquistas,
+  CONQUISTAS,
+  type Conquista
+} from '@/lib/conquistas';
 
 /**
  * Leitura da ficha de um jogador para o painel.
@@ -15,6 +26,7 @@ const COL_JOGADORES = 'users';
 const COL_CARTAS = 'new-cards';
 
 export interface CartaDoInventario {
+  /** `_id` da cópia — é por ele que batalha, troca e mercado a encontram. */
   inventoryId: string;
   cartaId: string | null;
   nome: string;
@@ -23,6 +35,58 @@ export interface CartaDoInventario {
   overall: number;
   obtidaEm: string | null;
   valor: number;
+  // ---- aprimoramento ----
+  nivel: number;
+  /** Os valores naturais. Se a carta nunca subiu, são os atuais. */
+  base: { overall: number; ATA: number; LIF: number; POW: number };
+  atributos: { ATA: number; LIF: number; POW: number };
+  /** Gemas que a PRÓXIMA tentativa custaria, e as chances dela. */
+  proximaTentativa: { gemas: number; sucesso: number; nada: number; queda: number };
+  /**
+   * A carta está incoerente?
+   *
+   * Acontece quando alguém editou atributo à mão sem mexer em `base`: o
+   * bot recalcula tudo a partir do natural, então o overall gravado
+   * deveria ser sempre `base.overall + nivel`. Quando não é, o próximo
+   * `/aprimorar` "corrige" a carta sozinho e o jogador vê os números
+   * mudarem do nada.
+   */
+  incoerente: boolean;
+}
+
+export interface ItemDaBolsa {
+  chave: string;
+  nome: string;
+  emoji: string;
+  quantidade: number;
+  /** Item que saiu do catálogo mas continua no banco de alguém. */
+  desconhecido: boolean;
+}
+
+export interface ContadorDeProtecao {
+  campo: string;
+  raridade: string;
+  atual: number;
+  limite: number;
+  faltam: number;
+  /** O próximo roll já sai garantido. */
+  noLimite: boolean;
+}
+
+export interface ConquistaDoJogador extends Conquista {
+  desbloqueadaEm: string | null;
+}
+
+export interface MissaoDoJogador {
+  chave: string;
+  nome: string;
+  descricao: string;
+  periodo: 'diaria' | 'semanal';
+  progresso: number;
+  alvo: number;
+  recompensa: number;
+  resgatada: boolean;
+  completa: boolean;
 }
 
 export interface FichaJogador {
@@ -44,6 +108,19 @@ export interface FichaJogador {
   cosmeticos: { moldura: string | null; banner: string | null };
   ultimoRoll: string | null;
   ultimoDaily: string | null;
+  // ---- adicionados junto das fases 0 a 4 ----
+  bolsa: ItemDaBolsa[];
+  protecoes: ContadorDeProtecao[];
+  telemetria: ResumoTelemetria;
+  beta: { participou: boolean; desde: string | null; rollsNaEpoca: number } | null;
+  staff: boolean;
+  conquistasDetalhe: ConquistaDoJogador[];
+  totalConquistas: number;
+  pontosConquistas: number;
+  nivelConquistas: number;
+  missoes: MissaoDoJogador[];
+  cartasAprimoradas: number;
+  rolls: number;
 }
 
 /** Quantas cartas do inventário a ficha carrega. Acima disso a tela trava. */
@@ -60,23 +137,119 @@ export async function buscarFicha(id: string): Promise<FichaJogador | null> {
   const inventario: CartaDoInventario[] = inventarioBruto
     .slice(-LIMITE_INVENTARIO)
     .reverse()
-    .map((c) => ({
-      inventoryId: String(c.cardId ?? ''),
-      cartaId: c.originalCardId ? String(c.originalCardId) : null,
-      nome: String(c.name ?? '—'),
-      serie: String(c.series ?? '—'),
-      raridade: String(c.rarity ?? 'common').toLowerCase(),
-      overall: Number(c.overall ?? 0),
-      obtidaEm: c.obtainedAt ? new Date(c.obtainedAt as string).toISOString() : null,
-      valor: Number(c.marketValue ?? 0)
-    }));
+    .map((c) => {
+      const raridade = String(c.rarity ?? 'common').toLowerCase();
+      const nivel = nivelValido(c.nivel as number);
+      const base = baseDaCarta(c);
+      const overall = Number(c.overall ?? 0);
+      const p = chances(raridade, nivel);
+
+      return {
+        // O `_id` é o que a batalha e a troca usam para achar a cópia.
+        // `cardId` é outro campo e não serve para identificar a carta nas
+        // ações do painel — usar o errado aqui foi a origem do bug de
+        // "essa carta não está mais no seu inventário".
+        inventoryId: String(c._id ?? ''),
+        cartaId: c.originalCardId ? String(c.originalCardId) : null,
+        nome: String(c.name ?? '—'),
+        serie: String(c.series ?? '—'),
+        raridade,
+        overall,
+        obtidaEm: c.obtainedAt ? new Date(c.obtainedAt as string).toISOString() : null,
+        valor: Number(c.marketValue ?? 0),
+        nivel,
+        base,
+        atributos: {
+          ATA: Number(c.ATA ?? 0),
+          LIF: Number(c.LIF ?? 0),
+          POW: Number(c.POW ?? 0)
+        },
+        proximaTentativa: {
+          gemas: custoEmGemas(raridade, nivel),
+          sucesso: p.sucesso,
+          nada: p.nada,
+          queda: p.queda
+        },
+        // O overall gravado tem que ser exatamente natural + nível. Quando
+        // não é, alguém editou atributo sem mexer em `base`.
+        incoerente: base.overall > 0 && overall !== base.overall + nivel
+      };
+    });
 
   const vip = (doc.vip as Record<string, unknown>) || {};
   const ban = (doc.banimento as Record<string, unknown>) || {};
   const streak = (doc.streak as Record<string, unknown>) || {};
   const cosmeticos = (doc.cosmetics as Record<string, unknown>) || {};
+  const stats = (doc.stats as Record<string, unknown>) || {};
+  const beta = (doc.beta as Record<string, unknown>) || {};
 
   const tierKey = (vip.tier as string) || null;
+
+  // ---- bolsa ----
+  const bolsa: ItemDaBolsa[] = lerBolsa(doc.bolsa).map((linha) => ({
+    chave: linha.chave,
+    nome: linha.item?.nome ?? linha.chave,
+    emoji: linha.item?.emoji ?? '❓',
+    quantidade: linha.quantidade,
+    desconhecido: linha.item === null
+  }));
+
+  // ---- proteção contra azar ----
+  const protecoes: ContadorDeProtecao[] = PROTECOES.map((p) => {
+    const atual = Number(doc[p.campo] ?? 0);
+    return {
+      campo: p.campo,
+      raridade: p.raridade,
+      atual,
+      limite: p.limite,
+      faltam: Math.max(0, p.limite - atual),
+      noLimite: atual >= p.limite
+    };
+  });
+
+  // ---- conquistas ----
+  const conquistasBrutas = (doc.conquistas as Record<string, unknown>[]) || [];
+  const chavesConquistas = conquistasBrutas.map((c) => String(c.chave));
+  const quando = new Map(
+    conquistasBrutas.map((c) => [
+      String(c.chave),
+      c.desbloqueadaEm ? new Date(c.desbloqueadaEm as string).toISOString() : null
+    ])
+  );
+
+  // Todas as 28 aparecem, com as obtidas marcadas — ver só as obtidas não
+  // ajuda a responder "o que falta para ele platinar?".
+  const conquistasDetalhe: ConquistaDoJogador[] = CONQUISTAS.map((c) => ({
+    ...c,
+    desbloqueadaEm: quando.get(c.chave) ?? null
+  }));
+
+  const pontos = pontosDeConquistas(chavesConquistas);
+
+  // ---- missões ----
+  const missoesBrutas = (doc.missoes as Record<string, unknown>) || {};
+  const lerMissoes = (lista: unknown, periodo: 'diaria' | 'semanal'): MissaoDoJogador[] =>
+    ((lista as Record<string, unknown>[]) || []).map((m) => {
+      const def = missaoPorChave(String(m.chave));
+      const progresso = Number(m.progresso ?? 0);
+      const alvo = Number(m.alvo ?? def?.alvo ?? 0);
+      return {
+        chave: String(m.chave),
+        nome: def?.nome ?? String(m.chave),
+        descricao: def?.descricao ?? '—',
+        periodo,
+        progresso,
+        alvo,
+        recompensa: def?.recompensa ?? 0,
+        resgatada: Boolean(m.resgatada),
+        completa: alvo > 0 && progresso >= alvo
+      };
+    });
+
+  const missoes = [
+    ...lerMissoes(missoesBrutas.diarias, 'diaria'),
+    ...lerMissoes(missoesBrutas.semanais, 'semanal')
+  ];
 
   return {
     id: String(doc.id),
@@ -113,7 +286,28 @@ export async function buscarFicha(id: string): Promise<FichaJogador | null> {
       banner: (cosmeticos.banner as string) || null
     },
     ultimoRoll: doc.lastRoll ? new Date(Number(doc.lastRoll)).toISOString() : null,
-    ultimoDaily: doc.lastDaily ? new Date(doc.lastDaily as string).toISOString() : null
+    ultimoDaily: doc.lastDaily ? new Date(doc.lastDaily as string).toISOString() : null,
+    bolsa,
+    protecoes,
+    telemetria: resumirTelemetria(doc.telemetria),
+    beta: beta.participou
+      ? {
+        participou: true,
+        desde: beta.desde ? new Date(beta.desde as string).toISOString() : null,
+        rollsNaEpoca: Number(beta.rollsNaEpoca ?? 0)
+      }
+      : null,
+    staff: Boolean(doc.staff),
+    conquistasDetalhe,
+    totalConquistas: chavesConquistas.length,
+    pontosConquistas: pontos,
+    nivelConquistas: nivelDeConquistas(pontos),
+    missoes,
+    // Conta o inventário INTEIRO, não a fatia carregada na tela: quem tem
+    // 500 cartas veria "0 aprimoradas" só porque a +12 dele ficou fora do
+    // corte de 300.
+    cartasAprimoradas: inventarioBruto.filter((c) => nivelValido(c.nivel as number) > 0).length,
+    rolls: Number(stats.rolls ?? 0)
   };
 }
 
