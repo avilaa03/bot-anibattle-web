@@ -58,6 +58,58 @@ export default function DiagnosticoJogador({ ficha }: { ficha: FichaJogador }) {
 
   return (
     <div className="space-y-6">
+      {/* ---------- Nível ---------- */}
+      <section className="cartao p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-semibold">⭐ Nível {ficha.nivel.nivel}</h3>
+          <span className="text-sm text-textoFraco">
+            {nf.format(ficha.nivel.xp)} XP no total
+          </span>
+        </div>
+
+        <div className="mt-4">
+          <div className="flex justify-between text-xs text-textoFraco">
+            <span>{nf.format(ficha.nivel.noNivel)} / {nf.format(ficha.nivel.paraOProximo)} XP</span>
+            <span>faltam {nf.format(ficha.nivel.faltam)}</span>
+          </div>
+          <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-superficie2">
+            <div className="h-full bg-amber-500" style={{ width: `${ficha.nivel.percentual}%` }} />
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <div>
+            <div className="text-lg font-bold">{ficha.tetoDeCargas}</div>
+            <div className="text-xs text-textoFraco">rolls que ele acumula (nível + VIP)</div>
+          </div>
+          <div>
+            <div className="text-lg font-bold">{ficha.cargasAgora}</div>
+            <div className="text-xs text-textoFraco">disponíveis agora</div>
+          </div>
+          <div>
+            <div className="text-lg font-bold">🎟️ {nf.format(ficha.rollExtraGuardado)}</div>
+            <div className="text-xs text-textoFraco">rolls extras comprados</div>
+          </div>
+        </div>
+
+        {/* A marca de entrega é o que torna o pagamento idempotente. Ela
+            ficar atrás do nível atual significa recompensa pendente —
+            normal por instantes, suspeito se persistir. */}
+        {ficha.nivelEntregue < ficha.nivel.nivel && (
+          <p className="mt-4 rounded-lg border border-amber-900/40 bg-amber-950/20 p-3 text-xs text-amber-300">
+            ⚠️ Recompensas pagas até o nível <strong>{ficha.nivelEntregue}</strong>, mas ele já está no{' '}
+            <strong>{ficha.nivel.nivel}</strong>. O bot entrega o que falta na próxima ação que der XP.
+            Se isso não sumir, houve falha na entrega.
+          </p>
+        )}
+
+        <p className="mt-4 text-xs text-textoFraco">
+          A carga <strong className="text-texto">não</strong> aumenta o teto diário: o jogo gera 96 rolls
+          por dia com ou sem ela. O que ela faz é impedir que os não usados sejam perdidos enquanto o
+          jogador está fora — levanta o piso, não o teto.
+        </p>
+      </section>
+
       {/* ---------- Bolsa e proteção ---------- */}
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="cartao p-5">

@@ -4,6 +4,9 @@ import { getSessao, ehAdmin, urlAvatar } from '@/lib/auth';
 const INVITE = process.env.NEXT_PUBLIC_INVITE_URL || '#';
 
 const LINKS = [
+  // O guia vem primeiro de propósito: é o que serve a quem chegou agora,
+  // e quem chega agora é a maioria de quem abre o site.
+  { href: '/guia', label: 'Guia' },
   { href: '/cartas', label: 'Cartas' },
   { href: '/vip', label: 'VIP' },
   { href: '/#recursos', label: 'Recursos' },
