@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { chamarAdmin } from './api';
 import ModalConfirmacao from './ModalConfirmacao';
 import SeletorCarta, { type CartaEscolhida } from './SeletorCarta';
-import { ORDEM_RARIDADES, RARIDADES } from '@/lib/raridades';
+import { TODAS_AS_RARIDADES, RARIDADES, RARIDADE_EVENTO } from '@/lib/raridades';
 
 /**
  * Cadastro e edição de cartas do catálogo.
@@ -40,11 +40,14 @@ interface CartaCompleta {
   ATA: number;
   LIF: number;
   POW: number;
+  distribuivel: boolean;
+  comercializavel: boolean;
 }
 
 const VAZIA: CartaCompleta = {
   id: '', numero: null, name: '', series: '', characterImage: '', seriesImage: '', baseImage: '',
-  rarity: 'common', overall: 40, ATA: 35, LIF: 80, POW: 35
+  rarity: 'common', overall: 40, ATA: 35, LIF: 80, POW: 35,
+  distribuivel: true, comercializavel: true
 };
 
 export default function EditorCartas() {
@@ -96,7 +99,11 @@ export default function EditorCartas() {
     setForm((atual) => ({
       ...atual,
       rarity,
-      overall: meio(f.overall), ATA: meio(f.ATA), LIF: meio(f.LIF), POW: meio(f.POW)
+      overall: meio(f.overall), ATA: meio(f.ATA), LIF: meio(f.LIF), POW: meio(f.POW),
+      // Carta de evento nunca é distribuível. O servidor força isso de
+      // qualquer forma; refletir aqui evita a caixa marcada dizer uma
+      // coisa e o banco gravar outra.
+      distribuivel: rarity === RARIDADE_EVENTO ? false : atual.distribuivel
     }));
   }
 
@@ -233,14 +240,71 @@ export default function EditorCartas() {
               onChange={(e) => sugerirAtributos(e.target.value)}
               className="campo mt-1"
             >
-              {ORDEM_RARIDADES.map((r) => (
-                <option key={r} value={r}>{RARIDADES[r].label}</option>
+              {TODAS_AS_RARIDADES.map((r) => (
+                <option key={r} value={r}>
+                  {RARIDADES[r].emoji} {RARIDADES[r].label}
+                </option>
               ))}
             </select>
             <p className="mt-1 text-xs text-textoFraco">
               Trocar a raridade preenche os atributos com o meio da faixa.
             </p>
           </div>
+        </div>
+
+        {/* ---------- Distribuição ---------- */}
+        <div className="mt-5 rounded-xl border border-borda bg-superficie2/50 p-4">
+          <div className="rotulo">Distribuição</div>
+
+          {form.rarity === RARIDADE_EVENTO ? (
+            <p className="mt-2 text-sm text-emerald-300">
+              🎗️ Carta de <strong>evento</strong>: ela <strong>nunca</strong> sai de{' '}
+              <code className="rounded bg-superficie2 px-1 py-0.5">/roll</code> nem de caixa, e
+              aparece na Pokédex separada de eventos. Entregue com “Dar cartas” na ficha do jogador.
+            </p>
+          ) : (
+            <label className="mt-2 flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.distribuivel}
+                onChange={(e) => setForm({ ...form, distribuivel: e.target.checked })}
+                className="mt-1"
+              />
+              <span>
+                Pode sair em sorteio
+                <span className="mt-0.5 block text-xs text-textoFraco">
+                  Desmarque para recolher a carta de rotação sem apagá-la. Quem já tem continua com ela.
+                </span>
+              </span>
+            </label>
+          )}
+
+          <label className="mt-3 flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.comercializavel}
+              onChange={(e) => setForm({ ...form, comercializavel: e.target.checked })}
+              className="mt-1"
+            />
+            <span>
+              Pode ser negociada
+              <span className="mt-0.5 block text-xs text-textoFraco">
+                Desmarcado, a carta fica 🔒 <strong>vinculada</strong>: não pode ir ao mercado, à venda
+                rápida, à troca nem ser transferida. Continua batalhando normalmente.
+              </span>
+            </span>
+          </label>
+
+          {/* A negociabilidade é congelada na cópia do jogador no momento
+              da entrega. Sem este aviso, o admin acharia que desmarcar
+              agora vincula o que já foi distribuído. */}
+          {!form.comercializavel && (
+            <p className="mt-3 rounded-lg border border-amber-900/40 bg-amber-950/20 p-2.5 text-xs text-amber-300">
+              ⚠️ Vale só para entregas <strong>a partir de agora</strong>. Quem já recebeu esta carta
+              continua podendo negociá-la — ninguém perde o direito de vender algo que ganhou sob outra
+              regra.
+            </p>
+          )}
         </div>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-4">

@@ -25,6 +25,12 @@ export interface Carta {
   ATA: number;
   LIF: number;
   POW: number;
+  /** 'roll' (catálogo normal) ou 'evento' (distribuída à mão). */
+  origem?: string;
+  /** Sai em sorteio? Carta de evento entra com false. */
+  distribuivel?: boolean;
+  /** Pode ser vendida, trocada ou transferida? */
+  comercializavel?: boolean;
 }
 
 /** Versão serializável, para passar de Server Component para o cliente. */
@@ -43,6 +49,10 @@ export interface CartaSimples {
   /** Venda rápida. Vem pronto porque a fatia depende da raridade — quem
    *  consome não tem como derivar do valor de mercado. */
   valorVenda: number;
+  /** Carta vinculada: não pode ser vendida, trocada nem transferida. */
+  vinculada: boolean;
+  /** Não sai em sorteio (carta de evento, ou carta recolhida). */
+  foraDeRotacao: boolean;
 }
 
 export function paraCartaSimples(carta: Carta): CartaSimples {
@@ -59,7 +69,11 @@ export function paraCartaSimples(carta: Carta): CartaSimples {
     LIF: carta.LIF ?? 0,
     POW: carta.POW ?? 0,
     valorMercado: preco.marketValue,
-    valorVenda: preco.valueToSell
+    valorVenda: preco.valueToSell,
+    // Ausência significa negociável e em rotação: é o caso de todo o
+    // acervo anterior às cartas de evento.
+    vinculada: carta.comercializavel === false,
+    foraDeRotacao: carta.distribuivel === false
   };
 }
 

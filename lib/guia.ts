@@ -272,6 +272,33 @@ export const SECOES: Secao[] = [
   },
 
   {
+    id: 'evento',
+    icone: '🎗️',
+    titulo: 'Cartas de evento',
+    resumo: 'As únicas que o sorteio nunca entrega.',
+    paragrafos: [
+      'Cartas de evento são distribuídas em ocasiões especiais — participação na beta, campanhas, '
+      + 'prêmios de torneio. Elas **nunca saem de `/roll` nem de caixa**, e é justamente isso que as '
+      + 'torna especiais: ter uma significa que você estava lá.',
+      'Elas ficam numa **Pokédex separada**, em `/pokedex dex:evento`. A razão é simples: a Pokédex '
+      + 'normal existe para ser completada, e se as cartas de evento entrassem nela, a barra de todo '
+      + 'mundo cairia a cada distribuição nova — ninguém que perdeu o evento conseguiria fechar 100% '
+      + 'de novo.',
+      'Algumas cartas são **vinculadas**: elas são suas e não podem ser vendidas, trocadas nem '
+      + 'transferidas. Batalham normalmente, e aparecem com um 🔒 nas listagens. Outras são '
+      + 'negociáveis, e essas costumam valer muito no mercado — não existe como conseguir mais depois '
+      + 'que a distribuição fecha.'
+    ],
+    atencao: {
+      titulo: 'Carta de evento não pode ser desmanchada',
+      texto:
+        'Nem as negociáveis. Desmanchar é o único clique do jogo que apaga uma carta para sempre, e '
+        + 'essas não voltam a ser distribuídas. Se quiser se desfazer de uma negociável, venda no '
+        + '`/market` — pelo menos ela continua existindo com outra pessoa.'
+    }
+  },
+
+  {
     id: 'vip',
     icone: '✨',
     titulo: 'VIP',
@@ -313,6 +340,14 @@ export const DUVIDAS = [
     resposta:
       'Nunca. A carta jamais é destruída, e nunca fica pior do que era quando você a conseguiu. O overall natural é '
       + 'o mínimo absoluto.'
+  },
+  {
+    pergunta: 'Como eu consigo uma carta de evento?',
+    resposta:
+      'Participando do evento. Elas não saem de `/roll` nem de caixa, em nenhuma circunstância — são '
+      + 'entregues à mão em ocasiões específicas. Se a carta for negociável, ainda dá para comprá-la '
+      + 'de outro jogador no `/market`, e o preço costuma ser alto justamente porque não há como '
+      + 'produzir mais.'
   },
   {
     pergunta: 'O bot não respondeu meu comando. E agora?',
