@@ -700,6 +700,13 @@ async function ajustarNivel(alvo: string, params: Record<string, unknown>): Prom
   const db = await getDb();
   const jogador = await exigirJogador(alvo);
 
+  // Mesmo identificador que `removerCartas` usa: `cardId`, não `_id`.
+  //
+  // Os dois são únicos por cópia, mas cartas antigas dadas pelo painel
+  // podem estar sem `_id` (o driver nativo não gera um para subdocumento —
+  // foi o bug do "essa carta não está mais no seu inventário"). Usar dois
+  // identificadores diferentes em ações da mesma tela também é receita
+  // para uma delas parar de achar a carta sem ninguém entender por quê.
   const inventarioId = texto(params.inventarioId, 'inventarioId', { max: 32 });
   if (!ObjectId.isValid(inventarioId)) {
     throw new ErroAdmin(`"${inventarioId}" não é um ID de carta válido.`);
@@ -708,7 +715,7 @@ async function ajustarNivel(alvo: string, params: Record<string, unknown>): Prom
   const novoNivel = inteiro(params.nivel, 'nivel', { min: 0, max: 100 });
 
   const inventario = (jogador.inventory as Record<string, unknown>[]) || [];
-  const indice = inventario.findIndex((c) => String(c._id) === inventarioId);
+  const indice = inventario.findIndex((c) => String(c.cardId) === inventarioId);
   if (indice < 0) {
     throw new ErroAdmin('Essa carta não está no inventário desse jogador.', 404);
   }
@@ -718,7 +725,7 @@ async function ajustarNivel(alvo: string, params: Record<string, unknown>): Prom
   const calculada = cartaNoNivel(carta, novoNivel);
 
   await db.collection(COL_JOGADORES).updateOne(
-    { id: alvo, 'inventory._id': new ObjectId(inventarioId) },
+    { id: alvo, 'inventory.cardId': new ObjectId(inventarioId) },
     {
       $set: {
         'inventory.$.nivel': calculada.nivel,

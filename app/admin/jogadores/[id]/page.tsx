@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { buscarFicha } from '@/lib/admin/jogadores';
 import { ultimasAcoesDoAlvo } from '@/lib/admin/auditoria';
 import PainelJogador from '@/components/admin/PainelJogador';
+import DiagnosticoJogador from '@/components/admin/DiagnosticoJogador';
 import { formatarMoedas } from '@/lib/raridades';
 
 export const dynamic = 'force-dynamic';
@@ -46,13 +47,34 @@ export default async function FichaDoJogador({ params }: { params: Promise<{ id:
           <Link href="/admin/jogadores" className="text-xs text-textoFraco hover:text-texto">
             ← Jogadores
           </Link>
-          <h2 className="mt-1 font-mono text-lg font-semibold">{ficha.id}</h2>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <h2 className="font-mono text-lg font-semibold">{ficha.id}</h2>
+            {ficha.staff && (
+              <span className="etiqueta bg-indigo-950/50 text-indigo-300">🛡️ Staff</span>
+            )}
+            {ficha.beta && (
+              <span className="etiqueta bg-emerald-950/50 text-emerald-300">🧪 Beta</span>
+            )}
+          </div>
         </div>
-        {ficha.banimento && (
-          <span className="rounded-lg border border-red-900/60 bg-red-950/40 px-3 py-1.5 text-sm text-red-300">
-            🚫 Conta suspensa
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {ficha.telemetria.score !== null && ficha.telemetria.score >= 40 && (
+            <span
+              className={`rounded-lg border px-3 py-1.5 text-sm ${
+                ficha.telemetria.score >= 70
+                  ? 'border-red-900/60 bg-red-950/40 text-red-300'
+                  : 'border-amber-900/60 bg-amber-950/40 text-amber-300'
+              }`}
+            >
+              📡 Telemetria {ficha.telemetria.score}/100
+            </span>
+          )}
+          {ficha.banimento && (
+            <span className="rounded-lg border border-red-900/60 bg-red-950/40 px-3 py-1.5 text-sm text-red-300">
+              🚫 Conta suspensa
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -73,7 +95,16 @@ export default async function FichaDoJogador({ params }: { params: Promise<{ id:
           valor={`${ficha.vitorias}V / ${ficha.derrotas}D`}
           detalhe={totalPartidas > 0 ? `${aproveitamento.toFixed(0)}% de vitórias` : 'nenhuma ainda'}
         />
-        <Numero rotulo="Troféus" valor={String(ficha.conquistas)} />
+        <Numero
+          rotulo="Troféus"
+          valor={`${ficha.totalConquistas}/${ficha.conquistasDetalhe.length}`}
+          detalhe={`${ficha.pontosConquistas} pts • nível ${ficha.nivelConquistas}`}
+        />
+        <Numero
+          rotulo="Rolls"
+          valor={String(ficha.rolls)}
+          detalhe={ficha.cartasAprimoradas > 0 ? `${ficha.cartasAprimoradas} carta(s) aprimorada(s)` : undefined}
+        />
         <Numero
           rotulo="Sequência do daily"
           valor={String(ficha.streak.atual)}
@@ -93,6 +124,8 @@ export default async function FichaDoJogador({ params }: { params: Promise<{ id:
           }
         />
       </div>
+
+      <DiagnosticoJogador ficha={ficha} />
 
       <PainelJogador ficha={ficha} />
 

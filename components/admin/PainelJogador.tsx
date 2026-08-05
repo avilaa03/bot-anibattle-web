@@ -7,7 +7,15 @@ import ModalConfirmacao from './ModalConfirmacao';
 import SeletorCarta, { type CartaEscolhida } from './SeletorCarta';
 import { ORDEM_RARIDADES, RARIDADES, formatarMoedas } from '@/lib/raridades';
 import { ORDEM_TIERS, TIERS } from '@/lib/vip';
+import { todosOsItens } from '@/lib/itens';
 import type { FichaJogador } from '@/lib/admin/jogadores';
+
+/**
+ * O catálogo é constante e não depende do jogador, então fica fora do
+ * componente — recriar a lista a cada render não quebraria nada, mas é
+ * trabalho à toa em toda digitação de formulário.
+ */
+const ITENS_DISPONIVEIS = todosOsItens();
 
 /**
  * As ações administrativas sobre um jogador.
@@ -20,15 +28,20 @@ import type { FichaJogador } from '@/lib/admin/jogadores';
 
 // Espelha `ehPerigosa` em lib/admin/acoes.ts.
 const SEMPRE_PERIGOSAS = new Set([
-  'remover_cartas', 'remover_vip', 'limpar_pokedex', 'banir', 'resetar'
+  'remover_cartas', 'remover_vip', 'limpar_pokedex', 'banir', 'resetar',
+  'ajustar_nivel', 'marcar_staff'
 ]);
 const LIMITE_CARTAS = 25;
 const LIMITE_MOEDAS = 100_000;
+const LIMITE_ITENS = 500;
 
 function ehPerigosa(acao: string, params: Record<string, unknown>): boolean {
   if (SEMPRE_PERIGOSAS.has(acao)) return true;
   if (acao === 'dar_cartas' && Number(params.quantidade) > LIMITE_CARTAS) return true;
   if (acao === 'ajustar_moedas' && Math.abs(Number(params.delta)) > LIMITE_MOEDAS) return true;
+  // Uma gema é rotina; mil gemas é o mesmo que dar dinheiro, porque gema
+  // tem preço na loja.
+  if (acao === 'ajustar_itens' && Math.abs(Number(params.delta)) > LIMITE_ITENS) return true;
   return false;
 }
 
@@ -65,6 +78,13 @@ export default function PainelJogador({ ficha }: { ficha: FichaJogador }) {
   const [serieDex, setSerieDex] = useState('');
 
   const [diasBan, setDiasBan] = useState(0);
+
+  const [itemEscolhido, setItemEscolhido] = useState('gema');
+  const [deltaItem, setDeltaItem] = useState(0);
+
+  // Qual carta do inventário está com o editor de nível aberto.
+  const [editandoNivel, setEditandoNivel] = useState<string | null>(null);
+  const [novoNivel, setNovoNivel] = useState(0);
 
   async function enviar(
     acao: string,
@@ -248,6 +268,124 @@ export default function PainelJogador({ ficha }: { ficha: FichaJogador }) {
             {ficha.saldo + delta < 0 && ' (trava no zero — o saldo nunca fica negativo)'}
           </p>
         </div>
+      </section>
+
+      {/* ---------- Bolsa ---------- */}
+      <section className="cartao p-5">
+        <h3 className="font-semibold">🎒 Itens da bolsa</h3>
+        <p className="mt-1 text-sm text-textoFraco">
+          Dar gema é dar poder de aprimoramento, <strong className="text-texto">não dinheiro</strong>.
+          Item nunca vira moeda no AniBattle — com caminho de volta, a diferença entre comprar e
+          converter viraria renda infinita.
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-end gap-3">
+          <label className="text-sm">
+            <span className="mb-1 block text-xs text-textoFraco">Item</span>
+            <select
+              value={itemEscolhido}
+              onChange={(e) => setItemEscolhido(e.target.value)}
+              className="campo w-56"
+            >
+              {ITENS_DISPONIVEIS.map((i) => (
+                <option key={i.chave} value={i.chave}>
+                  {i.emoji} {i.nome}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="text-sm">
+            <span className="mb-1 block text-xs text-textoFraco">
+              Quantidade (negativo para tirar)
+            </span>
+            <input
+              type="number"
+              value={deltaItem}
+              onChange={(e) => setDeltaItem(Number(e.target.value))}
+              className="campo w-40"
+            />
+          </label>
+
+          <button
+            type="button"
+            disabled={ocupado || deltaItem === 0}
+            onClick={() => {
+              const item = ITENS_DISPONIVEIS.find((i) => i.chave === itemEscolhido);
+              acionar(
+                'ajustar_itens',
+                { item: itemEscolhido, delta: deltaItem },
+                `${deltaItem > 0 ? 'Dar' : 'Tirar'} ${Math.abs(deltaItem)} ${item?.nome}`,
+                deltaItem > 0
+                  ? `Isso equivale a ${formatarMoedas(Math.abs(deltaItem) * (item?.preco ?? 0))} `
+                    + 'em poder de compra da loja.'
+                  : 'A bolsa nunca fica negativa — se não houver saldo, a operação é recusada.'
+              );
+            }}
+            className="botao-primario disabled:opacity-40"
+          >
+            Aplicar
+          </button>
+        </div>
+
+        {ficha.bolsa.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-3 text-sm text-textoFraco">
+            {ficha.bolsa.map((i) => (
+              <span key={i.chave} className="rounded-lg bg-superficie2 px-2.5 py-1">
+                {i.emoji} {i.nome}: <strong className="text-texto">{i.quantidade}</strong>
+              </span>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ---------- Selos ---------- */}
+      <section className="cartao p-5">
+        <h3 className="font-semibold">🏷️ Selos</h3>
+        <p className="mt-1 text-sm text-textoFraco">
+          Aparecem no <code className="rounded bg-superficie2 px-1 py-0.5">/profile</code> do jogador.
+          O de beta é permanente e não pode ser conquistado depois — é justamente isso que dá valor a
+          ele.
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button" disabled={ocupado}
+            onClick={() => acionar(
+              'marcar_beta',
+              { ligar: !ficha.beta },
+              ficha.beta ? 'Remover o selo de beta' : 'Marcar como participante da beta',
+              ficha.beta
+                ? 'Ele deixa de aparecer na lista de quem recebe a carta exclusiva.'
+                : `Fica registrado que ele tinha ${ficha.rolls} rolls no momento da marcação — `
+                  + 'é o que torna a decisão auditável depois.'
+            )}
+            className={`botao ${ficha.beta ? 'botao-secundario' : 'botao-primario'} disabled:opacity-40`}
+          >
+            🧪 {ficha.beta ? 'Remover selo de beta' : 'Marcar como beta'}
+          </button>
+
+          <button
+            type="button" disabled={ocupado}
+            onClick={() => acionar(
+              'marcar_staff',
+              { ligar: !ficha.staff },
+              ficha.staff ? 'Remover o selo de staff' : 'Marcar como staff',
+              'O selo é público no perfil do jogador.'
+            )}
+            className={`botao ${ficha.staff ? 'botao-secundario' : 'botao-primario'} disabled:opacity-40`}
+          >
+            🛡️ {ficha.staff ? 'Remover selo de staff' : 'Marcar como staff'}
+          </button>
+        </div>
+
+        {ficha.beta && (
+          <p className="mt-3 text-xs text-textoFraco">
+            Participante da beta
+            {ficha.beta.desde && ` desde ${new Date(ficha.beta.desde).toLocaleDateString('pt-BR')}`}
+            {` • ${ficha.beta.rollsNaEpoca} rolls na época da marcação`}
+          </p>
+        )}
       </section>
 
       {/* ---------- VIP ---------- */}
@@ -459,7 +597,21 @@ export default function PainelJogador({ ficha }: { ficha: FichaJogador }) {
 
       {/* ---------- Inventário ---------- */}
       <section className="cartao p-5">
-        <h3 className="font-semibold">📦 Inventário ({ficha.totalCartas})</h3>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h3 className="font-semibold">📦 Inventário ({ficha.totalCartas})</h3>
+          {ficha.cartasAprimoradas > 0 && (
+            <span className="text-sm text-textoFraco">
+              {ficha.cartasAprimoradas} carta(s) aprimorada(s)
+            </span>
+          )}
+        </div>
+
+        <p className="mt-1 text-sm text-textoFraco">
+          O painel edita <strong className="text-texto">nível</strong>, nunca atributo direto: o bot
+          recalcula ATA/LIF/POW sempre a partir dos valores naturais, então mexer no overall na mão
+          deixa a carta incoerente — e o estrago só aparece no <code className="rounded bg-superficie2 px-1 py-0.5">/aprimorar</code> seguinte.
+        </p>
+
         {ficha.inventario.length === 0 ? (
           <p className="mt-3 text-sm text-textoFraco">Sem cartas.</p>
         ) : (
@@ -469,43 +621,120 @@ export default function PainelJogador({ ficha }: { ficha: FichaJogador }) {
                 Mostrando as {ficha.inventario.length} mais recentes de {ficha.totalCartas}.
               </p>
             )}
-            <div className="mt-3 max-h-96 overflow-y-auto rounded-lg border border-borda">
+            <div className="mt-3 max-h-[32rem] overflow-y-auto rounded-lg border border-borda">
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-superficie2 text-left text-xs text-textoFraco">
                   <tr>
                     <th className="px-3 py-2">Carta</th>
                     <th className="px-3 py-2">Raridade</th>
+                    <th className="px-3 py-2 text-right">Nível</th>
                     <th className="px-3 py-2 text-right">OVR</th>
-                    <th className="px-3 py-2 text-right">Ação</th>
+                    <th className="px-3 py-2 text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-borda">
                   {ficha.inventario.map((c) => {
                     const meta = RARIDADES[c.raridade];
+                    const editando = editandoNivel === c.inventoryId;
                     return (
-                      <tr key={c.inventoryId}>
+                      <tr key={c.inventoryId} className={c.incoerente ? 'bg-amber-950/20' : ''}>
                         <td className="px-3 py-2">
-                          <div className="font-medium">{c.nome}</div>
+                          <div className="font-medium">
+                            {c.nome}
+                            {c.nivel > 0 && (
+                              <span className="ml-1.5 text-amber-400">(+{c.nivel})</span>
+                            )}
+                          </div>
                           <div className="text-xs text-textoFraco">{c.serie}</div>
+                          {c.incoerente && (
+                            <div className="mt-0.5 text-[11px] text-amber-400">
+                              ⚠️ overall não bate com natural + nível — ajuste o nível para corrigir
+                            </div>
+                          )}
                         </td>
                         <td className="px-3 py-2" style={{ color: meta?.cor }}>
                           {meta?.label ?? c.raridade}
                         </td>
-                        <td className="px-3 py-2 text-right">{c.overall}</td>
                         <td className="px-3 py-2 text-right">
-                          <button
-                            type="button" disabled={ocupado}
-                            onClick={() => acionar(
-                              'remover_cartas',
-                              { inventoryId: c.inventoryId },
-                              `Remover "${c.nome}" do inventário`,
-                              `O jogador tem ${inventarioDoAlvo(c.cartaId ?? '')} cópia(s) desta carta. `
-                              + 'A Pokédex dele não é afetada.'
+                          {editando ? (
+                            <input
+                              type="number" min={0} max={100}
+                              value={novoNivel}
+                              onChange={(e) => setNovoNivel(Number(e.target.value))}
+                              className="campo w-20 text-right"
+                            />
+                          ) : (
+                            <span className={c.nivel > 0 ? 'font-bold text-amber-400' : ''}>
+                              +{c.nivel}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {c.overall}
+                          {c.nivel > 0 && (
+                            <div className="text-[11px] text-textoFraco">
+                              natural {c.base.overall}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          <div className="flex justify-end gap-2 text-xs">
+                            {editando ? (
+                              <>
+                                <button
+                                  type="button" disabled={ocupado}
+                                  onClick={() => acionar(
+                                    'ajustar_nivel',
+                                    { inventarioId: c.inventoryId, nivel: novoNivel },
+                                    `Ajustar "${c.nome}" para +${novoNivel}`,
+                                    `Overall vai de ${c.overall} para ${c.base.overall + novoNivel}. `
+                                    + 'ATA, LIF, POW e os dois preços são recalculados a partir dos '
+                                    + `valores naturais (overall ${c.base.overall}).`
+                                  )}
+                                  className="text-emerald-400 hover:text-emerald-300 disabled:opacity-40"
+                                >
+                                  salvar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditandoNivel(null)}
+                                  className="text-textoFraco hover:text-texto"
+                                >
+                                  cancelar
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button" disabled={ocupado}
+                                  onClick={() => {
+                                    setEditandoNivel(c.inventoryId);
+                                    setNovoNivel(c.nivel);
+                                  }}
+                                  className="text-marca hover:underline disabled:opacity-40"
+                                  title={
+                                    `Próxima tentativa no jogo: ${c.proximaTentativa.gemas} gema(s), `
+                                    + `${(c.proximaTentativa.sucesso * 100).toFixed(0)}% de sucesso`
+                                  }
+                                >
+                                  nível
+                                </button>
+                                <button
+                                  type="button" disabled={ocupado}
+                                  onClick={() => acionar(
+                                    'remover_cartas',
+                                    { inventoryId: c.inventoryId },
+                                    `Remover "${c.nome}" do inventário`,
+                                    `O jogador tem ${inventarioDoAlvo(c.cartaId ?? '')} cópia(s) desta carta. `
+                                    + 'A Pokédex dele não é afetada.'
+                                  )}
+                                  className="text-red-400 hover:text-red-300 disabled:opacity-40"
+                                >
+                                  remover
+                                </button>
+                              </>
                             )}
-                            className="text-xs text-red-400 hover:text-red-300 disabled:opacity-40"
-                          >
-                            remover
-                          </button>
+                          </div>
                         </td>
                       </tr>
                     );
