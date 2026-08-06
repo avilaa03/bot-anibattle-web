@@ -206,7 +206,17 @@ function montarCopia(carta: Carta) {
     POW: carta.POW,
     obtainedAt: new Date(),
     marketValue,
-    valueToSell
+    valueToSell,
+    // ⚠️ CONGELA a negociabilidade, igual ao rollCollect.js do bot.
+    //
+    // Faltava, e não era detalhe: cartas de evento só são entregues por
+    // aqui. Uma carta marcada como vinculada no catálogo era entregue
+    // NEGOCIÁVEL, e o jogador podia vendê-la no mercado — a regra inteira
+    // de "carta vinculada" não valia para o único caminho que a usa.
+    //
+    // O default do schema é `true`, então a ausência não dava erro: só
+    // fazia a trava não existir.
+    comercializavel: carta.comercializavel !== false
   };
 }
 
