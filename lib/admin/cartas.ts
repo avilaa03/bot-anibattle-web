@@ -119,7 +119,21 @@ export async function salvarCarta(entrada: EntradaCarta): Promise<{
     seriesImage: validarUrl(entrada.seriesImage, 'imagem da série', false),
     baseImage: validarUrl(entrada.baseImage, 'imagem de fundo', false),
     rarity,
-    overall: inteiro(entrada.overall, 'overall', { min: 1, max: 100, padrao: 50 }),
+    // O teto depende da raridade.
+    //
+    // Carta de evento é feita à mão para uma ocasião, e a faixa sugerida
+    // dela vai até 110 — com o teto fixo em 100, o painel SUGERIA um valor
+    // e recusava o mesmo valor na hora de salvar. Era isso que impedia
+    // criar carta de evento com overall alto.
+    //
+    // 110 também não é arbitrário: o aprimoramento já leva cartas normais
+    // acima de 99 em jogo, então overall de três dígitos não é novidade
+    // para o resto do sistema.
+    overall: inteiro(entrada.overall, 'overall', {
+      min: 1,
+      max: ehEvento ? 130 : 100,
+      padrao: 50
+    }),
     ATA: inteiro(entrada.ATA, 'ATA', { min: 1, max: 300, padrao: 50 }),
     LIF: inteiro(entrada.LIF, 'LIF', { min: 1, max: 999, padrao: 100 }),
     POW: inteiro(entrada.POW, 'POW', { min: 1, max: 300, padrao: 50 }),
