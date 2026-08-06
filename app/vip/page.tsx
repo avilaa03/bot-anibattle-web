@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { TIERS, ORDEM_TIERS, NUNCA_INCLUSO, LIMITE_DESEJOS_GRATIS, reducaoCooldown } from '@/lib/vip';
+import { CARGAS_BASE, NIVEIS_DE_CARGA, maxCargas } from '@/lib/nivel';
 
 export const metadata = {
   title: 'Planos VIP',
   description:
-    'Apoie o AniBattle e leve molduras animadas, cooldown menor e recompensa diária maior. '
-    + 'Nenhum plano dá vantagem de combate.'
+    'Apoie o AniBattle e leve molduras animadas, cooldown menor, uma carga de roll a mais e '
+    + 'recompensa diária maior. Nenhum plano dá vantagem de combate nem chance de carta rara.'
 };
 
 // A página é estática: preço e vantagens vêm do código, não do banco.
@@ -19,11 +20,25 @@ const SUPORTE = process.env.NEXT_PUBLIC_SUPPORT_URL || '#';
  * Ficam numa estrutura só para a tabela não sair do ar com a realidade:
  * cada linha lê direto do TIERS, que espelha `vip.js` do bot.
  */
+/** O teto de cargas de quem joga de graça no nível mais alto de carga. */
+const CARGAS_MAX_GRATIS = maxCargas(NIVEIS_DE_CARGA[NIVEIS_DE_CARGA.length - 1]);
+
 const LINHAS: { rotulo: string; valor: (t: typeof TIERS[string]) => string; gratis: string }[] = [
   {
     rotulo: 'Cooldown do /roll',
     gratis: 'normal',
     valor: (t) => `−${reducaoCooldown(t)}%`
+  },
+  {
+    // A vantagem nova, e a única que mexe em QUANTIDADE. Ela soma com as
+    // cargas do nível em vez de substituir — quem quiser conferir a conta
+    // precisa ver os dois números lado a lado.
+    rotulo: 'Cargas de roll acumuladas',
+    gratis: `${CARGAS_BASE} (até ${CARGAS_MAX_GRATIS} por nível)`,
+    valor: (t) =>
+      t.cargasExtras > 0
+        ? `+${t.cargasExtras} (até ${CARGAS_MAX_GRATIS + t.cargasExtras})`
+        : `${CARGAS_BASE} (até ${CARGAS_MAX_GRATIS} por nível)`
   },
   {
     rotulo: 'Recompensa diária',
@@ -92,6 +107,53 @@ export default function PaginaVip() {
         </p>
       </section>
 
+      {/*
+        ---------- Cargas de roll ----------
+
+        A vantagem mais recente e a única que mexe em quantidade, então é
+        também a mais fácil de ler como pay-to-win. Explicar a mecânica
+        inteira aqui — inclusive que o jogador grátis chega ao teto dele
+        sozinho, só subindo de nível — custa espaço e evita a acusação.
+      */}
+      <section className="mx-auto mt-10 max-w-3xl rounded-xl border border-borda bg-superficie p-6">
+        <h2 className="text-lg font-semibold">🎴 Cargas de roll: o que mudou</h2>
+        <p className="mt-3 text-sm leading-relaxed text-textoFraco">
+          Antes, um <code className="rounded bg-superficie2 px-1 py-0.5">/roll</code> não usado
+          simplesmente evaporava: se você ficasse o dia fora, perdia o dia todo. Agora os rolls{' '}
+          <strong className="text-texto">acumulam</strong> — o cooldown continua correndo enquanto
+          você não está, e as cargas ficam esperando.
+        </p>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-lg border border-borda bg-fundo p-4">
+            <h3 className="text-sm font-semibold">Jogando de graça</h3>
+            <p className="mt-2 text-sm leading-relaxed text-textoFraco">
+              Você começa com <strong className="text-texto">{CARGAS_BASE}</strong> e ganha mais uma
+              nos níveis <strong className="text-texto">{NIVEIS_DE_CARGA.join(', ')}</strong>,
+              chegando a <strong className="text-texto">{CARGAS_MAX_GRATIS}</strong> sem pagar nada.
+              O nível sobe com o que você já faz: rolar, batalhar, trocar, descobrir carta nova.
+            </p>
+          </div>
+          <div className="rounded-lg border border-borda bg-fundo p-4">
+            <h3 className="text-sm font-semibold">Assinando Ouro ou Master</h3>
+            <p className="mt-2 text-sm leading-relaxed text-textoFraco">
+              A assinatura dá <strong className="text-texto">+1 carga</strong> que{' '}
+              <strong className="text-texto">soma</strong> com as do nível, chegando a{' '}
+              {CARGAS_MAX_GRATIS + 1}. É uma carga a mais, não um atalho de nível — o teto do
+              assinante no nível 1 é {CARGAS_BASE + 1}, não {CARGAS_MAX_GRATIS + 1}.
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-4 text-sm leading-relaxed text-textoFraco">
+          <strong className="text-texto">Isso é vantagem de quantidade, não de sorte.</strong> Uma
+          carga a mais significa um roll a mais guardado para quando você voltar. A chance de sair
+          Lendária ou Mestra é <strong className="text-texto">exatamente a mesma</strong> para todo
+          mundo — a tabela de raridade não consulta assinatura, e há teste automatizado que garante
+          isso.
+        </p>
+      </section>
+
       {/* ---------- Planos ---------- */}
       <section className="mt-14">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -121,6 +183,11 @@ export default function PaginaVip() {
 
                 <ul className="mt-5 flex-1 space-y-2 text-sm text-textoFraco">
                   <li>⏱️ <strong className="text-texto">−{reducaoCooldown(t)}%</strong> no cooldown do /roll</li>
+                  {t.cargasExtras > 0 && (
+                    <li>
+                      🎴 <strong className="text-texto">+{t.cargasExtras}</strong> carga de roll acumulada
+                    </li>
+                  )}
                   <li>🎁 Daily <strong className="text-texto">{t.dailyMultiplier}×</strong> maior</li>
                   <li>🖼️ <strong className="text-texto">{t.molduras.length}</strong> moldura(s) de carta</li>
                   <li>💭 <strong className="text-texto">{t.limiteDesejos}</strong> cartas na lista de desejos</li>
@@ -195,10 +262,29 @@ export default function PaginaVip() {
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           {[
             {
-              p: 'A redução de cooldown não é vantagem?',
-              r: 'É conveniência, e é a única que encosta na economia — rolar mais gera mais moeda. '
-                 + 'Por isso ela é modesta e limitada: no plano mais caro são 40%, e nada disso muda '
-                 + 'o resultado de uma batalha nem a chance de rolar carta rara.'
+              p: 'Cooldown menor e carga a mais não são vantagem?',
+              r: 'São, e são as duas únicas que encostam na economia — rolar mais gera mais moeda. '
+                 + 'Por isso as duas são de quantidade, nunca de sorte, e são limitadas: no plano '
+                 + 'mais caro são 40% de cooldown e uma carga a mais. Nenhuma das duas muda o '
+                 + 'resultado de uma batalha nem a chance de sair carta rara.'
+            },
+            {
+              p: 'Preciso assinar para acumular rolls?',
+              r: 'Não. Acumular é de todo mundo, e o teto sobe com o seu nível — nos níveis '
+                 + `${NIVEIS_DE_CARGA.join(', ')} você ganha uma carga cada vez, chegando a `
+                 + `${CARGAS_MAX_GRATIS} sem pagar nada. A assinatura Ouro e Master soma +1 em cima disso.`
+            },
+            {
+              p: 'As caixas dão carta melhor para quem assina?',
+              r: 'Não. As porcentagens de cada caixa são fixas, ficam à vista no /caixa e são iguais '
+                 + 'para todo mundo. Assinatura não muda chance de caixa, e também não dá desconto '
+                 + 'nem caixa de graça — a Caixa do Apoiador sai de votar no bot, que é gratuito.'
+            },
+            {
+              p: 'Assinante tem carta de evento exclusiva?',
+              r: 'Não do jeito que costuma acontecer. Cartas de evento saem de eventos, e entrar num '
+                 + 'evento é de graça — use /evento no Discord. O que a assinatura nunca dá é carta '
+                 + 'que só existe para quem paga.'
             },
             {
               p: 'O que acontece quando a assinatura vence?',
