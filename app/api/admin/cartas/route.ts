@@ -71,7 +71,16 @@ export const POST = rotaAdmin(async (req, sessao) => {
     overall: corpo.overall,
     ATA: corpo.ATA,
     LIF: corpo.LIF,
-    POW: corpo.POW
+    POW: corpo.POW,
+    // ⚠️ Faltavam, e o sintoma era mudo: o formulário mandava as duas
+    // caixas, esta rota montava o payload campo a campo e as descartava.
+    // Marcar "carta vinculada" não fazia absolutamente nada, sem erro.
+    //
+    // Montar o payload explicitamente é proposital (não repassar `corpo`
+    // inteiro evita gravar campo que o usuário inventar), mas o preço é
+    // este: campo novo precisa ser acrescentado AQUI também.
+    distribuivel: corpo.distribuivel,
+    comercializavel: corpo.comercializavel
   });
 
   await registrarAuditoria({

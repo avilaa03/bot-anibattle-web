@@ -21,6 +21,19 @@
  *    estiverem à vista.
  */
 
+import { CARGAS_BASE, NIVEIS_DE_CARGA, maxCargas } from './nivel';
+
+/**
+ * Números do guia que TÊM que bater com a regra de verdade.
+ *
+ * A regra 3 do cabeçalho ("números de verdade") só se sustenta se eles
+ * vierem do mesmo lugar que o jogo usa. Um "4 cargas" digitado à mão
+ * sobrevive à mudança da regra e vira mentira em silêncio — o texto
+ * continua bonito e passa a estar errado.
+ */
+const CARGAS_MAX = maxCargas(NIVEIS_DE_CARGA[NIVEIS_DE_CARGA.length - 1]);
+const MARCOS_DE_CARGA = NIVEIS_DE_CARGA.join(', ');
+
 export interface Passo {
   titulo: string;
   texto: string;
@@ -73,6 +86,12 @@ export const PRIMEIROS_PASSOS: Passo[] = [
     titulo: 'Complete suas missões',
     texto:
       'Use `/missoes` para ver o que dá recompensa hoje. O progresso é automático — você só volta lá para resgatar.'
+  },
+  {
+    titulo: 'Veja se tem evento aberto',
+    texto:
+      '`/evento` mostra o que está rolando e o prêmio de cada um. Entrar é de graça e leva um comando — '
+      + 'é a única forma de conseguir carta de evento, que nunca sai de `/roll` nem de caixa.'
   }
 ];
 
@@ -233,9 +252,9 @@ export const SECOES: Secao[] = [
     paragrafos: [
       'Rolar, batalhar, trocar, descobrir carta nova, completar missão e coletar o diário: tudo rende XP. Quem usa '
       + 'o bot inteiro sobe mais rápido que quem só rola.',
-      'A cada 10 níveis você passa a **acumular um roll a mais**. Na prática: se você não pode entrar de 15 em 15 '
-      + 'minutos, os rolls que passarem enquanto você está fora deixam de ser perdidos, e você usa vários seguidos '
-      + 'quando voltar.',
+      `Nos níveis **${MARCOS_DE_CARGA}** você passa a **acumular um roll a mais**, chegando a ${CARGAS_MAX}. `
+      + 'Na prática: se você não pode entrar de 15 em 15 minutos, os rolls que passarem enquanto você está fora '
+      + 'deixam de ser perdidos, e você usa vários seguidos quando voltar.',
       'Repare no que isso **não** é: o nível não encurta seu cooldown e não melhora sua chance de raridade. '
       + 'O sorteio é igual para todo mundo, do primeiro dia ao nível 50. O nível só evita que você desperdice o que '
       + 'já era seu.'
@@ -244,11 +263,11 @@ export const SECOES: Secao[] = [
       cabecalho: ['Nível', 'O que muda'],
       linhas: [
         ['5', 'Moedas e uma Caixa Comum'],
-        ['10', 'Passa a acumular 2 rolls'],
+        [String(NIVEIS_DE_CARGA[0]), `Passa a acumular ${maxCargas(NIVEIS_DE_CARGA[0])} rolls`],
         ['15', 'Uma Caixa Temática'],
-        ['20', 'Passa a acumular 3 rolls'],
+        [String(NIVEIS_DE_CARGA[1]), `Passa a acumular ${maxCargas(NIVEIS_DE_CARGA[1])} rolls`],
         ['25', 'Uma Caixa de Elite'],
-        ['30', 'Passa a acumular 4 rolls']
+        [String(NIVEIS_DE_CARGA[2]), `Passa a acumular ${maxCargas(NIVEIS_DE_CARGA[2])} rolls`]
       ]
     }
   },
@@ -287,7 +306,21 @@ export const SECOES: Secao[] = [
       'Algumas cartas são **vinculadas**: elas são suas e não podem ser vendidas, trocadas nem '
       + 'transferidas. Batalham normalmente, e aparecem com um 🔒 nas listagens. Outras são '
       + 'negociáveis, e essas costumam valer muito no mercado — não existe como conseguir mais depois '
-      + 'que a distribuição fecha.'
+      + 'que a distribuição fecha.',
+      'Nem todo evento é surpresa. Muitos abrem **inscrição**: use `/evento` para ver o que está '
+      + 'rolando, o prêmio de cada um e quanta gente já entrou. Entrar é de graça, leva um comando e '
+      + 'não custa nada além disso — não há taxa, não há aposta, e você não perde nada se não ganhar.',
+      'Depois de inscrito, não precisa fazer mais nada: o prêmio cai na sua conta quando o evento é '
+      + 'apurado. Nem todo prêmio é carta — muitos são moedas, gemas ou caixas.'
+    ],
+    comandos: [
+      { nome: '/evento', o_que_faz: 'Lista os eventos com inscrição aberta e o prêmio de cada um.' },
+      {
+        nome: '/evento entrar',
+        o_que_faz: 'Confirma sua inscrição num evento.',
+        dica: 'Entrar duas vezes não dobra nada — e não tira sua vaga. Pode conferir à vontade.'
+      },
+      { nome: '/pokedex dex:evento', o_que_faz: 'A Pokédex separada, só de cartas de evento.' }
     ],
     atencao: {
       titulo: 'Carta de evento não pode ser desmanchada',
@@ -299,15 +332,55 @@ export const SECOES: Secao[] = [
   },
 
   {
+    id: 'social',
+    icone: '🤝',
+    titulo: 'Trocar e jogar junto',
+    resumo: 'A carta que falta para você quase sempre está sobrando para outra pessoa.',
+    paragrafos: [
+      'A troca é o jeito mais barato de completar a Pokédex. Você propõe, a outra pessoa vê exatamente '
+      + 'o que vai sair e o que vai entrar, e **as duas precisam aceitar** — ninguém perde carta sem '
+      + 'clicar em aceitar.',
+      'Carta **vinculada** (com 🔒) não entra em troca, nem em presente, nem no mercado. Se uma proposta '
+      + 'sua for recusada pelo bot, é quase sempre isso.',
+      'Se a proposta ficar parada, ela expira sozinha em um minuto e nada acontece. Nesse caso é só '
+      + 'propor de novo — não fica carta presa em lugar nenhum.'
+    ],
+    comandos: [
+      {
+        nome: '/trocar',
+        o_que_faz: 'Propõe uma troca de cartas com outro jogador.',
+        dica: 'Olhe a Pokédex da pessoa antes: oferecer o que ela ainda não tem aumenta muito a chance de aceite.'
+      },
+      { nome: '/give', o_que_faz: 'Dá uma carta ou moedas de presente, sem pedir nada em troca.' },
+      { nome: '/torneio', o_que_faz: 'Torneios do servidor, com chaveamento e premiação.' },
+      { nome: '/ranking', o_que_faz: 'Classificação por pontuação de batalha, de Bronze a Mestre.' },
+      { nome: '/magnata', o_que_faz: 'Quem tem o maior patrimônio somando moedas e cartas.' }
+    ],
+    atencao: {
+      titulo: 'Desconfie de troca "muito boa"',
+      texto:
+        'O bot mostra o valor das duas pontas antes de você aceitar — leia. Golpe de troca em jogo de '
+        + 'carta quase sempre é a mesma coisa: alguém oferece muito por algo raro seu e some depois. '
+        + 'Como aqui as duas pontas trocam de mão no mesmo instante, não dá para levar calote, mas dá '
+        + 'para aceitar um negócio ruim sem perceber.'
+    }
+  },
+
+  {
     id: 'vip',
     icone: '✨',
     titulo: 'VIP',
     resumo: 'O que a assinatura muda — e o que ela nunca vai mudar.',
     paragrafos: [
-      'O VIP encurta seu tempo de espera entre rolls (até 40% menos), acumula mais rolls não usados nos planos '
-      + 'mais altos, e libera molduras, cores e emblemas exclusivos.',
+      'O VIP encurta seu tempo de espera entre rolls (até 40% menos), dá **uma carga de roll a mais** '
+      + 'nos planos Ouro e Master, aumenta a recompensa diária e libera molduras, cores e emblemas.',
+      'Sobre a carga a mais, vale ser exato: ela **soma** com as que você ganha subindo de nível, não '
+      + `substitui. Quem joga de graça chega a ${CARGAS_MAX} cargas só jogando, e um assinante no nível 1 `
+      + `tem ${CARGAS_BASE + 1} — não ${CARGAS_MAX + 1}. É uma carga a mais, não um atalho de nível.`,
       '**Nenhum plano dá vantagem de combate.** Atributos das cartas, chance de raridade e resultado de batalha são '
       + 'exatamente iguais para todo mundo, pagando ou não. O que a assinatura compra é tempo e aparência, nunca sorte.',
+      'As caixas também não mudam: as porcentagens são as mesmas para assinante e não assinante, e não '
+      + 'há caixa nem carta que só exista para quem paga.',
       'Isso não é promessa de marketing: existe uma verificação automática no código do bot que impede qualquer '
       + 'plano de tocar em atributo de combate ou em chance de raridade.'
     ]
@@ -348,6 +421,20 @@ export const DUVIDAS = [
       + 'entregues à mão em ocasiões específicas. Se a carta for negociável, ainda dá para comprá-la '
       + 'de outro jogador no `/market`, e o preço costuma ser alto justamente porque não há como '
       + 'produzir mais.'
+  },
+  {
+    pergunta: 'Fiquei o dia fora. Perdi todos os rolls?',
+    resposta:
+      `Não mais. Os rolls acumulam até o seu teto, que é ${CARGAS_BASE} no começo e sobe para `
+      + `${CARGAS_MAX} conforme você passa dos níveis ${MARCOS_DE_CARGA}. Passando do teto aí sim para de `
+      + 'acumular — então vale entrar uma vez por dia para usar o que juntou.'
+  },
+  {
+    pergunta: 'Entrei num evento e não recebi nada. Deu errado?',
+    resposta:
+      'Provavelmente não. O prêmio não sai no momento da inscrição: ele é entregue quando o evento é '
+      + 'apurado, o que costuma ser no fim do período. Confira em `/evento` se sua inscrição aparece '
+      + 'com ✅ — se aparecer, está tudo certo e é só esperar.'
   },
   {
     pergunta: 'O bot não respondeu meu comando. E agora?',
