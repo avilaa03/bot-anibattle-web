@@ -4,6 +4,9 @@ import { cartasDestaque, estatisticas, REVALIDATE } from '@/lib/consultas';
 import { ETIQUETAS, formatarData } from '@/lib/noticias';
 import { listarNoticias } from '@/lib/noticiasDb';
 import { RARIDADES, ORDEM_RARIDADES } from '@/lib/raridades';
+import { traduzir, formatarNumero } from '@/lib/i18n';
+import { ehIdioma, type Idioma } from '@/lib/i18n/config';
+import { notFound } from 'next/navigation';
 
 // Revalida a cada 5 min: os números mudam devagar e assim a home é
 // servida do cache, sem bater no Mongo a cada visita.
@@ -11,40 +14,17 @@ export const revalidate = 300;
 
 const INVITE = process.env.NEXT_PUBLIC_INVITE_URL || '#';
 
-const RECURSOS = [
-  {
-    emoji: '🎴',
-    titulo: 'Colecione',
-    texto: 'Role cartas de personagens de anime. Cinco raridades, do comum ao mestre — e a raridade acompanha a popularidade real do personagem.'
-  },
-  {
-    emoji: '⚔️',
-    titulo: 'Batalhe',
-    texto: 'Duelos 3 contra 3 com aposta. Tem dano variável, crítico e esquiva, e quem cai abaixo de 40% de vida entra em modo desespero. Viradas acontecem.'
-  },
-  {
-    emoji: '📖',
-    titulo: 'Complete a Pokédex',
-    texto: 'Toda carta que passa pelo seu inventário fica registrada para sempre — mesmo que você venda depois.'
-  },
-  {
-    emoji: '🤝',
-    titulo: 'Negocie',
-    texto: 'Mercado entre jogadores e troca direta carta por carta, com confirmação dos dois lados.'
-  },
-  {
-    emoji: '🏆',
-    titulo: 'Conquiste troféus',
-    texto: '28 troféus em bronze, prata e ouro. A platina só desbloqueia quando você tiver todos os outros.'
-  },
-  {
-    emoji: '🥇',
-    titulo: 'Suba no ranking',
-    texto: 'Pontuação de batalha de Bronze a Mestre. Ganhar de quem é mais forte vale muito mais.'
-  }
-];
+type Recurso = { emoji: string; titulo: string; texto: string };
 
-export default async function PaginaInicial() {
+export default async function PaginaInicial({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  if (!ehIdioma(locale)) notFound();
+  const idioma = locale as Idioma;
+  const t = traduzir(idioma);
+  const href = (c: string) => `/${idioma}${c}`;
+  const RECURSOS = t.dados<Recurso[]>('home.recursos');
+  const n = (v: number) => formatarNumero(v, idioma);
+
   const [stats, destaques, noticias] = await Promise.all([
     estatisticas(),
     cartasDestaque(5),
@@ -54,10 +34,10 @@ export default async function PaginaInicial() {
   ]);
 
   const numeros = [
-    { valor: stats.totalCartas, rotulo: 'cartas no catálogo' },
-    { valor: stats.totalSeries, rotulo: 'animes diferentes' },
-    { valor: stats.totalJogadores, rotulo: 'jogadores' },
-    { valor: stats.totalDescobertas, rotulo: 'cartas descobertas' }
+    { valor: stats.totalCartas, rotulo: t('home.num_cartas') },
+    { valor: stats.totalSeries, rotulo: t('home.num_series') },
+    { valor: stats.totalJogadores, rotulo: t('home.num_jogadores') },
+    { valor: stats.totalDescobertas, rotulo: t('home.num_descobertas') }
   ];
 
   const noticiaDestaque = noticias.find((n) => n.destaque) ?? noticias[0];
@@ -76,36 +56,34 @@ export default async function PaginaInicial() {
         />
         <div className="container-site relative py-20 text-center sm:py-28">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-marca">
-            Bot de Discord
+            {t('home.eyebrow')}
           </p>
           <h1 className="mx-auto mt-4 max-w-3xl text-4xl font-bold leading-tight sm:text-6xl">
-            Colecione cartas de anime.
+            {t('home.titulo_1')}
             <br />
-            <span className="text-marca">Dispute com seus amigos.</span>
+            <span className="text-marca">{t('home.titulo_2')}</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-textoFraco">
-            Role cartas dos seus personagens favoritos, complete sua Pokédex,
-            negocie no mercado e prove quem monta o melhor time. Tudo dentro do
-            Discord, de graça.
+            {t('home.subtitulo')}
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <a href={INVITE} target="_blank" rel="noopener noreferrer" className="botao-primario">
-              Adicionar ao meu servidor
+              {t('home.cta_adicionar')}
             </a>
-            <Link href="/cartas" className="botao-secundario">
-              Ver o catálogo
+            <Link href={href('/cartas')} className="botao-secundario">
+              {t('home.cta_catalogo')}
             </Link>
           </div>
 
           {/* Números reais, direto do banco do bot */}
           <dl className="mx-auto mt-16 grid max-w-3xl grid-cols-2 gap-6 sm:grid-cols-4">
-            {numeros.map((n) => (
-              <div key={n.rotulo}>
+            {numeros.map((numero) => (
+              <div key={numero.rotulo}>
                 <dt className="text-3xl font-bold sm:text-4xl">
-                  {new Intl.NumberFormat('pt-BR').format(n.valor)}
+                  {n(numero.valor)}
                 </dt>
-                <dd className="mt-1 text-xs text-textoFraco sm:text-sm">{n.rotulo}</dd>
+                <dd className="mt-1 text-xs text-textoFraco sm:text-sm">{numero.rotulo}</dd>
               </div>
             ))}
           </dl>
@@ -117,13 +95,11 @@ export default async function PaginaInicial() {
         <section className="container-site py-20">
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold sm:text-3xl">Cartas raras</h2>
-              <p className="mt-2 text-textoFraco">
-                Algumas das melhores cartas que existem no jogo.
-              </p>
+              <h2 className="text-2xl font-bold sm:text-3xl">{t('home.raras_titulo')}</h2>
+              <p className="mt-2 text-textoFraco">{t('home.raras_texto')}</p>
             </div>
-            <Link href="/cartas" className="shrink-0 text-sm text-marca hover:underline">
-              Ver todas →
+            <Link href={href('/cartas')} className="shrink-0 text-sm text-marca hover:underline">
+              {t('home.ver_todas')}
             </Link>
           </div>
 
@@ -143,10 +119,8 @@ export default async function PaginaInicial() {
       {/* ---------- Recursos ---------- */}
       <section id="recursos" className="border-y border-borda bg-superficie py-20">
         <div className="container-site">
-          <h2 className="text-2xl font-bold sm:text-3xl">Como funciona</h2>
-          <p className="mt-2 max-w-2xl text-textoFraco">
-            Tudo por comandos de barra. Sem site, sem cadastro, sem instalar nada.
-          </p>
+          <h2 className="text-2xl font-bold sm:text-3xl">{t('home.como_funciona')}</h2>
+          <p className="mt-2 max-w-2xl text-textoFraco">{t('home.como_funciona_texto')}</p>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {RECURSOS.map((r) => (
@@ -162,11 +136,8 @@ export default async function PaginaInicial() {
 
       {/* ---------- Raridades ---------- */}
       <section className="container-site py-20">
-        <h2 className="text-2xl font-bold sm:text-3xl">As cinco raridades</h2>
-        <p className="mt-2 max-w-2xl text-textoFraco">
-          Quanto mais famoso o personagem, mais rara a carta. E quanto mais rara,
-          melhores os atributos em batalha.
-        </p>
+        <h2 className="text-2xl font-bold sm:text-3xl">{t('home.raridades_titulo')}</h2>
+        <p className="mt-2 max-w-2xl text-textoFraco">{t('home.raridades_texto')}</p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {ORDEM_RARIDADES.map((chave) => {
@@ -175,7 +146,7 @@ export default async function PaginaInicial() {
             return (
               <Link
                 key={chave}
-                href={`/cartas?raridade=${encodeURIComponent(chave)}`}
+                href={href(`/cartas?raridade=${encodeURIComponent(chave)}`)}
                 className="cartao p-5 transition-colors hover:bg-superficie2"
                 style={{ borderColor: `${r.cor}55` }}
               >
@@ -184,7 +155,7 @@ export default async function PaginaInicial() {
                   {r.label}
                 </div>
                 <div className="mt-1 text-sm text-textoFraco">
-                  {new Intl.NumberFormat('pt-BR').format(quantidade)} cartas
+                  {t('home.raridade_contagem', { n: n(quantidade) })}
                 </div>
               </Link>
             );
@@ -195,8 +166,8 @@ export default async function PaginaInicial() {
       {/* ---------- Notícias ---------- */}
       <section id="noticias" className="border-t border-borda bg-superficie py-20">
         <div className="container-site">
-          <h2 className="text-2xl font-bold sm:text-3xl">Novidades</h2>
-          <p className="mt-2 text-textoFraco">O que mudou no jogo recentemente.</p>
+          <h2 className="text-2xl font-bold sm:text-3xl">{t('home.novidades')}</h2>
+          <p className="mt-2 text-textoFraco">{t('home.novidades_texto')}</p>
 
           {noticiaDestaque && (
             <article className="cartao mt-8 p-6 sm:p-8">
@@ -246,10 +217,13 @@ export default async function PaginaInicial() {
 
       {/* ---------- Chamada final ---------- */}
       <section className="container-site py-24 text-center">
-        <h2 className="text-3xl font-bold sm:text-4xl">Comece a colecionar hoje</h2>
+        <h2 className="text-3xl font-bold sm:text-4xl">{t('home.final_titulo')}</h2>
         <p className="mx-auto mt-4 max-w-xl text-textoFraco">
-          Adicione o AniBattle ao seu servidor e use <code className="rounded bg-superficie2 px-1.5 py-0.5 text-sm">/roll</code> para
-          ganhar sua primeira carta.
+          {t('home.final_texto', { comando: '§CMD§' }).split('§CMD§').flatMap((parte, i) =>
+            i === 0
+              ? [parte]
+              : [<code key="c" className="rounded bg-superficie2 px-1.5 py-0.5 text-sm">/roll</code>, parte]
+          )}
         </p>
         <a
           href={INVITE}
@@ -257,7 +231,7 @@ export default async function PaginaInicial() {
           rel="noopener noreferrer"
           className="botao-primario mt-8 !px-8 !py-4 text-base"
         >
-          Adicionar ao Discord
+          {t('nav.adicionar')}
         </a>
       </section>
     </>

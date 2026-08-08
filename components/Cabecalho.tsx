@@ -1,20 +1,30 @@
 import Link from 'next/link';
 import { getSessao, ehAdmin, urlAvatar } from '@/lib/auth';
+import { traduzir } from '@/lib/i18n';
+import type { Idioma } from '@/lib/i18n/config';
+import SeletorIdioma from './SeletorIdioma';
 
 const INVITE = process.env.NEXT_PUBLIC_INVITE_URL || '#';
 
-const LINKS = [
-  // O guia vem primeiro de propósito: é o que serve a quem chegou agora,
-  // e quem chega agora é a maioria de quem abre o site.
-  { href: '/guia', label: 'Guia' },
-  { href: '/cartas', label: 'Cartas' },
-  { href: '/vip', label: 'VIP' },
-  { href: '/#recursos', label: 'Recursos' },
-  { href: '/#noticias', label: 'Notícias' },
-  { href: '/#contato', label: 'Contato' }
-];
+export default async function Cabecalho({ idioma }: { idioma: Idioma }) {
+  const t = traduzir(idioma);
 
-export default async function Cabecalho() {
+  // Todo link interno carrega o idioma: sem isso, navegar dentro do site
+  // faria o middleware redecidir o idioma a cada clique e desfazer a
+  // escolha do visitante.
+  const href = (caminho: string) => `/${idioma}${caminho}`;
+
+  const LINKS = [
+    // O guia vem primeiro de propósito: é o que serve a quem chegou agora,
+    // e quem chega agora é a maioria de quem abre o site.
+    { href: href('/guia'), label: t('nav.guia') },
+    { href: href('/cartas'), label: t('nav.cartas') },
+    { href: href('/vip'), label: t('nav.vip') },
+    { href: href('/#recursos'), label: t('nav.recursos') },
+    { href: href('/#noticias'), label: t('nav.noticias') },
+    { href: href('/#contato'), label: t('nav.contato') }
+  ];
+
   // Pode falhar se SESSION_SECRET não estiver configurado — nesse caso o
   // site público continua funcionando, só sem área logada.
   let sessao = null;
@@ -27,7 +37,7 @@ export default async function Cabecalho() {
   return (
     <header className="sticky top-0 z-50 border-b border-borda bg-fundo/85 backdrop-blur">
       <div className="container-site flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
+        <Link href={href('')} className="flex items-center gap-2 font-semibold">
           <span className="text-xl">🎴</span>
           <span className="text-lg">AniBattle</span>
         </Link>
@@ -52,21 +62,16 @@ export default async function Cabecalho() {
           prometia algo que não existe: quem clicava entrava com o Discord
           e caía numa tela dizendo que não tem permissão.
 
-          O que existe é o "Admin" abaixo: de propósito discreto (sem
-          preenchimento, texto apagado, ganha contorno só no hover), porque
-          é uma porta de serviço, não um convite ao visitante. Ele leva a
-          /admin, que já cuida do login pelo Discord quando não há sessão.
-
-          Uma vez logado como administrador, ele dá lugar ao "Painel".
-
-          Quando existir perfil público de jogador ou compra de VIP pelo
-          site, o "Entrar" volta — aí ele passa a servir para todo mundo.
+          O que existe é o "Admin" abaixo: de propósito discreto, porque é
+          uma porta de serviço, não um convite ao visitante.
         */}
         <div className="flex items-center gap-3">
+          <SeletorIdioma atual={idioma} />
+
           {sessao && ehAdmin(sessao) ? (
             <>
               <Link href="/admin" className="botao-secundario !py-2 !px-4 text-sm">
-                Painel
+                {t('nav.painel')}
               </Link>
               <div className="hidden items-center gap-2 sm:flex">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -80,15 +85,15 @@ export default async function Cabecalho() {
               </div>
               <form action="/api/auth/logout" method="post">
                 <button type="submit" className="botao-secundario !py-2 !px-3 text-xs">
-                  Sair
+                  {t('nav.sair')}
                 </button>
               </form>
             </>
           ) : (
             <Link
               href="/admin"
-              title="Painel administrativo"
-              aria-label="Entrar no painel administrativo"
+              title={t('nav.admin_titulo')}
+              aria-label={t('nav.admin_aria')}
               className="inline-flex items-center gap-1.5 rounded-lg border border-transparent px-2.5 py-2
                          text-xs font-medium text-textoFraco/60 transition-colors
                          hover:border-borda hover:bg-superficie hover:text-texto
@@ -106,7 +111,7 @@ export default async function Cabecalho() {
               >
                 <path d="M12 3 4.5 6v5.2c0 4.4 3.1 8.5 7.5 9.8 4.4-1.3 7.5-5.4 7.5-9.8V6L12 3Z" />
               </svg>
-              <span className="hidden sm:inline">Admin</span>
+              <span className="hidden sm:inline">{t('nav.admin')}</span>
             </Link>
           )}
 
@@ -116,7 +121,7 @@ export default async function Cabecalho() {
             rel="noopener noreferrer"
             className="botao-primario !py-2 !px-4"
           >
-            Adicionar ao Discord
+            {t('nav.adicionar')}
           </a>
         </div>
       </div>
