@@ -120,6 +120,12 @@
     "erro_sem_codigo": "Discord did not return an authorization code.",
     "erro_expirou": "The sign-in session expired, or the request did not start here. Try again.",
     "erro_generico": "Sign-in couldn't be completed. Try again in a moment.",
-    "erro_config": "Sign-in is not configured on the server. Let the administrator know."
+    "erro_config": "Sign-in is not configured on the server. Let the administrator know.",
+    "entrou_como": "Signed in as",
+    "explicacao": "Use your Discord account — the same one you play with. We only ask for your name, avatar and ID; nothing else.",
+    "botao": "Sign in with Discord",
+    "dica_texto": "If Discord rejects it with <em>invalid redirect_uri</em>, register exactly this URL under Developer Portal → OAuth2 → Redirects,",
+    "dica_app": "on the application with client_id {id}",
+    "nao_definido": "(not set)"
   }
 }

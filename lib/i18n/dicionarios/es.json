@@ -120,6 +120,12 @@
     "erro_sem_codigo": "Discord no devolvió el código de autorización.",
     "erro_expirou": "La sesión de inicio expiró, o la solicitud no empezó aquí. Inténtalo de nuevo.",
     "erro_generico": "No se pudo completar el inicio de sesión. Inténtalo en unos instantes.",
-    "erro_config": "El inicio de sesión no está configurado en el servidor. Avisa al administrador."
+    "erro_config": "El inicio de sesión no está configurado en el servidor. Avisa al administrador.",
+    "entrou_como": "Has entrado como",
+    "explicacao": "Usa tu cuenta de Discord — la misma con la que juegas. Solo pedimos tu nombre, avatar e ID; nada más.",
+    "botao": "Entrar con Discord",
+    "dica_texto": "Si Discord lo rechaza con <em>invalid redirect_uri</em>, registra exactamente esta URL en Developer Portal → OAuth2 → Redirects,",
+    "dica_app": "en la aplicación con client_id {id}",
+    "nao_definido": "(sin definir)"
   }
 }

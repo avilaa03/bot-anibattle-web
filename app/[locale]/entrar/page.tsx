@@ -1,31 +1,40 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { getSessao } from '@/lib/auth';
 import { redirectUriEsperado } from '@/lib/discord';
+import { traduzir, type Tradutor } from '@/lib/i18n';
+import { ehIdioma, type Idioma } from '@/lib/i18n/config';
 
 export const metadata = { title: 'Entrar', robots: { index: false, follow: false } };
 export const dynamic = 'force-dynamic';
 
-const ERROS: Record<string, string> = {
-  cancelado: 'Você cancelou a autorização no Discord.',
-  sem_codigo: 'O Discord não devolveu o código de autorização.',
-  state_invalido: 'A sessão de login expirou ou o pedido não começou aqui. Tente de novo.',
-  falha: 'Não foi possível concluir o login. Tente novamente em instantes.',
-  configuracao: 'O login não está configurado no servidor. Avise o administrador.'
+/**
+ * O erro vem como código na query (`?erro=state_invalido`), não como
+ * texto. É o que permite traduzi-lo: quem redireciona para cá é a rota
+ * de callback, que não sabe em que idioma o visitante está.
+ */
+const CHAVE_DO_ERRO: Record<string, string> = {
+  cancelado: 'entrar.erro_cancelou',
+  sem_codigo: 'entrar.erro_sem_codigo',
+  state_invalido: 'entrar.erro_expirou',
+  falha: 'entrar.erro_generico',
+  configuracao: 'entrar.erro_config'
 };
 
 /** Em desenvolvimento, mostra o redirect_uri exato a cadastrar no portal. */
-function DicaDesenvolvimento() {
+function DicaDesenvolvimento({ t }: { t: Tradutor }) {
   if (process.env.NODE_ENV === 'production') return null;
 
-  const clientId = process.env.DISCORD_CLIENT_ID || '(não definido)';
+  const clientId = process.env.DISCORD_CLIENT_ID || t('entrar.nao_definido');
 
   return (
     <div className="mt-8 max-w-lg rounded-lg border border-borda bg-superficie p-4 text-left text-xs text-textoFraco">
-      <p className="font-medium text-texto">Diagnóstico (só aparece em desenvolvimento)</p>
+      <p className="font-medium text-texto">{t('entrar.diagnostico')}</p>
       <p className="mt-2">
-        Se o Discord recusar com <em>invalid redirect_uri</em>, cadastre exatamente esta URL em
-        Developer Portal → OAuth2 → Redirects, <strong className="text-texto">na aplicação de
-        client_id {clientId}</strong>:
+        {/* O <em> vem do dicionário porque a ênfase cai sobre o termo em
+            inglês `invalid redirect_uri`, que não se traduz. */}
+        <span dangerouslySetInnerHTML={{ __html: t('entrar.dica_texto') }} />{' '}
+        <strong className="text-texto">{t('entrar.dica_app', { id: clientId })}</strong>:
       </p>
       <code className="mt-2 block break-all rounded bg-superficie2 p-2">
         {redirectUriEsperado()}
@@ -35,10 +44,17 @@ function DicaDesenvolvimento() {
 }
 
 export default async function PaginaEntrar({
+  params,
   searchParams
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ erro?: string }>;
 }) {
+  const { locale } = await params;
+  if (!ehIdioma(locale)) notFound();
+  const idioma = locale as Idioma;
+  const t = traduzir(idioma);
+
   const { erro } = await searchParams;
   const sessao = await getSessao();
 
@@ -46,40 +62,39 @@ export default async function PaginaEntrar({
     return (
       <div className="container-site flex min-h-[60vh] flex-col items-center justify-center text-center">
         <div className="text-5xl">✅</div>
-        <h1 className="mt-6 text-2xl font-bold">Você já está conectado</h1>
+        <h1 className="mt-6 text-2xl font-bold">{t('entrar.ja_conectado')}</h1>
         <p className="mt-3 text-textoFraco">
-          Entrou como <strong className="text-texto">{sessao.nome}</strong>.
+          {t('entrar.entrou_como')} <strong className="text-texto">{sessao.nome}</strong>.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link href="/" className="botao-primario">Ir para o site</Link>
+          <Link href={`/${idioma}`} className="botao-primario">{t('entrar.ir_site')}</Link>
           <form action="/api/auth/logout" method="post">
-            <button type="submit" className="botao-secundario">Sair</button>
+            <button type="submit" className="botao-secundario">{t('nav.sair')}</button>
           </form>
         </div>
       </div>
     );
   }
 
+  const chaveErro = erro ? CHAVE_DO_ERRO[erro] : null;
+
   return (
     <div className="container-site flex min-h-[60vh] flex-col items-center justify-center text-center">
       <div className="text-5xl">🎴</div>
-      <h1 className="mt-6 text-2xl font-bold">Entrar no AniBattle</h1>
-      <p className="mt-3 max-w-md text-textoFraco">
-        Use sua conta do Discord — a mesma com que você joga. Pedimos apenas seu nome,
-        avatar e ID; nada além disso.
-      </p>
+      <h1 className="mt-6 text-2xl font-bold">{t('entrar.titulo')}</h1>
+      <p className="mt-3 max-w-md text-textoFraco">{t('entrar.explicacao')}</p>
 
-      {erro && ERROS[erro] && (
+      {chaveErro && (
         <p className="mt-6 max-w-md rounded-lg border border-red-900/50 bg-red-950/30 p-4 text-sm text-red-300">
-          {ERROS[erro]}
+          {t(chaveErro)}
         </p>
       )}
 
       <a href="/api/auth/login" className="botao-primario mt-8">
-        Entrar com Discord
+        {t('entrar.botao')}
       </a>
 
-      <DicaDesenvolvimento />
+      <DicaDesenvolvimento t={t} />
     </div>
   );
 }
