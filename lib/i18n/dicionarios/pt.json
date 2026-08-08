@@ -101,5 +101,25 @@
     "texto": "Essa carta não está no baralho. Talvez o número não exista no catálogo, ou o link esteja errado.",
     "voltar": "Voltar ao início",
     "catalogo": "Ver o catálogo"
+  },
+  "cartas": {
+    "titulo": "Catálogo de cartas",
+    "descricao": "Atributos, raridade e número na Pokédex de cada personagem.",
+    "vazio": "Nenhuma carta encontrada",
+    "titulo_serie": "Cartas de {serie}",
+    "titulo_raridade": "Cartas {raridade}s",
+    "desc_serie": "Veja todas as cartas do AniBattle da série {serie}.",
+    "desc_geral": "Veja todas as cartas do AniBattle."
+  },
+  "entrar": {
+    "titulo": "Entrar no AniBattle",
+    "ja_conectado": "Você já está conectado",
+    "ir_site": "Ir para o site",
+    "diagnostico": "Diagnóstico (só aparece em desenvolvimento)",
+    "erro_cancelou": "Você cancelou a autorização no Discord.",
+    "erro_sem_codigo": "O Discord não devolveu o código de autorização.",
+    "erro_expirou": "A sessão de login expirou ou o pedido não começou aqui. Tente de novo.",
+    "erro_generico": "Não foi possível concluir o login. Tente novamente em instantes.",
+    "erro_config": "O login não está configurado no servidor. Avise o administrador."
   }
 }

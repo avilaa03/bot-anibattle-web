@@ -101,5 +101,25 @@
     "texto": "Esa carta no está en el mazo. Quizá el número no existe en el catálogo, o el enlace está mal.",
     "voltar": "Volver al inicio",
     "catalogo": "Ver el catálogo"
+  },
+  "cartas": {
+    "titulo": "Catálogo de cartas",
+    "descricao": "Atributos, rareza y número en la Pokédex de cada personaje.",
+    "vazio": "No se encontraron cartas",
+    "titulo_serie": "Cartas de {serie}",
+    "titulo_raridade": "Cartas {raridade}s",
+    "desc_serie": "Mira todas las cartas de AniBattle de la serie {serie}.",
+    "desc_geral": "Mira todas las cartas de AniBattle."
+  },
+  "entrar": {
+    "titulo": "Entrar en AniBattle",
+    "ja_conectado": "Ya has iniciado sesión",
+    "ir_site": "Ir al sitio",
+    "diagnostico": "Diagnóstico (solo en desarrollo)",
+    "erro_cancelou": "Cancelaste la autorización en Discord.",
+    "erro_sem_codigo": "Discord no devolvió el código de autorización.",
+    "erro_expirou": "La sesión de inicio expiró, o la solicitud no empezó aquí. Inténtalo de nuevo.",
+    "erro_generico": "No se pudo completar el inicio de sesión. Inténtalo en unos instantes.",
+    "erro_config": "El inicio de sesión no está configurado en el servidor. Avisa al administrador."
   }
 }

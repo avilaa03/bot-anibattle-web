@@ -101,5 +101,25 @@
     "texto": "That card isn't in the deck. Maybe the number doesn't exist in the catalog, or the link is wrong.",
     "voltar": "Back to home",
     "catalogo": "Browse the catalog"
+  },
+  "cartas": {
+    "titulo": "Card catalog",
+    "descricao": "Stats, rarity and Pokédex number for every character.",
+    "vazio": "No cards found",
+    "titulo_serie": "{serie} cards",
+    "titulo_raridade": "{raridade} cards",
+    "desc_serie": "Browse every AniBattle card from {serie}.",
+    "desc_geral": "Browse every AniBattle card."
+  },
+  "entrar": {
+    "titulo": "Sign in to AniBattle",
+    "ja_conectado": "You're already signed in",
+    "ir_site": "Go to the site",
+    "diagnostico": "Diagnostics (development only)",
+    "erro_cancelou": "You cancelled the authorization on Discord.",
+    "erro_sem_codigo": "Discord did not return an authorization code.",
+    "erro_expirou": "The sign-in session expired, or the request did not start here. Try again.",
+    "erro_generico": "Sign-in couldn't be completed. Try again in a moment.",
+    "erro_config": "Sign-in is not configured on the server. Let the administrator know."
   }
 }
