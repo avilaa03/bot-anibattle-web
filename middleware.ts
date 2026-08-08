@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { IDIOMAS, IDIOMA_PADRAO, negociarIdioma, ehIdioma } from '@/lib/i18n/config';
+import { IDIOMAS, negociarIdioma, ehIdioma } from '@/lib/i18n/config';
+import { paisDaRequisicao, idiomaDoPais } from '@/lib/i18n/pais';
 
 /**
  * Põe o idioma na URL.
@@ -55,12 +56,25 @@ export function middleware(request: NextRequest) {
     return resposta;
   }
 
-  // Escolha anterior vence o navegador: quem já trocou de idioma no site
-  // não quer ser mandado de volta pelo Accept-Language a cada visita.
+  // Ordem de decisão, do mais forte para o mais fraco:
+  //
+  //   1. escolha manual anterior (cookie)
+  //   2. país de onde a pessoa acessa
+  //   3. idioma do navegador
+  //   4. português
+  //
+  // O cookie vem primeiro porque escolha explícita ganha de palpite:
+  // quem trocou para inglês estando no Brasil não quer voltar para o
+  // português na próxima visita.
+  //
+  // O país vem antes do navegador porque acerta o caso mais comum de
+  // divergência — o brasileiro com Windows em inglês, que hoje receberia
+  // o site em inglês sem querer.
   const salvo = request.cookies.get(COOKIE)?.value;
-  const idioma = salvo && ehIdioma(salvo)
-    ? salvo
-    : negociarIdioma(request.headers.get('accept-language'));
+
+  const idioma = (salvo && ehIdioma(salvo) ? salvo : null)
+    ?? idiomaDoPais(paisDaRequisicao(request.headers))
+    ?? negociarIdioma(request.headers.get('accept-language'));
 
   const destino = request.nextUrl.clone();
   destino.pathname = `/${idioma}${pathname === '/' ? '' : pathname}`;
