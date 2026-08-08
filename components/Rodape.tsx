@@ -1,9 +1,21 @@
 import Link from 'next/link';
+import { traduzir } from '@/lib/i18n';
+import type { Idioma } from '@/lib/i18n/config';
 
 const SUPORTE = process.env.NEXT_PUBLIC_SUPPORT_URL || '#';
 const REPO = 'https://github.com/avilaa03/bot_animefight';
 
-export default function Rodape() {
+/**
+ * Todo link interno leva o idioma no caminho.
+ *
+ * Sem isso, clicar em "Catálogo" estando em espanhol jogaria o visitante
+ * para `/cartas`, o middleware redirecionaria para o idioma do navegador,
+ * e a pessoa perderia a escolha que tinha acabado de fazer.
+ */
+export default function Rodape({ idioma }: { idioma: Idioma }) {
+  const t = traduzir(idioma);
+  const href = (caminho: string) => `/${idioma}${caminho}`;
+
   return (
     <footer id="contato" className="mt-24 border-t border-borda bg-superficie">
       <div className="container-site grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -13,65 +25,49 @@ export default function Rodape() {
             <span>AniBattle</span>
           </div>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-textoFraco">
-            Colecione cartas de personagens de anime, monte seu time e dispute
-            com outros jogadores. Direto no Discord.
+            {t('rodape.sobre')}
           </p>
         </div>
 
         <div>
-          <h3 className="text-sm font-medium">Jogo</h3>
+          <h3 className="text-sm font-medium">{t('rodape.jogo')}</h3>
           <ul className="mt-3 space-y-2 text-sm text-textoFraco">
-            <li><Link href="/cartas" className="hover:text-texto">Catálogo de cartas</Link></li>
-            <li><Link href="/#recursos" className="hover:text-texto">Como funciona</Link></li>
-            <li><Link href="/#noticias" className="hover:text-texto">Notícias</Link></li>
-            <li><Link href="/vip" className="hover:text-texto">Planos VIP</Link></li>
+            <li><Link href={href('/cartas')} className="hover:text-texto">{t('rodape.catalogo')}</Link></li>
+            <li><Link href={href('/#recursos')} className="hover:text-texto">{t('rodape.como')}</Link></li>
+            <li><Link href={href('/#noticias')} className="hover:text-texto">{t('rodape.noticias')}</Link></li>
+            <li><Link href={href('/vip')} className="hover:text-texto">{t('rodape.planos')}</Link></li>
           </ul>
         </div>
 
         <div>
-          <h3 className="text-sm font-medium">Suporte</h3>
+          <h3 className="text-sm font-medium">{t('rodape.suporte')}</h3>
           <ul className="mt-3 space-y-2 text-sm text-textoFraco">
             <li>
               <a href={SUPORTE} target="_blank" rel="noopener noreferrer" className="hover:text-texto">
-                Servidor de suporte
+                {t('rodape.servidor')}
               </a>
             </li>
             <li>
               <a href={REPO} target="_blank" rel="noopener noreferrer" className="hover:text-texto">
-                Código no GitHub
+                {t('rodape.codigo')}
               </a>
             </li>
           </ul>
         </div>
 
         <div>
-          <h3 className="text-sm font-medium">Legal</h3>
+          <h3 className="text-sm font-medium">{t('rodape.legal')}</h3>
           <ul className="mt-3 space-y-2 text-sm text-textoFraco">
-            <li><Link href="/privacidade" className="hover:text-texto">Privacidade</Link></li>
-            <li><Link href="/termos" className="hover:text-texto">Termos de uso</Link></li>
+            <li><Link href={href('/privacidade')} className="hover:text-texto">{t('rodape.privacidade')}</Link></li>
+            <li><Link href={href('/termos')} className="hover:text-texto">{t('rodape.termos')}</Link></li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-borda">
-        <div className="container-site py-6 text-xs leading-relaxed text-textoFraco">
-          <p>
-            AniBattle é um projeto de fã, sem vínculo, patrocínio ou aprovação dos
-            detentores dos direitos das obras retratadas. Nomes e imagens de
-            personagens pertencem aos seus respectivos criadores e distribuidoras.
-          </p>
-          <p className="mt-2">
-            © {new Date().getFullYear()} AniBattle.
-            {' • '}
-            {/*
-              Segundo caminho de entrada da administração — o primeiro é o
-              botão "Admin" no cabeçalho. Mantido aqui porque é onde se
-              procura um link de serviço quando o topo está cheio (mobile).
-              Quem não é admin e clicar vê a tela de "sem permissão", que já
-              explica a situação.
-            */}
-            <Link href="/admin" className="hover:text-texto">Administração</Link>
-          </p>
+        <div className="container-site flex flex-col items-center justify-between gap-2 py-6 text-xs text-textoFraco sm:flex-row">
+          <p>© {new Date().getFullYear()} AniBattle. {t('rodape.direitos')}</p>
+          <p>{t('rodape.feito_com')}</p>
         </div>
       </div>
     </footer>

@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "titulo_padrao": "AniBattle — Collect and battle with anime cards on Discord",
+    "template": "%s | AniBattle",
+    "descricao": "A Discord bot for collecting anime character cards, building a team and duelling. Pokédex, player market, tournaments and trophies. Free to play.",
+    "og_titulo": "AniBattle — Anime cards on Discord",
+    "og_descricao": "Collect, trade and battle with anime character cards. Free.",
+    "palavras": "discord bot, anime cards, card bot, anime discord, card collecting, discord tcg, gacha bot"
+  },
+  "nav": {
+    "guia": "Guide",
+    "cartas": "Cards",
+    "vip": "VIP",
+    "recursos": "Features",
+    "noticias": "News",
+    "contato": "Contact",
+    "painel": "Dashboard",
+    "sair": "Sign out",
+    "admin": "Admin",
+    "admin_titulo": "Admin dashboard",
+    "admin_aria": "Sign in to the admin dashboard",
+    "adicionar": "Add to Discord"
+  },
+  "home": {
+    "eyebrow": "Discord bot",
+    "titulo_1": "Collect anime cards.",
+    "titulo_2": "Battle your friends.",
+    "subtitulo": "Roll cards of your favorite characters, complete your Pokédex, trade on the market and prove who builds the best team. All inside Discord, for free.",
+    "cta_adicionar": "Add to my server",
+    "cta_catalogo": "Browse the catalog",
+    "num_cartas": "cards in the catalog",
+    "num_series": "different anime",
+    "num_jogadores": "players",
+    "num_descobertas": "cards discovered",
+    "raras_titulo": "Rare cards",
+    "raras_texto": "Some of the best cards in the game.",
+    "ver_todas": "See all →",
+    "como_funciona": "How it works",
+    "como_funciona_texto": "Everything through slash commands. No website, no sign-up, nothing to install.",
+    "raridades_titulo": "The five rarities",
+    "raridades_texto": "The more famous the character, the rarer the card. And the rarer it is, the better its battle stats.",
+    "raridade_contagem": "{n} cards",
+    "novidades": "What's new",
+    "novidades_texto": "Recent changes to the game.",
+    "final_titulo": "Start collecting today",
+    "final_texto": "Add AniBattle to your server and use {comando} to get your first card.",
+    "recursos": [
+      {
+        "emoji": "🎴",
+        "titulo": "Collect",
+        "texto": "Roll anime character cards. Five rarities, from common to master — and rarity follows how popular the character really is."
+      },
+      {
+        "emoji": "⚔️",
+        "titulo": "Battle",
+        "texto": "3 vs 3 duels with coins on the line. Variable damage, crits and dodges, and anyone below 40% health enters desperation mode. Comebacks happen."
+      },
+      {
+        "emoji": "📖",
+        "titulo": "Fill the Pokédex",
+        "texto": "Every card that passes through your inventory is registered forever — even if you sell it later."
+      },
+      {
+        "emoji": "🤝",
+        "titulo": "Trade",
+        "texto": "A player-run market plus direct card-for-card trading, with both sides confirming."
+      },
+      {
+        "emoji": "🏆",
+        "titulo": "Earn trophies",
+        "texto": "28 trophies across bronze, silver and gold. Platinum only unlocks once you have all the others."
+      },
+      {
+        "emoji": "🥇",
+        "titulo": "Climb the ranking",
+        "texto": "Battle rating from Bronze to Master. Beating someone stronger is worth far more."
+      }
+    ]
+  },
+  "rodape": {
+    "direitos": "All rights reserved.",
+    "termos": "Terms of use",
+    "privacidade": "Privacy",
+    "feito_com": "Made for the anime community.",
+    "sobre": "Collect anime character cards, build your team and compete with other players. Right inside Discord.",
+    "jogo": "Game",
+    "catalogo": "Card catalog",
+    "como": "How it works",
+    "noticias": "News",
+    "planos": "VIP plans",
+    "suporte": "Support",
+    "servidor": "Support server",
+    "codigo": "Source on GitHub",
+    "legal": "Legal"
+  },
+  "legal": {
+    "aviso_traducao": "This is a courtesy translation. If the versions differ, the Portuguese text prevails."
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "titulo_padrao": "AniBattle — Colecione e batalhe com cartas de anime no Discord",
+    "template": "%s | AniBattle",
+    "descricao": "Bot de Discord para colecionar cartas de personagens de anime, montar time e duelar. Pokédex, mercado entre jogadores, torneios e troféus. Grátis para jogar.",
+    "og_titulo": "AniBattle — Cartas de anime no Discord",
+    "og_descricao": "Colecione, troque e batalhe com cartas de personagens de anime. Grátis.",
+    "palavras": "bot discord, cartas de anime, bot de cartas, anime discord, colecionar cartas, tcg discord, bot brasileiro"
+  },
+  "nav": {
+    "guia": "Guia",
+    "cartas": "Cartas",
+    "vip": "VIP",
+    "recursos": "Recursos",
+    "noticias": "Notícias",
+    "contato": "Contato",
+    "painel": "Painel",
+    "sair": "Sair",
+    "admin": "Admin",
+    "admin_titulo": "Painel administrativo",
+    "admin_aria": "Entrar no painel administrativo",
+    "adicionar": "Adicionar ao Discord"
+  },
+  "home": {
+    "eyebrow": "Bot de Discord",
+    "titulo_1": "Colecione cartas de anime.",
+    "titulo_2": "Dispute com seus amigos.",
+    "subtitulo": "Role cartas dos seus personagens favoritos, complete sua Pokédex, negocie no mercado e prove quem monta o melhor time. Tudo dentro do Discord, de graça.",
+    "cta_adicionar": "Adicionar ao meu servidor",
+    "cta_catalogo": "Ver o catálogo",
+    "num_cartas": "cartas no catálogo",
+    "num_series": "animes diferentes",
+    "num_jogadores": "jogadores",
+    "num_descobertas": "cartas descobertas",
+    "raras_titulo": "Cartas raras",
+    "raras_texto": "Algumas das melhores cartas que existem no jogo.",
+    "ver_todas": "Ver todas →",
+    "como_funciona": "Como funciona",
+    "como_funciona_texto": "Tudo por comandos de barra. Sem site, sem cadastro, sem instalar nada.",
+    "raridades_titulo": "As cinco raridades",
+    "raridades_texto": "Quanto mais famoso o personagem, mais rara a carta. E quanto mais rara, melhores os atributos em batalha.",
+    "raridade_contagem": "{n} cartas",
+    "novidades": "Novidades",
+    "novidades_texto": "O que mudou no jogo recentemente.",
+    "final_titulo": "Comece a colecionar hoje",
+    "final_texto": "Adicione o AniBattle ao seu servidor e use {comando} para ganhar sua primeira carta.",
+    "recursos": [
+      {
+        "emoji": "🎴",
+        "titulo": "Colecione",
+        "texto": "Role cartas de personagens de anime. Cinco raridades, do comum ao mestre — e a raridade acompanha a popularidade real do personagem."
+      },
+      {
+        "emoji": "⚔️",
+        "titulo": "Batalhe",
+        "texto": "Duelos 3 contra 3 com aposta. Tem dano variável, crítico e esquiva, e quem cai abaixo de 40% de vida entra em modo desespero. Viradas acontecem."
+      },
+      {
+        "emoji": "📖",
+        "titulo": "Complete a Pokédex",
+        "texto": "Toda carta que passa pelo seu inventário fica registrada para sempre — mesmo que você venda depois."
+      },
+      {
+        "emoji": "🤝",
+        "titulo": "Negocie",
+        "texto": "Mercado entre jogadores e troca direta carta por carta, com confirmação dos dois lados."
+      },
+      {
+        "emoji": "🏆",
+        "titulo": "Conquiste troféus",
+        "texto": "28 troféus em bronze, prata e ouro. A platina só desbloqueia quando você tiver todos os outros."
+      },
+      {
+        "emoji": "🥇",
+        "titulo": "Suba no ranking",
+        "texto": "Pontuação de batalha de Bronze a Mestre. Ganhar de quem é mais forte vale muito mais."
+      }
+    ]
+  },
+  "rodape": {
+    "direitos": "Todos os direitos reservados.",
+    "termos": "Termos de uso",
+    "privacidade": "Privacidade",
+    "feito_com": "Feito para a comunidade de anime.",
+    "sobre": "Colecione cartas de personagens de anime, monte seu time e dispute com outros jogadores. Direto no Discord.",
+    "jogo": "Jogo",
+    "catalogo": "Catálogo de cartas",
+    "como": "Como funciona",
+    "noticias": "Notícias",
+    "planos": "Planos VIP",
+    "suporte": "Suporte",
+    "servidor": "Servidor de suporte",
+    "codigo": "Código no GitHub",
+    "legal": "Legal"
+  },
+  "legal": {
+    "aviso_traducao": "Esta é uma tradução de cortesia. Em caso de divergência entre as versões, prevalece o texto em português."
+  }
+}
