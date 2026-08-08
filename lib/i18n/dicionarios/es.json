@@ -95,5 +95,11 @@
   },
   "legal": {
     "aviso_traducao": "Esta es una traducción de cortesía. En caso de discrepancia entre las versiones, prevalece el texto en portugués."
+  },
+  "nao_encontrado": {
+    "titulo": "Página no encontrada",
+    "texto": "Esa carta no está en el mazo. Quizá el número no existe en el catálogo, o el enlace está mal.",
+    "voltar": "Volver al inicio",
+    "catalogo": "Ver el catálogo"
   }
 }

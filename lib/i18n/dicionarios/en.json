@@ -95,5 +95,11 @@
   },
   "legal": {
     "aviso_traducao": "This is a courtesy translation. If the versions differ, the Portuguese text prevails."
+  },
+  "nao_encontrado": {
+    "titulo": "Page not found",
+    "texto": "That card isn't in the deck. Maybe the number doesn't exist in the catalog, or the link is wrong.",
+    "voltar": "Back to home",
+    "catalogo": "Browse the catalog"
   }
 }

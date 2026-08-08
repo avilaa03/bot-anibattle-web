@@ -1,18 +1,16 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { IDIOMAS, negociarIdioma, ehIdioma } from '@/lib/i18n/config';
-import { paisDaRequisicao, idiomaDoPais } from '@/lib/i18n/pais';
+import { IDIOMAS, IDIOMA_PADRAO, ehIdioma } from '@/lib/i18n/config';
 
 /**
  * Põe o idioma na URL.
  *
  * Toda página pública vive sob `/<idioma>/...`. Quem chega numa URL sem
- * idioma é redirecionado para o idioma que o navegador pede — e a
- * escolha manual, quando existe, ganha do navegador.
+ * idioma vai para o português, e a escolha manual fica lembrada.
  *
  * ## Por que o português também tem prefixo
  *
  * Seria possível deixar `/guia` como português e só prefixar os outros.
- * Não fizemos: sem prefixo, `/guia` e `/pt-BR/guia` viram duas URLs com
+ * Não fizemos: sem prefixo, `/guia` e `/pt/guia` viram duas URLs com
  * o mesmo conteúdo, e o Google trata isso como conteúdo duplicado a
  * menos que se acerte canonical em toda página. Um endereço por idioma,
  * sem exceção, é mais simples de manter correto.
@@ -23,6 +21,13 @@ import { paisDaRequisicao, idiomaDoPais } from '@/lib/i18n/pais';
  */
 
 const COOKIE = 'idioma';
+
+/** Repassa o caminho para os componentes servidores lerem. */
+function novoCabecalho(request: NextRequest, pathname: string): Headers {
+  const h = new Headers(request.headers);
+  h.set('x-pathname', pathname);
+  return h;
+}
 
 // Rotas que NÃO recebem prefixo de idioma.
 //
@@ -45,7 +50,12 @@ export function middleware(request: NextRequest) {
     // Visitar uma URL de idioma É a escolha do visitante: grava, para a
     // próxima visita à raiz cair no mesmo lugar.
     const idiomaDaUrl = pathname.split('/')[1];
-    const resposta = NextResponse.next();
+    // O caminho vai num cabeçalho para o 404 conseguir descobrir o
+    // idioma: ele é renderizado sem , então não tem outro jeito
+    // de saber em que idioma responder.
+    const resposta = NextResponse.next({
+      request: { headers: novoCabecalho(request, pathname) }
+    });
     if (request.cookies.get(COOKIE)?.value !== idiomaDaUrl) {
       resposta.cookies.set(COOKIE, idiomaDaUrl, {
         path: '/',
@@ -56,25 +66,17 @@ export function middleware(request: NextRequest) {
     return resposta;
   }
 
-  // Ordem de decisão, do mais forte para o mais fraco:
+  // Português por padrão, e a escolha manual é lembrada.
   //
-  //   1. escolha manual anterior (cookie)
-  //   2. país de onde a pessoa acessa
-  //   3. idioma do navegador
-  //   4. português
+  // Chegamos a detectar o idioma pelo navegador e pelo país de origem.
+  // Saiu: acertava na maioria, mas cada palpite errado é um visitante
+  // caindo num idioma que ele não pediu, e o site tem um seletor visível
+  // no cabeçalho para resolver isso em um clique.
   //
-  // O cookie vem primeiro porque escolha explícita ganha de palpite:
-  // quem trocou para inglês estando no Brasil não quer voltar para o
-  // português na próxima visita.
-  //
-  // O país vem antes do navegador porque acerta o caso mais comum de
-  // divergência — o brasileiro com Windows em inglês, que hoje receberia
-  // o site em inglês sem querer.
+  // O cookie é o que importa aqui: quem trocou de idioma uma vez não
+  // precisa trocar de novo nas próximas visitas.
   const salvo = request.cookies.get(COOKIE)?.value;
-
-  const idioma = (salvo && ehIdioma(salvo) ? salvo : null)
-    ?? idiomaDoPais(paisDaRequisicao(request.headers))
-    ?? negociarIdioma(request.headers.get('accept-language'));
+  const idioma = salvo && ehIdioma(salvo) ? salvo : IDIOMA_PADRAO;
 
   const destino = request.nextUrl.clone();
   destino.pathname = `/${idioma}${pathname === '/' ? '' : pathname}`;
