@@ -54,28 +54,3 @@ export function ehIdioma(valor: string): valor is Idioma {
   return (IDIOMAS as readonly string[]).includes(valor);
 }
 
-/**
- * Melhor idioma para um `Accept-Language` de navegador.
- *
- * Compara só a língua, ignorando a região: `pt-PT`, `pt-BR` e `pt` caem
- * todos em `pt`. É exatamente o que queremos — um português serve os
- * dois lados do Atlântico.
- */
-export function negociarIdioma(aceita: string | null): Idioma {
-  if (!aceita) return IDIOMA_PADRAO;
-
-  const preferencias = aceita
-    .split(',')
-    .map((parte) => {
-      const [tag, q] = parte.trim().split(';q=');
-      return { lingua: tag.trim().toLowerCase().split('-')[0], peso: q ? Number(q) : 1 };
-    })
-    .sort((a, b) => b.peso - a.peso);
-
-  for (const { lingua } of preferencias) {
-    const achou = IDIOMAS.find((i) => i === lingua);
-    if (achou) return achou;
-  }
-
-  return IDIOMA_PADRAO;
-}

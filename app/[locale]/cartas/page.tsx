@@ -5,30 +5,35 @@ import CartaVisual from '@/components/CartaVisual';
 import FiltrosCartas from '@/components/FiltrosCartas';
 import { listarCartas, listarSeries, contarCartas, REVALIDATE } from '@/lib/consultas';
 import { getRaridade } from '@/lib/raridades';
+import { traduzir } from '@/lib/i18n';
+import { ehIdioma, type Idioma } from '@/lib/i18n/config';
+import { notFound } from 'next/navigation';
 
 export const revalidate = 300;
 
 const POR_PAGINA = 24;
 
 interface Props {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+export async function generateMetadata({ params: rota, searchParams }: Props): Promise<Metadata> {
+  const { locale } = await rota;
+  const t = traduzir(ehIdioma(locale) ? locale : 'pt');
   const params = await searchParams;
   const raridade = typeof params.raridade === 'string' ? params.raridade : undefined;
   const serie = typeof params.serie === 'string' ? params.serie : undefined;
 
   // Título específico ajuda o Google a indexar cada filtro como página útil.
-  let titulo = 'Catálogo de cartas';
-  if (serie) titulo = `Cartas de ${serie}`;
-  else if (raridade) titulo = `Cartas ${getRaridade(raridade).label.toLowerCase()}s`;
+  let titulo = t('cartas.titulo');
+  if (serie) titulo = t('cartas.titulo_serie', { serie });
+  else if (raridade) titulo = t('cartas.titulo_raridade', { raridade: getRaridade(raridade).label.toLowerCase() });
 
   return {
     title: titulo,
-    description:
-      `Veja todas as cartas do AniBattle${serie ? ` da série ${serie}` : ''}. `
-      + 'Atributos, raridade e número na Pokédex de cada personagem.'
+    description: (serie ? t('cartas.desc_serie', { serie }) : t('cartas.desc_geral'))
+      + ' ' + t('cartas.descricao')
   };
 }
 
@@ -36,7 +41,11 @@ function primeiro(valor: string | string[] | undefined): string | undefined {
   return Array.isArray(valor) ? valor[0] : valor;
 }
 
-export default async function PaginaCartas({ searchParams }: Props) {
+export default async function PaginaCartas({ params: rota, searchParams }: Props) {
+  const { locale } = await rota;
+  if (!ehIdioma(locale)) notFound();
+  const idioma = locale as Idioma;
+  const t = traduzir(idioma);
   const params = await searchParams;
 
   const pagina = Math.max(1, parseInt(primeiro(params.pagina) ?? '1', 10) || 1);
@@ -68,7 +77,7 @@ export default async function PaginaCartas({ searchParams }: Props) {
   return (
     <div className="container-site py-12">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold sm:text-4xl">Catálogo de cartas</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">{t('cartas.titulo')}</h1>
         <p className="mt-2 text-textoFraco">
           Todas as {new Intl.NumberFormat('pt-BR').format(totalCatalogo)} cartas do jogo,
           com atributos e número da Pokédex.
@@ -81,7 +90,7 @@ export default async function PaginaCartas({ searchParams }: Props) {
 
       {cartas.length === 0 ? (
         <div className="cartao mt-10 p-12 text-center">
-          <p className="text-lg font-medium">Nenhuma carta encontrada</p>
+          <p className="text-lg font-medium">{t('cartas.vazio')}</p>
           <p className="mt-2 text-sm text-textoFraco">
             Tente outros filtros ou{' '}
             <Link href="/cartas" className="text-marca hover:underline">

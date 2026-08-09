@@ -95,5 +95,37 @@
   },
   "legal": {
     "aviso_traducao": "Esta es una traducción de cortesía. En caso de discrepancia entre las versiones, prevalece el texto en portugués."
+  },
+  "nao_encontrado": {
+    "titulo": "Página no encontrada",
+    "texto": "Esa carta no está en el mazo. Quizá el número no existe en el catálogo, o el enlace está mal.",
+    "voltar": "Volver al inicio",
+    "catalogo": "Ver el catálogo"
+  },
+  "cartas": {
+    "titulo": "Catálogo de cartas",
+    "descricao": "Atributos, rareza y número en la Pokédex de cada personaje.",
+    "vazio": "No se encontraron cartas",
+    "titulo_serie": "Cartas de {serie}",
+    "titulo_raridade": "Cartas {raridade}s",
+    "desc_serie": "Mira todas las cartas de AniBattle de la serie {serie}.",
+    "desc_geral": "Mira todas las cartas de AniBattle."
+  },
+  "entrar": {
+    "titulo": "Entrar en AniBattle",
+    "ja_conectado": "Ya has iniciado sesión",
+    "ir_site": "Ir al sitio",
+    "diagnostico": "Diagnóstico (solo en desarrollo)",
+    "erro_cancelou": "Cancelaste la autorización en Discord.",
+    "erro_sem_codigo": "Discord no devolvió el código de autorización.",
+    "erro_expirou": "La sesión de inicio expiró, o la solicitud no empezó aquí. Inténtalo de nuevo.",
+    "erro_generico": "No se pudo completar el inicio de sesión. Inténtalo en unos instantes.",
+    "erro_config": "El inicio de sesión no está configurado en el servidor. Avisa al administrador.",
+    "entrou_como": "Has entrado como",
+    "explicacao": "Usa tu cuenta de Discord — la misma con la que juegas. Solo pedimos tu nombre, avatar e ID; nada más.",
+    "botao": "Entrar con Discord",
+    "dica_texto": "Si Discord lo rechaza con <em>invalid redirect_uri</em>, registra exactamente esta URL en Developer Portal → OAuth2 → Redirects,",
+    "dica_app": "en la aplicación con client_id {id}",
+    "nao_definido": "(sin definir)"
   }
 }

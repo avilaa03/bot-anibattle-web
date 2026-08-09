@@ -3,9 +3,23 @@ import { getSessao, ehAdmin, urlAvatar } from '@/lib/auth';
 import { traduzir } from '@/lib/i18n';
 import type { Idioma } from '@/lib/i18n/config';
 import SeletorIdioma from './SeletorIdioma';
+import AvatarAdmin from './AvatarAdmin';
 
 const INVITE = process.env.NEXT_PUBLIC_INVITE_URL || '#';
 
+/**
+ * Três blocos, não uma fila só.
+ *
+ * Antes tudo ficava empilhado à direita: navegação, seletor de idioma,
+ * admin e o botão de convite disputavam o mesmo canto, e o miolo da barra
+ * ficava vazio. Agora o grid de três colunas dá âncoras fixas — logo à
+ * esquerda, navegação no centro real da barra, ações à direita — e o
+ * conjunto para de escorregar conforme o texto muda de tamanho entre os
+ * idiomas ("Guia" x "Guide" x "Guía" somam larguras diferentes).
+ *
+ * As colunas laterais têm a mesma base (`1fr`), então a navegação fica
+ * centralizada na tela, e não centralizada no espaço que sobrou.
+ */
 export default async function Cabecalho({ idioma }: { idioma: Idioma }) {
   const t = traduzir(idioma);
 
@@ -34,27 +48,32 @@ export default async function Cabecalho({ idioma }: { idioma: Idioma }) {
     sessao = null;
   }
 
+  const logado = sessao && ehAdmin(sessao);
+
   return (
     <header className="sticky top-0 z-50 border-b border-borda bg-fundo/85 backdrop-blur">
-      <div className="container-site flex h-16 items-center justify-between gap-4">
-        <Link href={href('')} className="flex items-center gap-2 font-semibold">
+      <div className="container-site grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-4">
+        {/* ---------- Esquerda: marca ---------- */}
+        <Link href={href('')} className="flex items-center gap-2 justify-self-start font-semibold">
           <span className="text-xl">🎴</span>
           <span className="text-lg">AniBattle</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        {/* ---------- Centro: navegação ---------- */}
+        <nav className="hidden items-center gap-6 justify-self-center md:flex">
           {LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-textoFraco transition-colors hover:text-texto"
+              className="whitespace-nowrap text-sm text-textoFraco transition-colors hover:text-texto"
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        {/*
+        {/* ---------- Direita: ações, e o idioma por último ----------
+
           Não existe botão "Entrar" para o público.
 
           O login só serve para o painel administrativo — não há área de
@@ -62,25 +81,29 @@ export default async function Cabecalho({ idioma }: { idioma: Idioma }) {
           prometia algo que não existe: quem clicava entrava com o Discord
           e caía numa tela dizendo que não tem permissão.
 
-          O que existe é o "Admin" abaixo: de propósito discreto, porque é
-          uma porta de serviço, não um convite ao visitante.
+          O que existe é o "Admin": de propósito discreto, porque é uma
+          porta de serviço, não um convite ao visitante.
         */}
-        <div className="flex items-center gap-3">
-          <SeletorIdioma atual={idioma} />
+        <div className="flex items-center gap-3 justify-self-end">
+          <a
+            href={INVITE}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="botao-primario !py-2 !px-4 whitespace-nowrap"
+          >
+            {t('nav.adicionar')}
+          </a>
 
-          {sessao && ehAdmin(sessao) ? (
+          {logado ? (
             <>
               <Link href="/admin" className="botao-secundario !py-2 !px-4 text-sm">
                 {t('nav.painel')}
               </Link>
-              <div className="hidden items-center gap-2 sm:flex">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={urlAvatar(sessao.id, sessao.avatar)}
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="rounded-full"
+              <div className="hidden items-center sm:flex">
+                <AvatarAdmin
+                  src={urlAvatar(sessao!.id, sessao!.avatar)}
+                  padrao={urlAvatar(sessao!.id, null)}
+                  nome={sessao!.nome}
                 />
               </div>
               <form action="/api/auth/logout" method="post">
@@ -115,14 +138,11 @@ export default async function Cabecalho({ idioma }: { idioma: Idioma }) {
             </Link>
           )}
 
-          <a
-            href={INVITE}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="botao-primario !py-2 !px-4"
-          >
-            {t('nav.adicionar')}
-          </a>
+          {/* Por último e separado por uma divisória: é configuração, não
+              navegação, e não deve competir com o botão de convite. */}
+          <div className="ml-1 border-l border-borda pl-3">
+            <SeletorIdioma atual={idioma} />
+          </div>
         </div>
       </div>
     </header>
