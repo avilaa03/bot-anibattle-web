@@ -108,6 +108,7 @@ export default async function PaginaInicial({ params }: { params: Promise<{ loca
               <CartaVisual
                 key={carta.id}
                 carta={carta}
+                idioma={idioma}
                 totalCatalogo={stats.totalCartas}
                 prioridade={i < 3}
               />
@@ -152,7 +153,7 @@ export default async function PaginaInicial({ params }: { params: Promise<{ loca
               >
                 <div className="text-2xl">{r.emoji}</div>
                 <div className="mt-3 font-semibold" style={{ color: r.cor }}>
-                  {r.label}
+                  {t(`raridades.${chave}`)}
                 </div>
                 <div className="mt-1 text-sm text-textoFraco">
                   {t('home.raridade_contagem', { n: n(quantidade) })}
@@ -179,7 +180,7 @@ export default async function PaginaInicial({ params }: { params: Promise<{ loca
                     color: ETIQUETAS[noticiaDestaque.etiqueta].cor
                   }}
                 >
-                  {ETIQUETAS[noticiaDestaque.etiqueta].label}
+                  {t(`etiquetas.${noticiaDestaque.etiqueta}`)}
                 </span>
                 <time className="text-xs text-textoFraco" dateTime={noticiaDestaque.data}>
                   {formatarData(noticiaDestaque.data)}
@@ -201,7 +202,7 @@ export default async function PaginaInicial({ params }: { params: Promise<{ loca
                       color: ETIQUETAS[n.etiqueta].cor
                     }}
                   >
-                    {ETIQUETAS[n.etiqueta].label}
+                    {t(`etiquetas.${n.etiqueta}`)}
                   </span>
                   <time className="text-xs text-textoFraco" dateTime={n.data}>
                     {formatarData(n.data)}

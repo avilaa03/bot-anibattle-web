@@ -7,6 +7,15 @@
 
 export interface MetaRaridade {
   chave: string;
+  /**
+   * Rótulo em português, e só para o /admin.
+   *
+   * Página pública NÃO usa este campo: o nome da raridade sai de
+   * `t('raridades.<chave>')`, senão o catálogo em inglês mostraria
+   * "Lendária". Aqui o catálogo guarda mecânica — cor, emoji, gradiente e
+   * peso —, que é igual nos três idiomas. O admin é interno e fica em
+   * português por decisão de escopo, então continua lendo daqui.
+   */
   label: string;
   emoji: string;
   cor: string;
@@ -100,6 +109,13 @@ export function formatarNumero(numero: number | null, total = 0): string {
   return `#${String(numero).padStart(casas, '0')}`;
 }
 
-export function formatarMoedas(valor: number): string {
-  return new Intl.NumberFormat('pt-BR').format(Math.round(valor || 0));
+/**
+ * Moedas com separador de milhar.
+ *
+ * O locale entra por parâmetro porque 1.234 em português é 1,234 em
+ * inglês. O padrão é `pt-BR` para o /admin, que é só em português;
+ * página pública passa `LOCALE_FORMATO[idioma]`.
+ */
+export function formatarMoedas(valor: number, locale = 'pt-BR'): string {
+  return new Intl.NumberFormat(locale).format(Math.round(valor || 0));
 }

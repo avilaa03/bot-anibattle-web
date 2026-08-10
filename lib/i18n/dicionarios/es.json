@@ -94,7 +94,39 @@
     "legal": "Legal"
   },
   "legal": {
-    "aviso_traducao": "Esta es una traducción de cortesía. En caso de discrepancia entre las versiones, prevalece el texto en portugués."
+    "so_em_portugues": "Este documento existe solo en portugués. Es la versión que tiene validez jurídica, y preferimos no ofrecer una traducción que pudiera diferir de ella en un punto que importa. Si algo aquí no queda claro, escríbenos en el servidor de soporte — respondemos en tu idioma.",
+    "termos_titulo": "Términos de Uso",
+    "termos_descricao": "Las reglas de uso de AniBattle.",
+    "privacidade_titulo": "Política de Privacidad",
+    "privacidade_descricao": "Cómo trata AniBattle tus datos."
+  },
+  "raridades": {
+    "common": "Común",
+    "rare": "Rara",
+    "ultra rare": "Ultra Rara",
+    "legendary": "Legendaria",
+    "master": "Maestra",
+    "event": "Evento"
+  },
+  "raridades_plural": {
+    "common": "comunes",
+    "rare": "raras",
+    "ultra rare": "ultra raras",
+    "legendary": "legendarias",
+    "master": "maestras",
+    "event": "de evento"
+  },
+  "etiquetas": {
+    "novidade": "Novedad",
+    "atualizacao": "Actualización",
+    "evento": "Evento",
+    "aviso": "Aviso"
+  },
+  "atributos": {
+    "ata": "ATK",
+    "lif": "HP",
+    "pow": "PWR",
+    "ovr": "OVR"
   },
   "nao_encontrado": {
     "titulo": "Página no encontrada",
@@ -107,9 +139,459 @@
     "descricao": "Atributos, rareza y número en la Pokédex de cada personaje.",
     "vazio": "No se encontraron cartas",
     "titulo_serie": "Cartas de {serie}",
-    "titulo_raridade": "Cartas {raridade}s",
+    "titulo_raridade": "Cartas {raridade}",
     "desc_serie": "Mira todas las cartas de AniBattle de la serie {serie}.",
-    "desc_geral": "Mira todas las cartas de AniBattle."
+    "desc_geral": "Mira todas las cartas de AniBattle.",
+    "intro": "Las {n} cartas del juego, con atributos y número de la Pokédex.",
+    "vazio_dica": "Prueba con otros filtros o",
+    "vazio_limpar": "limpia la búsqueda",
+    "paginacao": "Paginación",
+    "anterior": "Anterior",
+    "proxima": "Siguiente",
+    "pagina_de": "Página {atual} de {total}",
+    "sem_imagem": "Sin imagen"
+  },
+  "filtros": {
+    "buscar_placeholder": "Buscar por nombre del personaje...",
+    "buscar_aria": "Buscar una carta por nombre",
+    "buscar": "Buscar",
+    "todas": "Todas",
+    "todas_series": "Todas las series",
+    "filtrar_serie": "Filtrar por serie",
+    "ordenar": "Ordenar",
+    "ordem_numero": "Orden de la Pokédex",
+    "ordem_overall": "Mejor overall",
+    "ordem_nome": "Nombre (A-Z)",
+    "limpar": "Limpiar filtros",
+    "carregando": "Cargando...",
+    "contagem": "{n} carta(s)"
+  },
+  "carta": {
+    "nao_encontrada": "Carta no encontrada",
+    "descricao": "{nome} de {serie} en AniBattle. Carta {raridade}, overall {overall}. ATK {ata}, HP {lif}, PWR {pow}.",
+    "og_titulo": "{nome} — AniBattle",
+    "og_descricao": "Carta {raridade} de {serie}. Overall {overall}.",
+    "catalogo": "Catálogo",
+    "atributos": "Atributos",
+    "informacoes": "Información",
+    "overall": "Overall",
+    "valor_mercado": "Valor de mercado",
+    "venda_rapida": "Venta rápida",
+    "raridade": "Rareza",
+    "como_conseguir": "Cómo conseguirla",
+    "como_texto": "Usa <code>/roll</code> en Discord para sortear cartas, busca en <code>/market</code> por si alguien la vende, o márcala con <code>/desejar {nome}</code> para que te avisen cuando alguien la saque.",
+    "outras_da_serie": "Otras cartas de {serie}"
+  },
+  "guia": {
+    "meta_titulo": "Guía del jugador — AniBattle",
+    "meta_descricao": "Cómo jugar a AniBattle: sacar cartas, batallar, negociar en el mercado, mejorar y subir de nivel. Todo explicado desde cero, con las probabilidades reales a la vista.",
+    "etiqueta": "Guía del jugador",
+    "titulo": "Cómo jugar a AniBattle",
+    "abertura": "Un bot de cartas de anime en Discord: coleccionas personajes, batallas contra otros jugadores y negocias en el mercado. No necesitas saber nada para empezar — en cinco minutos ya tienes tu primer equipo.",
+    "cta_adicionar": "Añadir a mi servidor",
+    "cta_catalogo": "Ver el catálogo",
+    "cta_vip": "Conocer el VIP",
+    "nesta_pagina": "En esta página",
+    "comecar": "Empieza por aquí",
+    "comecar_texto": "{n} pasos, en orden. Cada uno lleva menos de un minuto.",
+    "duvidas_titulo": "Dudas comunes",
+    "fecho_titulo": "¿Listo para empezar?",
+    "fecho_texto": "Dentro de Discord, `/help` muestra la lista completa de comandos en cualquier momento.",
+    "passos": [
+      {
+        "titulo": "Saca tu primera carta",
+        "texto": "Escribe `/roll` en cualquier canal donde esté el bot. Aparece una carta y eliges: guardarla en el inventario o venderla al momento. Guárdala — al principio necesitas cartas, no monedas."
+      },
+      {
+        "titulo": "Junta tres cartas",
+        "texto": "Con tres ya puedes batallar. Vuelve a sacar cada 15 minutos, o usa `/daily` todos los días para ganar monedas sin esperar."
+      },
+      {
+        "titulo": "Prueba tu equipo sin riesgo",
+        "texto": "Usa `/treino` antes de desafiar a alguien. Es la misma batalla de verdad, contra un rival del bot, pero no vale monedas ni puntuación. Sirve para ver cómo se comportan tus cartas."
+      },
+      {
+        "titulo": "Desafía a alguien",
+        "texto": "`/battle @persona` abre un duelo 3 contra 3 por monedas. Cada uno arma su equipo en privado y la pelea se transmite en el canal, golpe a golpe."
+      },
+      {
+        "titulo": "Completa tus misiones",
+        "texto": "Usa `/missoes` para ver qué da recompensa hoy. El progreso es automático — solo vuelves para reclamar."
+      },
+      {
+        "titulo": "Mira si hay algún evento abierto",
+        "texto": "`/evento` muestra qué está pasando y el premio de cada uno. Entrar es gratis y lleva un comando — es la única forma de conseguir una carta de evento, que nunca sale de `/roll` ni de una caja."
+      }
+    ],
+    "secoes": [
+      {
+        "id": "cartas",
+        "icone": "🎴",
+        "titulo": "Cartas y rareza",
+        "resumo": "Cómo consigues cartas y qué hace que una valga más que otra.",
+        "paragrafos": [
+          "Cada `/roll` sortea una carta. Puedes sacar una vez cada 15 minutos.",
+          "Toda carta tiene tres atributos: **ATK** pesa en el orden de los turnos, en el golpe crítico y en la esquiva; **HP** es la vida; **PWR** es el daño. El **overall** resume los tres.",
+          "Lo que decide el valor de una carta es la **rareza**, no el overall. Una Común excelente nunca se acerca a una Maestra mala — el overall solo mueve el precio dentro del rango de su propia rareza."
+        ],
+        "tabela": {
+          "cabecalho": ["Rareza", "Probabilidad por roll", "Aparece 1 cada"],
+          "linhas": [
+            ["⚪ Común", "64%", "2 rolls"],
+            ["🔵 Rara", "25%", "4 rolls"],
+            ["🟣 Ultra Rara", "9,8%", "10 rolls"],
+            ["🟠 Legendaria", "1,1%", "91 rolls"],
+            ["🌟 Maestra", "0,1%", "1.000 rolls"]
+          ]
+        },
+        "atencao": {
+          "titulo": "La mala racha tiene límite",
+          "texto": "Si pasas muchos rolls sin una Ultra Rara — o muchos más sin una Legendaria — el juego te garantiza una. La Maestra es la única que nunca viene garantizada: es suerte, y la suerte comprada con espera deja de ser suerte."
+        }
+      },
+      {
+        "id": "batalhas",
+        "icone": "⚔️",
+        "titulo": "Batallas",
+        "resumo": "Duelos 3 contra 3, transmitidos en directo en el canal.",
+        "paragrafos": [
+          "Cada ronda es un 1 contra 1: tu primera carta se enfrenta a la primera del rival, la segunda contra la segunda, y así. **El orden que eliges importa.** Quien gane 2 de las 3 rondas se lleva el duelo.",
+          "Hay daño variable, crítico y esquiva — pero todo se inclina hacia la mejor carta. Y quien baja del 40% de vida entra en **modo desesperación**, con mucha más probabilidad de crítico. Las remontadas ocurren.",
+          "Las victorias mueven tu puntuación de clasificación. Ganarle a alguien muy por encima de ti renta bastante; ganarle a alguien muy por debajo no renta casi nada — así que no sirve de nada cazar jugadores débiles."
+        ],
+        "comandos": [
+          { "nome": "/battle", "o_que_faz": "Desafía a otro jugador. Apuesta mínima de 10 monedas, el ganador se lleva el doble." },
+          {
+            "nome": "/treino",
+            "o_que_faz": "La misma batalla, contra un equipo del bot.",
+            "dica": "No vale monedas, puntuación, misiones ni logros. Es para probar sin riesgo."
+          },
+          { "nome": "/torneio", "o_que_faz": "Competición con varios jugadores en cuadros eliminatorios." },
+          { "nome": "/ranking", "o_que_faz": "Clasificación por puntuación, de Bronce a Master." }
+        ]
+      },
+      {
+        "id": "economia",
+        "icone": "🪙",
+        "titulo": "Monedas y mercado",
+        "resumo": "Cómo ganar dinero y, sobre todo, cómo no perderlo por nada.",
+        "paragrafos": [
+          "Ganas monedas vendiendo cartas, cumpliendo misiones, recogiendo el `/daily` y ganando batallas apostadas.",
+          "Para vender hay dos caminos, y la diferencia entre ellos es grande."
+        ],
+        "comandos": [
+          {
+            "nome": "/quicksell",
+            "o_que_faz": "Vende al momento, directo al bot.",
+            "dica": "Paga la mitad del valor en una Común, pero solo el 15% en una Maestra."
+          },
+          {
+            "nome": "/sell",
+            "o_que_faz": "La anuncia en el mercado al precio que quieras.",
+            "dica": "Recibes el precio completo que pague otro jugador, menos un 5% de comisión."
+          },
+          { "nome": "/market", "o_que_faz": "Busca y compra cartas anunciadas por otros jugadores." },
+          { "nome": "/trocar", "o_que_faz": "Intercambio carta por carta. Los dos arman la oferta y los dos confirman." },
+          { "nome": "/daily", "o_que_faz": "Recompensa diaria. Cuantos más días seguidos, más vale." }
+        ],
+        "atencao": {
+          "titulo": "¿Sacaste algo raro? No uses la venta rápida",
+          "texto": "La venta rápida paga bien en carta común y mal en carta rara — a propósito. En una Maestra devuelve solo el 15% del valor. Anúnciala en el `/market`: recibes lo que pague otro jugador, y la diferencia llega a ser de decenas de miles de monedas. La venta rápida existe para cartas repetidas, no para tesoros."
+        }
+      },
+      {
+        "id": "caixas",
+        "icone": "🎁",
+        "titulo": "Cajas",
+        "resumo": "Sorteos de pago con mejores probabilidades — y por qué nunca compensan de media.",
+        "paragrafos": [
+          "Las cajas se compran con monedas y se **guardan en la bolsa**. Las abres cuando quieras, con `/caixa abrir`.",
+          "Cada una tiene su propia distribución, y los porcentajes están a la vista en `/caixa`. No se esconde nada.",
+          "Algo importante que el juego no esconde: **toda caja pierde dinero de media.** Pagas por la probabilidad, no por el retorno. Si abres cien cajas esperando ganancia, pierdes dinero — está diseñado así, porque es lo que saca monedas de circulación y contiene los precios del mercado."
+        ],
+        "tabela": {
+          "cabecalho": ["Caja", "Qué garantiza", "Por día"],
+          "linhas": [
+            ["📦 Común", "La más barata, para probar suerte sin que duela", "5"],
+            ["🎯 Temática", "Eliges la serie. Rara o mejor garantizada", "3"],
+            ["💠 Élite", "Ultra Rara garantizada, buena probabilidad de Legendaria", "2"],
+            ["🌟 Legendaria", "10% de probabilidad de sacar una Maestra", "1"]
+          ]
+        },
+        "atencao": {
+          "titulo": "La Caja Temática es la única que apunta",
+          "texto": "Te deja elegir la serie. Si te falta una carta concreta para cerrar una serie en la Pokédex, es la que lo resuelve — las demás sortean de todo el catálogo."
+        }
+      },
+      {
+        "id": "aprimorar",
+        "icone": "⬆️",
+        "titulo": "Mejora",
+        "resumo": "Haz una carta más fuerte gastando gemas. Sin tope, y sin riesgo de arruinarla.",
+        "paragrafos": [
+          "Las gemas vienen de dos puertas: comprarlas en la `/loja` o desguazar una carta que no quieres.",
+          "Cada intento tiene tres desenlaces: **sube un nivel**, **no pasa nada**, o **baja un nivel**. Conforme sube el nivel, acertar se vuelve más difícil.",
+          "**No existe tope.** Una carta de nivel alto no es una carta cara, es una carta **con suerte** — y eso es lo que hace que valga lo que vale en el mercado entre jugadores."
+        ],
+        "comandos": [
+          { "nome": "/aprimorar", "o_que_faz": "Gasta gemas para intentar subir el nivel de una carta." },
+          {
+            "nome": "/desmanchar",
+            "o_que_faz": "Convierte una carta en gemas.",
+            "dica": "Renta más que la venta rápida en todo — menos en la Maestra, donde vender todavía paga mejor."
+          },
+          { "nome": "/bolsa", "o_que_faz": "Muestra los objetos y las cajas que tienes guardados." },
+          { "nome": "/loja", "o_que_faz": "Compra gemas, pergaminos de protección y rolls extra." }
+        ],
+        "atencao": {
+          "titulo": "Tu carta nunca queda peor de lo que nació",
+          "texto": "El overall natural es el suelo absoluto. Una carta que nunca subió **no puede bajar** — la probabilidad de caída en el nivel 0 es literalmente cero. Y la carta nunca se destruye, en ningún caso. El pergamino de protección frena la caída cuando ya estás en un nivel alto."
+        }
+      },
+      {
+        "id": "nivel",
+        "icone": "⭐",
+        "titulo": "Tu nivel",
+        "resumo": "Todo lo que haces renta XP. Y lo que da el nivel no es suerte — es tiempo devuelto.",
+        "paragrafos": [
+          "Sacar cartas, batallar, intercambiar, descubrir una carta nueva, completar una misión y recoger el diario: todo renta XP. Quien usa el bot entero sube más rápido que quien solo saca cartas.",
+          "En los niveles **{marcos}** pasas a **acumular un roll más**, llegando a {max_cargas}. En la práctica: si no puedes entrar cada 15 minutos, los rolls que pasen mientras no estás dejan de perderse, y usas varios seguidos cuando vuelvas.",
+          "Fíjate en lo que esto **no** es: el nivel no acorta tu cooldown y no mejora tu probabilidad de rareza. El sorteo es igual para todos, del primer día al nivel 50. El nivel solo evita que desperdicies lo que ya era tuyo."
+        ],
+        "tabela": {
+          "cabecalho": ["Nivel", "Qué cambia"],
+          "linhas": [
+            ["5", "Monedas y una Caja Común"],
+            ["{nivel_carga_1}", "Pasa a acumular {cargas_nivel_1} rolls"],
+            ["15", "Una Caja Temática"],
+            ["{nivel_carga_2}", "Pasa a acumular {cargas_nivel_2} rolls"],
+            ["25", "Una Caja de Élite"],
+            ["{nivel_carga_3}", "Pasa a acumular {cargas_nivel_3} rolls"]
+          ]
+        }
+      },
+      {
+        "id": "pokedex",
+        "icone": "📖",
+        "titulo": "Pokédex y colección",
+        "resumo": "Toda carta que pasa por tus manos queda registrada para siempre.",
+        "paragrafos": [
+          "Aunque vendas, intercambies o desguaces la carta, el descubrimiento sigue en tu registro. Es permanente.",
+          "Cada carta tiene un número fijo: la `#042` de hoy es la misma mañana, aunque el catálogo crezca."
+        ],
+        "comandos": [
+          { "nome": "/pokedex", "o_que_faz": "Lo que ya descubriste y lo que todavía falta. Filtra por serie o rareza." },
+          { "nome": "/ficha", "o_que_faz": "La ficha completa de una carta, por nombre o número. Funciona aunque ya la hayas vendido." },
+          { "nome": "/colecionadores", "o_que_faz": "Clasificación de quién ha descubierto más cartas." },
+          { "nome": "/desejar", "o_que_faz": "Marca una carta que quieres. Cuando alguien la saque, te avisan." },
+          { "nome": "/conquistas", "o_que_faz": "Tus trofeos. Bronce, Plata, Oro y el Platino, que exige todos los demás." }
+        ]
+      },
+      {
+        "id": "evento",
+        "icone": "🎗️",
+        "titulo": "Cartas de evento",
+        "resumo": "Las únicas que el sorteo nunca entrega.",
+        "paragrafos": [
+          "Las cartas de evento se reparten en ocasiones especiales — participación en la beta, campañas, premios de torneo. **Nunca salen de `/roll` ni de una caja**, y eso es justamente lo que las hace especiales: tener una significa que estuviste allí.",
+          "Están en una **Pokédex separada**, en `/pokedex dex:evento`. La razón es simple: la Pokédex normal existe para completarse, y si las cartas de evento entraran en ella, la barra de todo el mundo bajaría con cada reparto nuevo — nadie que se perdiera el evento podría volver a cerrar el 100%.",
+          "Algunas cartas son **vinculadas**: son tuyas y no se pueden vender, intercambiar ni transferir. Batallan con normalidad, y aparecen con un 🔒 en los listados. Otras son negociables, y esas suelen valer mucho en el mercado — no hay forma de conseguir más una vez que el reparto se cierra.",
+          "No todo evento es sorpresa. Muchos abren **inscripción**: usa `/evento` para ver qué está pasando, el premio de cada uno y cuánta gente ya entró. Entrar es gratis, lleva un comando y no cuesta nada más — no hay comisión, no hay apuesta, y no pierdes nada si no ganas.",
+          "Una vez inscrito, no hace falta nada más: el premio cae en tu cuenta cuando el evento se resuelve. No todo premio es una carta — muchos son monedas, gemas o cajas."
+        ],
+        "comandos": [
+          { "nome": "/evento", "o_que_faz": "Lista los eventos con inscripción abierta y el premio de cada uno." },
+          {
+            "nome": "/evento entrar",
+            "o_que_faz": "Confirma tu inscripción en un evento.",
+            "dica": "Entrar dos veces no dobla nada — y no te quita la plaza. Puedes comprobarlo cuanto quieras."
+          },
+          { "nome": "/pokedex dex:evento", "o_que_faz": "La Pokédex separada, solo de cartas de evento." }
+        ],
+        "atencao": {
+          "titulo": "Una carta de evento no se puede desguazar",
+          "texto": "Ni las negociables. Desguazar es el único clic del juego que borra una carta para siempre, y estas no se vuelven a repartir. Si quieres deshacerte de una negociable, véndela en el `/market` — al menos sigue existiendo, con otra persona."
+        }
+      },
+      {
+        "id": "social",
+        "icone": "🤝",
+        "titulo": "Intercambiar y jugar acompañado",
+        "resumo": "La carta que te falta casi siempre le sobra a otra persona.",
+        "paragrafos": [
+          "El intercambio es la forma más barata de completar la Pokédex. Tú propones, la otra persona ve exactamente qué sale y qué entra, y **las dos tienen que aceptar** — nadie pierde una carta sin hacer clic en aceptar.",
+          "Una carta **vinculada** (con 🔒) no entra en intercambios, ni en regalos, ni en el mercado. Si el bot rechaza una propuesta tuya, casi siempre es por eso.",
+          "Si la propuesta se queda parada, caduca sola en un minuto y no pasa nada. En ese caso solo hay que proponer de nuevo — no queda ninguna carta atrapada en ningún sitio."
+        ],
+        "comandos": [
+          {
+            "nome": "/trocar",
+            "o_que_faz": "Propone un intercambio de cartas con otro jugador.",
+            "dica": "Mira antes la Pokédex de la persona: ofrecer lo que todavía no tiene aumenta mucho la probabilidad de que acepte."
+          },
+          { "nome": "/give", "o_que_faz": "Regala una carta o monedas, sin pedir nada a cambio." },
+          { "nome": "/torneio", "o_que_faz": "Torneos del servidor, con cuadro y premios." },
+          { "nome": "/ranking", "o_que_faz": "Clasificación por puntuación de batalla, de Bronce a Master." },
+          { "nome": "/magnata", "o_que_faz": "Quién tiene el mayor patrimonio sumando monedas y cartas." }
+        ],
+        "atencao": {
+          "titulo": "Desconfía del intercambio \"demasiado bueno\"",
+          "texto": "El bot muestra el valor de las dos partes antes de que aceptes — léelo. La estafa en los juegos de cartas casi siempre es la misma: alguien ofrece mucho por algo raro tuyo y desaparece después. Como aquí las dos partes cambian de mano en el mismo instante, no te pueden estafar, pero sí puedes aceptar un mal trato sin darte cuenta."
+        }
+      },
+      {
+        "id": "vip",
+        "icone": "✨",
+        "titulo": "VIP",
+        "resumo": "Qué cambia la suscripción — y qué no va a cambiar nunca.",
+        "paragrafos": [
+          "El VIP acorta tu tiempo de espera entre rolls (hasta un 40% menos), da **una carga de roll más** en los planes Oro y Master, aumenta la recompensa diaria y desbloquea marcos, colores y emblemas.",
+          "Sobre esa carga de más, conviene ser exacto: **se suma** a las que ganas subiendo de nivel, no las sustituye. Quien juega gratis llega a {max_cargas} cargas solo jugando, y quien está suscrito en el nivel 1 tiene {cargas_base_vip} — no {max_cargas_vip}. Es una carga más, no un atajo de nivel.",
+          "**Ningún plan da ventaja de combate.** Los atributos de las cartas, la probabilidad de rareza y el resultado de una batalla son exactamente iguales para todos, pagando o no. Lo que compra la suscripción es tiempo y estética, nunca suerte.",
+          "Las cajas tampoco cambian: los porcentajes son los mismos para quien se suscribe y para quien no, y no hay caja ni carta que exista solo para quien paga.",
+          "Esto no es una promesa de marketing: hay una verificación automática en el código del bot que impide que cualquier plan toque un atributo de combate o una probabilidad de rareza."
+        ]
+      }
+    ],
+    "duvidas": [
+      {
+        "pergunta": "Perdí mi carta favorita en una venta. ¿Se puede deshacer?",
+        "resposta": "Si la anunciaste en el mercado y todavía no la ha comprado nadie, usa `/undosell` para cancelar. Si ya se la vendiste al bot con la venta rápida, no hay forma de deshacerlo — pero el descubrimiento sigue en tu Pokédex para siempre."
+      },
+      {
+        "pergunta": "¿Cuánto tardo en conseguir una Maestra?",
+        "resposta": "Sale 1 de cada 1.000 rolls. Para quien saca unas 30 veces al día, eso da más o menos un mes — pero es suerte, así que puede venir mañana o dentro de tres meses. Por eso cuando alguien saca una, se entera el servidor entero."
+      },
+      {
+        "pergunta": "¿Merece la pena abrir cajas?",
+        "resposta": "Si tu objetivo es la ganancia, no: toda caja devuelve menos de lo que cuesta, de media. Merece la pena cuando quieres una probabilidad concentrada de algo raro, o cuando necesitas una carta de una serie concreta para cerrar la Pokédex."
+      },
+      {
+        "pergunta": "Mi mejora falló y la carta bajó de nivel. ¿Se puede destruir?",
+        "resposta": "Nunca. La carta jamás se destruye, y nunca queda peor de lo que era cuando la conseguiste. El overall natural es el mínimo absoluto."
+      },
+      {
+        "pergunta": "¿Cómo consigo una carta de evento?",
+        "resposta": "Participando en el evento. No salen de `/roll` ni de una caja, bajo ninguna circunstancia — se entregan a mano en ocasiones concretas. Si la carta es negociable, todavía puedes comprársela a otro jugador en el `/market`, y el precio suele ser alto justamente porque no hay forma de producir más."
+      },
+      {
+        "pergunta": "Pasé el día fuera. ¿Perdí todos los rolls?",
+        "resposta": "Ya no. Los rolls se acumulan hasta tu tope, que es {cargas_base} al principio y sube a {max_cargas} conforme pasas los niveles {marcos}. Pasado el tope ahí sí deja de acumular — así que conviene entrar una vez al día para usar lo que has juntado."
+      },
+      {
+        "pergunta": "Entré en un evento y no recibí nada. ¿Salió mal?",
+        "resposta": "Probablemente no. El premio no sale en el momento de la inscripción: se entrega cuando el evento se resuelve, que suele ser al final del periodo. Comprueba en `/evento` si tu inscripción aparece con ✅ — si aparece, está todo bien y solo hay que esperar."
+      },
+      {
+        "pergunta": "El bot no respondió a mi comando. ¿Y ahora?",
+        "resposta": "Espera unos segundos e inténtalo de nuevo. Si sigue igual, comprueba si el bot está en línea en la parte de arriba de esta página. Algunos comandos necesitan que aceptes mensajes directos del servidor — es el caso de la elección de equipo en la batalla y en el entrenamiento."
+      }
+    ]
+  },
+  "vip": {
+    "meta_titulo": "Planes VIP",
+    "meta_descricao": "Apoya a AniBattle y llévate marcos animados, menos cooldown, una carga de roll más y una recompensa diaria mayor. Ningún plan da ventaja de combate ni más probabilidad de carta rara.",
+    "titulo": "Apoya a AniBattle",
+    "subtitulo": "El juego es gratis y lo seguirá siendo. Quien se suscribe se lleva estética y comodidad — y ayuda a pagar el servidor.",
+    "tiers": {
+      "bronze": "Bronce",
+      "prata": "Plata",
+      "ouro": "Oro",
+      "master": "Master"
+    },
+    "molduras": {
+      "bronze": "Bronce",
+      "prata": "Plata",
+      "ouro": "Oro",
+      "sakura": "Sakura",
+      "holografica": "Holográfico",
+      "neon": "Neón"
+    },
+    "promessa_titulo": "🛡️ Ningún plan da ventaja de combate",
+    "promessa_texto": "Esto no es una promesa de marketing, es una regla del código: hay una prueba automatizada que <strong>falla e impide la publicación</strong> si alguien intenta dar atributos, probabilidad de rareza o ventaja de batalla a un plan de pago.",
+    "nunca_incluso": [
+      "Mejores atributos en las cartas (ATK, HP, PWR)",
+      "Más probabilidad de sacar una carta rara",
+      "Cualquier ventaja en el resultado de una batalla",
+      "Cartas exclusivas que no se pueden conseguir jugando",
+      "Moneda del juego comprada con dinero real"
+    ],
+    "promessa_rodape": "Un bot de cartas que vende poder vacía su base gratuita — que es justamente la que hace crecer el juego. Y como las batallas de AniBattle valen moneda, el poder comprado sería aún peor.",
+    "cargas_titulo": "🎴 Cargas de roll: qué cambió",
+    "cargas_texto": "Antes, un <code>/roll</code> sin usar simplemente se evaporaba: si pasabas el día fuera, perdías el día entero. Ahora los rolls <strong>se acumulan</strong> — el cooldown sigue corriendo mientras no estás, y las cargas te esperan.",
+    "gratis_titulo": "Jugando gratis",
+    "gratis_texto": "Empiezas con <strong>{base}</strong> y ganas una más en los niveles <strong>{niveis}</strong>, llegando a <strong>{max}</strong> sin pagar nada. El nivel sube con lo que ya haces: sacar cartas, batallar, intercambiar, descubrir cartas nuevas.",
+    "assinando_titulo": "Con Oro o Master",
+    "assinando_texto": "La suscripción da <strong>+1 carga</strong> que <strong>se suma</strong> a las del nivel, llegando a {max_vip}. Es una carga más, no un atajo de nivel — el tope de quien se suscribe en el nivel 1 es {base_vip}, no {max_vip}.",
+    "quantidade_texto": "<strong>Esto es ventaja de cantidad, no de suerte.</strong> Una carga más significa un roll más guardado para cuando vuelvas. La probabilidad de que salga Legendaria o Maestra es <strong>exactamente la misma</strong> para todos — la tabla de rareza no consulta la suscripción, y hay una prueba automatizada que lo garantiza.",
+    "mais_escolhido": "el más elegido",
+    "por_mes": "/mes",
+    "plano_cooldown": "⏱️ <strong>−{n}%</strong> en el cooldown del /roll",
+    "plano_carga": "🎴 <strong>+{n}</strong> carga de roll acumulada",
+    "plano_daily": "🎁 Daily <strong>{n}×</strong> mayor",
+    "plano_molduras": "🖼️ <strong>{n}</strong> marco(s) de carta",
+    "plano_desejos": "💭 <strong>{n}</strong> cartas en la lista de deseos",
+    "plano_banner": "🏳️ Banner en el perfil",
+    "plano_ranking": "✨ Destacado en la clasificación",
+    "assinar": "Suscribirse",
+    "pagamento_nota": "El pago por PIX todavía se acuerda en el servidor de soporte — el checkout automático está en camino. La activación se hace al momento, manualmente.",
+    "comparativo": "Comparativa",
+    "col_vantagem": "Ventaja",
+    "col_gratis": "Gratis",
+    "linha_cooldown": "Cooldown del /roll",
+    "linha_cargas": "Cargas de roll acumuladas",
+    "linha_daily": "Recompensa diaria",
+    "linha_molduras": "Marcos de carta",
+    "linha_desejos": "Lista de deseos",
+    "linha_cor": "Color del perfil",
+    "linha_banner": "Banner en el perfil",
+    "linha_ranking": "Destacado en la clasificación",
+    "linha_batalha": "Ventaja en batalla",
+    "gratis_normal": "normal",
+    "gratis_padrao": "por defecto",
+    "cartas_n": "{n} cartas",
+    "cargas_gratis": "{base} (hasta {max} por nivel)",
+    "cargas_vip": "+{n} (hasta {max})",
+    "perguntas": "Preguntas",
+    "faq": [
+      {
+        "p": "¿Menos cooldown y una carga más no son ventaja?",
+        "r": "Lo son, y son las dos únicas que rozan la economía — sacar más cartas genera más moneda. Por eso ambas son de cantidad, nunca de suerte, y están limitadas: en el plan más caro son 40% de cooldown y una carga más. Ninguna de las dos cambia el resultado de una batalla ni la probabilidad de que salga una carta rara."
+      },
+      {
+        "p": "¿Necesito suscribirme para acumular rolls?",
+        "r": "No. Acumular es de todos, y el tope sube con tu nivel — en los niveles {niveis} ganas una carga cada vez, llegando a {max} sin pagar nada. Oro y Master suman +1 encima de eso."
+      },
+      {
+        "p": "¿Las cajas dan mejores cartas a quien se suscribe?",
+        "r": "No. Los porcentajes de cada caja son fijos, están a la vista en /caixa y son iguales para todos. La suscripción no cambia la probabilidad de una caja, y tampoco da descuento ni cajas gratis — la Caja del Apoyador sale de votar por el bot, que es gratuito."
+      },
+      {
+        "p": "¿Quien se suscribe tiene cartas de evento exclusivas?",
+        "r": "No como suele pasar. Las cartas de evento salen de eventos, y entrar en un evento es gratis — usa /evento en Discord. Lo que la suscripción nunca da es una carta que solo exista para quien paga."
+      },
+      {
+        "p": "¿Qué pasa cuando vence la suscripción?",
+        "r": "Te quedas con todas las cartas y monedas. Solo dejan de valer las ventajas, y el marco equipado vuelve al de por defecto. Si te suscribes de nuevo, vuelve tal como estaba."
+      },
+      {
+        "p": "¿Renovar antes de que venza pierde los días que sobran?",
+        "r": "No. El tiempo restante se suma al nuevo periodo."
+      },
+      {
+        "p": "¿Se puede cambiar de plan?",
+        "r": "Sí. Dilo en el servidor de soporte y lo ajustamos."
+      },
+      {
+        "p": "¿Los marcos son animados?",
+        "r": "Los de Oro y Master sí — la carta se convierte en un GIF con el efecto del marco. Es puramente visual y no cambia ningún atributo."
+      },
+      {
+        "p": "¿A dónde va el dinero?",
+        "r": "Servidor, base de datos y tiempo de desarrollo. AniBattle es un proyecto de una sola persona."
+      }
+    ],
+    "ver_catalogo": "Ver el catálogo de cartas"
   },
   "entrar": {
     "titulo": "Entrar en AniBattle",

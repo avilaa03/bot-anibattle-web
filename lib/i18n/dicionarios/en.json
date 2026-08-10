@@ -94,7 +94,39 @@
     "legal": "Legal"
   },
   "legal": {
-    "aviso_traducao": "This is a courtesy translation. If the versions differ, the Portuguese text prevails."
+    "so_em_portugues": "This document is available in Portuguese only. That is the legally binding version, and we'd rather not offer a translation that could differ from it on a point that matters. If anything here isn't clear, write to us on the support server — we'll answer in your language.",
+    "termos_titulo": "Terms of Use",
+    "termos_descricao": "The rules for using AniBattle.",
+    "privacidade_titulo": "Privacy Policy",
+    "privacidade_descricao": "How AniBattle handles your data."
+  },
+  "raridades": {
+    "common": "Common",
+    "rare": "Rare",
+    "ultra rare": "Ultra Rare",
+    "legendary": "Legendary",
+    "master": "Master",
+    "event": "Event"
+  },
+  "raridades_plural": {
+    "common": "common",
+    "rare": "rare",
+    "ultra rare": "ultra rare",
+    "legendary": "legendary",
+    "master": "master",
+    "event": "event"
+  },
+  "etiquetas": {
+    "novidade": "New",
+    "atualizacao": "Update",
+    "evento": "Event",
+    "aviso": "Notice"
+  },
+  "atributos": {
+    "ata": "ATK",
+    "lif": "HP",
+    "pow": "PWR",
+    "ovr": "OVR"
   },
   "nao_encontrado": {
     "titulo": "Page not found",
@@ -109,7 +141,457 @@
     "titulo_serie": "{serie} cards",
     "titulo_raridade": "{raridade} cards",
     "desc_serie": "Browse every AniBattle card from {serie}.",
-    "desc_geral": "Browse every AniBattle card."
+    "desc_geral": "Browse every AniBattle card.",
+    "intro": "All {n} cards in the game, with stats and Pokédex number.",
+    "vazio_dica": "Try other filters or",
+    "vazio_limpar": "clear the search",
+    "paginacao": "Pagination",
+    "anterior": "Previous",
+    "proxima": "Next",
+    "pagina_de": "Page {atual} of {total}",
+    "sem_imagem": "No image"
+  },
+  "filtros": {
+    "buscar_placeholder": "Search by character name...",
+    "buscar_aria": "Search for a card by name",
+    "buscar": "Search",
+    "todas": "All",
+    "todas_series": "All series",
+    "filtrar_serie": "Filter by series",
+    "ordenar": "Sort",
+    "ordem_numero": "Pokédex order",
+    "ordem_overall": "Highest overall",
+    "ordem_nome": "Name (A-Z)",
+    "limpar": "Clear filters",
+    "carregando": "Loading...",
+    "contagem": "{n} card(s)"
+  },
+  "carta": {
+    "nao_encontrada": "Card not found",
+    "descricao": "{nome} from {serie} in AniBattle. {raridade} card, overall {overall}. ATK {ata}, HP {lif}, PWR {pow}.",
+    "og_titulo": "{nome} — AniBattle",
+    "og_descricao": "{raridade} card from {serie}. Overall {overall}.",
+    "catalogo": "Catalog",
+    "atributos": "Stats",
+    "informacoes": "Details",
+    "overall": "Overall",
+    "valor_mercado": "Market value",
+    "venda_rapida": "Quick sell",
+    "raridade": "Rarity",
+    "como_conseguir": "How to get it",
+    "como_texto": "Use <code>/roll</code> on Discord to draw cards, check <code>/market</code> in case someone is selling, or mark it with <code>/desejar {nome}</code> to be notified when someone rolls this card.",
+    "outras_da_serie": "More cards from {serie}"
+  },
+  "guia": {
+    "meta_titulo": "Player guide — AniBattle",
+    "meta_descricao": "How to play AniBattle: rolling cards, battling, trading on the market, upgrading and levelling up. Everything explained from scratch, with the real odds in plain sight.",
+    "etiqueta": "Player guide",
+    "titulo": "How to play AniBattle",
+    "abertura": "An anime card bot on Discord: you collect characters, battle other players and trade on the market. You don't need to know anything to start — in five minutes you'll have your first team.",
+    "cta_adicionar": "Add to my server",
+    "cta_catalogo": "Browse the catalog",
+    "cta_vip": "See the VIP plans",
+    "nesta_pagina": "On this page",
+    "comecar": "Start here",
+    "comecar_texto": "{n} steps, in order. Each one takes less than a minute.",
+    "duvidas_titulo": "Common questions",
+    "fecho_titulo": "Ready to start?",
+    "fecho_texto": "Inside Discord, `/help` shows the full list of commands at any time.",
+    "passos": [
+      {
+        "titulo": "Roll your first card",
+        "texto": "Type `/roll` in any channel where the bot is. A card shows up and you choose: keep it in your inventory or sell it right away. Keep it — early on you need cards, not coins."
+      },
+      {
+        "titulo": "Gather three cards",
+        "texto": "With three you can already battle. Roll again every 15 minutes, or use `/daily` every day to earn coins without waiting."
+      },
+      {
+        "titulo": "Test your team risk-free",
+        "texto": "Use `/treino` before challenging anyone. It's the same real battle, against a bot opponent, but nothing is at stake — no coins, no rating. It's there so you can see how your cards behave."
+      },
+      {
+        "titulo": "Challenge someone",
+        "texto": "`/battle @person` opens a 3-versus-3 duel for coins. You each build your team in private and the fight is broadcast in the channel, blow by blow."
+      },
+      {
+        "titulo": "Finish your missions",
+        "texto": "Use `/missoes` to see what pays today. Progress is automatic — you only come back to claim."
+      },
+      {
+        "titulo": "Check for an open event",
+        "texto": "`/evento` shows what's running and the prize for each one. Entering is free and takes one command — it's the only way to get an event card, which never comes from `/roll` or from a box."
+      }
+    ],
+    "secoes": [
+      {
+        "id": "cartas",
+        "icone": "🎴",
+        "titulo": "Cards and rarity",
+        "resumo": "How you get cards, and what makes one worth more than another.",
+        "paragrafos": [
+          "Every `/roll` draws a card. You can roll once every 15 minutes.",
+          "Each card has three stats: **ATK** weighs on turn order, critical hits and dodges; **HP** is health; **PWR** is damage. The **overall** sums up all three.",
+          "What decides a card's value is its **rarity**, not its overall. An excellent Common never gets close to a bad Master — the overall only moves the price within its own rarity band."
+        ],
+        "tabela": {
+          "cabecalho": ["Rarity", "Odds per roll", "Shows up once every"],
+          "linhas": [
+            ["⚪ Common", "64%", "2 rolls"],
+            ["🔵 Rare", "25%", "4 rolls"],
+            ["🟣 Ultra Rare", "9.8%", "10 rolls"],
+            ["🟠 Legendary", "1.1%", "91 rolls"],
+            ["🌟 Master", "0.1%", "1,000 rolls"]
+          ]
+        },
+        "atencao": {
+          "titulo": "A bad streak has a limit",
+          "texto": "If you go many rolls without an Ultra Rare — or many more without a Legendary — the game guarantees you one. The Master is the only one that never comes guaranteed: it's luck, and luck bought with waiting stops being luck."
+        }
+      },
+      {
+        "id": "batalhas",
+        "icone": "⚔️",
+        "titulo": "Battles",
+        "resumo": "3-versus-3 duels, broadcast live in the channel.",
+        "paragrafos": [
+          "Each round is a 1-versus-1: your first card faces the opponent's first, the second against the second, and so on. **The order you pick matters.** Whoever wins 2 of the 3 rounds takes the duel.",
+          "There's variable damage, crits and dodges — but everything leans toward the better card. And anyone who drops below 40% health enters **desperation mode**, with a much higher crit chance. Comebacks happen.",
+          "Wins move your ranking score. Beating someone far above you pays a lot; beating someone far below pays almost nothing — so there's no point hunting weak players."
+        ],
+        "comandos": [
+          { "nome": "/battle", "o_que_faz": "Challenges another player. Minimum stake of 10 coins, the winner takes double." },
+          {
+            "nome": "/treino",
+            "o_que_faz": "The same battle, against a bot team.",
+            "dica": "No coins, no rating, no missions and no achievements. It's for testing without risk."
+          },
+          { "nome": "/torneio", "o_que_faz": "A competition with several players in knockout brackets." },
+          { "nome": "/ranking", "o_que_faz": "Standings by score, from Bronze to Master." }
+        ]
+      },
+      {
+        "id": "economia",
+        "icone": "🪙",
+        "titulo": "Coins and market",
+        "resumo": "How to make money and, above all, how not to throw it away.",
+        "paragrafos": [
+          "You earn coins by selling cards, completing missions, collecting your `/daily` and winning staked battles.",
+          "There are two ways to sell, and the difference between them is large."
+        ],
+        "comandos": [
+          {
+            "nome": "/quicksell",
+            "o_que_faz": "Sells instantly, straight to the bot.",
+            "dica": "Pays half the value on a Common, but only 15% on a Master."
+          },
+          {
+            "nome": "/sell",
+            "o_que_faz": "Lists it on the market at whatever price you want.",
+            "dica": "You get the full price another player pays, minus a 5% fee."
+          },
+          { "nome": "/market", "o_que_faz": "Search and buy cards listed by other players." },
+          { "nome": "/trocar", "o_que_faz": "Card-for-card trade. Both build the offer and both confirm." },
+          { "nome": "/daily", "o_que_faz": "Daily reward. The more days in a row, the more it's worth." }
+        ],
+        "atencao": {
+          "titulo": "Pulled something rare? Don't quick-sell it",
+          "texto": "Quick sell pays well on a common card and badly on a rare one — on purpose. On a Master it returns just 15% of the value. List it on the `/market`: you get whatever another player pays, and the difference reaches tens of thousands of coins. Quick sell exists for duplicates, not for treasure."
+        }
+      },
+      {
+        "id": "caixas",
+        "icone": "🎁",
+        "titulo": "Boxes",
+        "resumo": "Paid draws with better odds — and why they never pay off on average.",
+        "paragrafos": [
+          "Boxes are bought with coins and **kept in your bag**. You open them whenever you want, with `/caixa abrir`.",
+          "Each one has its own distribution, and the percentages are in plain sight in `/caixa`. Nothing is hidden.",
+          "One important thing the game doesn't hide: **every box loses money on average.** You're paying for the chance, not for the return. Open a hundred boxes expecting profit and you'll lose money — it was designed that way, because that's what takes coins out of circulation and holds market prices down."
+        ],
+        "tabela": {
+          "cabecalho": ["Box", "What it guarantees", "Per day"],
+          "linhas": [
+            ["📦 Common", "The cheapest one, to try your luck painlessly", "5"],
+            ["🎯 Themed", "You pick the series. Rare or better guaranteed", "3"],
+            ["💠 Elite", "Ultra Rare guaranteed, good odds of a Legendary", "2"],
+            ["🌟 Legendary", "10% chance of pulling a Master", "1"]
+          ]
+        },
+        "atencao": {
+          "titulo": "The Themed Box is the only one that aims",
+          "texto": "It lets you pick the series. If one specific card is all that's missing to close a series in the Pokédex, that's the one that solves it — the others draw from the whole catalog."
+        }
+      },
+      {
+        "id": "aprimorar",
+        "icone": "⬆️",
+        "titulo": "Upgrading",
+        "resumo": "Make a card stronger by spending gems. No ceiling, and no risk of ruining it.",
+        "paragrafos": [
+          "Gems come from two doors: buying them in the `/loja` or salvaging a card you don't want.",
+          "Each attempt has three outcomes: **it goes up a level**, **nothing happens**, or **it drops a level**. As the level rises, succeeding gets harder.",
+          "**There is no ceiling.** A high-level card isn't an expensive card, it's a **lucky** one — and that's what makes it worth what it's worth on the player market."
+        ],
+        "comandos": [
+          { "nome": "/aprimorar", "o_que_faz": "Spends gems to try to raise a card's level." },
+          {
+            "nome": "/desmanchar",
+            "o_que_faz": "Turns a card into gems.",
+            "dica": "Pays more than quick sell on everything — except the Master, where selling still pays better."
+          },
+          { "nome": "/bolsa", "o_que_faz": "Shows the items and boxes you have stored." },
+          { "nome": "/loja", "o_que_faz": "Buy gems, protection scrolls and extra rolls." }
+        ],
+        "atencao": {
+          "titulo": "Your card never ends up worse than it was born",
+          "texto": "The natural overall is the absolute floor. A card that never went up **cannot drop** — the chance of falling at level 0 is literally zero. And the card is never destroyed, in any case. The protection scroll holds off the drop once you're at a high level."
+        }
+      },
+      {
+        "id": "nivel",
+        "icone": "⭐",
+        "titulo": "Your level",
+        "resumo": "Everything you do earns XP. And what the level gives isn't luck — it's time given back.",
+        "paragrafos": [
+          "Rolling, battling, trading, discovering a new card, completing a mission and collecting your daily: it all earns XP. Someone who uses the whole bot levels faster than someone who only rolls.",
+          "At levels **{marcos}** you start **stacking one more roll**, reaching {max_cargas}. In practice: if you can't come in every 15 minutes, the rolls that tick by while you're away stop being lost, and you use several in a row when you come back.",
+          "Note what this is **not**: the level doesn't shorten your cooldown and doesn't improve your rarity odds. The draw is the same for everyone, from day one to level 50. The level only stops you from wasting what was already yours."
+        ],
+        "tabela": {
+          "cabecalho": ["Level", "What changes"],
+          "linhas": [
+            ["5", "Coins and a Common Box"],
+            ["{nivel_carga_1}", "Starts stacking {cargas_nivel_1} rolls"],
+            ["15", "A Themed Box"],
+            ["{nivel_carga_2}", "Starts stacking {cargas_nivel_2} rolls"],
+            ["25", "An Elite Box"],
+            ["{nivel_carga_3}", "Starts stacking {cargas_nivel_3} rolls"]
+          ]
+        }
+      },
+      {
+        "id": "pokedex",
+        "icone": "📖",
+        "titulo": "Pokédex and collection",
+        "resumo": "Every card that passes through your hands is recorded forever.",
+        "paragrafos": [
+          "Even if you sell, trade or salvage the card, the discovery stays on your record. It's permanent.",
+          "Each card has a fixed number: today's `#042` is the same tomorrow, even as the catalog grows."
+        ],
+        "comandos": [
+          { "nome": "/pokedex", "o_que_faz": "What you've discovered and what's still missing. Filters by series or rarity." },
+          { "nome": "/ficha", "o_que_faz": "A card's full sheet, by name or number. Works even if you've already sold it." },
+          { "nome": "/colecionadores", "o_que_faz": "Leaderboard of who has discovered the most cards." },
+          { "nome": "/desejar", "o_que_faz": "Marks a card you want. When someone rolls it, you get pinged." },
+          { "nome": "/conquistas", "o_que_faz": "Your trophies. Bronze, Silver, Gold and the Platinum, which requires all the others." }
+        ]
+      },
+      {
+        "id": "evento",
+        "icone": "🎗️",
+        "titulo": "Event cards",
+        "resumo": "The only ones the draw never hands out.",
+        "paragrafos": [
+          "Event cards are handed out on special occasions — beta participation, campaigns, tournament prizes. They **never come from `/roll` or from a box**, and that's exactly what makes them special: having one means you were there.",
+          "They live in a **separate Pokédex**, at `/pokedex dex:evento`. The reason is simple: the normal Pokédex exists to be completed, and if event cards went into it, everyone's bar would drop with each new handout — nobody who missed the event could ever hit 100% again.",
+          "Some cards are **bound**: they're yours and can't be sold, traded or transferred. They battle normally, and show up with a 🔒 in listings. Others are tradeable, and those tend to be worth a lot on the market — there's no way to get more once the handout closes.",
+          "Not every event is a surprise. Many open **sign-ups**: use `/evento` to see what's running, the prize for each one and how many people have joined. Entering is free, takes one command and costs nothing beyond that — no fee, no stake, and you lose nothing if you don't win.",
+          "Once you're signed up, there's nothing else to do: the prize lands in your account when the event is settled. Not every prize is a card — many are coins, gems or boxes."
+        ],
+        "comandos": [
+          { "nome": "/evento", "o_que_faz": "Lists the events with open sign-ups and the prize for each." },
+          {
+            "nome": "/evento entrar",
+            "o_que_faz": "Confirms your sign-up for an event.",
+            "dica": "Entering twice doesn't double anything — and doesn't cost you your spot. Check as often as you like."
+          },
+          { "nome": "/pokedex dex:evento", "o_que_faz": "The separate Pokédex, event cards only." }
+        ],
+        "atencao": {
+          "titulo": "An event card can't be salvaged",
+          "texto": "Not even the tradeable ones. Salvaging is the only click in the game that erases a card forever, and these are never handed out again. If you want to get rid of a tradeable one, sell it on the `/market` — at least it keeps existing, with someone else."
+        }
+      },
+      {
+        "id": "social",
+        "icone": "🤝",
+        "titulo": "Trading and playing together",
+        "resumo": "The card you're missing is almost always one somebody else has spare.",
+        "paragrafos": [
+          "Trading is the cheapest way to complete the Pokédex. You propose, the other person sees exactly what's going out and what's coming in, and **both have to accept** — nobody loses a card without clicking accept.",
+          "A **bound** card (with 🔒) can't be traded, gifted or listed on the market. If the bot refuses one of your offers, that's almost always why.",
+          "If the offer sits there, it expires on its own after a minute and nothing happens. In that case just propose again — no card gets stuck anywhere."
+        ],
+        "comandos": [
+          {
+            "nome": "/trocar",
+            "o_que_faz": "Proposes a card trade with another player.",
+            "dica": "Check their Pokédex first: offering something they don't have yet greatly raises your chances."
+          },
+          { "nome": "/give", "o_que_faz": "Gifts a card or coins, asking nothing in return." },
+          { "nome": "/torneio", "o_que_faz": "Server tournaments, with brackets and prizes." },
+          { "nome": "/ranking", "o_que_faz": "Standings by battle rating, from Bronze to Master." },
+          { "nome": "/magnata", "o_que_faz": "Who holds the largest fortune, counting coins and cards together." }
+        ],
+        "atencao": {
+          "titulo": "Be suspicious of a trade that looks too good",
+          "texto": "The bot shows the value of both sides before you accept — read it. Trade scams in card games are almost always the same thing: someone offers a lot for something rare of yours and disappears afterwards. Since both sides change hands at the same instant here, you can't be stiffed, but you can accept a bad deal without noticing."
+        }
+      },
+      {
+        "id": "vip",
+        "icone": "✨",
+        "titulo": "VIP",
+        "resumo": "What the subscription changes — and what it will never change.",
+        "paragrafos": [
+          "VIP shortens your wait between rolls (up to 40% less), gives **one extra roll charge** on the Gold and Master plans, increases the daily reward and unlocks frames, colors and badges.",
+          "About that extra charge, it's worth being exact: it **adds to** the ones you earn by levelling up, it doesn't replace them. A free player reaches {max_cargas} charges just by playing, and a subscriber at level 1 has {cargas_base_vip} — not {max_cargas_vip}. It's one extra charge, not a level shortcut.",
+          "**No plan grants a combat advantage.** Card stats, rarity odds and battle outcomes are exactly the same for everyone, paying or not. What the subscription buys is time and looks, never luck.",
+          "Boxes don't change either: the percentages are the same for subscribers and non-subscribers, and there's no box or card that exists only for paying players.",
+          "This isn't a marketing promise: there's an automated check in the bot's code that stops any plan from touching a combat stat or a rarity chance."
+        ]
+      }
+    ],
+    "duvidas": [
+      {
+        "pergunta": "I lost my favorite card in a sale. Can it be undone?",
+        "resposta": "If you listed it on the market and nobody has bought it yet, use `/undosell` to cancel. If you already sold it to the bot with quick sell, there's no undo — but the discovery stays in your Pokédex forever."
+      },
+      {
+        "pergunta": "How long until I get a Master?",
+        "resposta": "It comes out once every 1,000 rolls. For someone rolling about 30 times a day, that's roughly a month — but it's luck, so it could be tomorrow or three months from now. That's why when someone pulls one, the whole server hears about it."
+      },
+      {
+        "pergunta": "Are boxes worth opening?",
+        "resposta": "If your goal is profit, no: every box returns less than it costs, on average. They're worth it when you want a concentrated shot at something rare, or when you need a card from a specific series to close the Pokédex."
+      },
+      {
+        "pergunta": "My upgrade failed and the card dropped a level. Can it be destroyed?",
+        "resposta": "Never. The card is never destroyed, and never ends up worse than it was when you got it. The natural overall is the absolute minimum."
+      },
+      {
+        "pergunta": "How do I get an event card?",
+        "resposta": "By taking part in the event. They don't come from `/roll` or from a box, under any circumstance — they're handed out by hand on specific occasions. If the card is tradeable, you can still buy it from another player on the `/market`, and the price tends to be high precisely because no more can be produced."
+      },
+      {
+        "pergunta": "I was away all day. Did I lose every roll?",
+        "resposta": "Not anymore. Rolls stack up to your cap, which is {cargas_base} at the start and rises to {max_cargas} as you pass levels {marcos}. Past the cap it does stop stacking — so it's worth coming in once a day to spend what you've saved up."
+      },
+      {
+        "pergunta": "I joined an event and got nothing. Did something break?",
+        "resposta": "Probably not. The prize doesn't come out at sign-up: it's delivered when the event is settled, which is usually at the end of the period. Check in `/evento` whether your sign-up shows a ✅ — if it does, you're all set and it's just a matter of waiting."
+      },
+      {
+        "pergunta": "The bot didn't answer my command. Now what?",
+        "resposta": "Wait a few seconds and try again. If it keeps happening, check whether the bot is online at the top of this page. Some commands need you to accept direct messages from the server — that's the case for team selection in battle and in training."
+      }
+    ]
+  },
+  "vip": {
+    "meta_titulo": "VIP plans",
+    "meta_descricao": "Support AniBattle and get animated frames, a shorter cooldown, one extra roll charge and a bigger daily reward. No plan grants any combat advantage or better odds at rare cards.",
+    "titulo": "Support AniBattle",
+    "subtitulo": "The game is free and stays free. Subscribers get looks and convenience — and help pay for the server.",
+    "tiers": {
+      "bronze": "Bronze",
+      "prata": "Silver",
+      "ouro": "Gold",
+      "master": "Master"
+    },
+    "molduras": {
+      "bronze": "Bronze",
+      "prata": "Silver",
+      "ouro": "Gold",
+      "sakura": "Sakura",
+      "holografica": "Holographic",
+      "neon": "Neon"
+    },
+    "promessa_titulo": "🛡️ No plan grants a combat advantage",
+    "promessa_texto": "This isn't a marketing promise, it's a rule in the code: an automated test <strong>fails and blocks the release</strong> if anyone tries to give a paid plan better stats, better rarity odds or any edge in battle.",
+    "nunca_incluso": [
+      "Better card stats (ATK, HP, PWR)",
+      "Better odds of rolling a rare card",
+      "Any advantage in the outcome of a battle",
+      "Exclusive cards you can't get by playing",
+      "In-game currency bought with real money"
+    ],
+    "promessa_rodape": "A card bot that sells power drains its free base — and the free base is exactly what makes the game grow. And since AniBattle battles are played for currency, bought power would be worse still.",
+    "cargas_titulo": "🎴 Roll charges: what changed",
+    "cargas_texto": "An unused <code>/roll</code> used to simply evaporate: stay away for a day and you lost the whole day. Now rolls <strong>stack</strong> — the cooldown keeps running while you're gone, and the charges wait for you.",
+    "gratis_titulo": "Playing for free",
+    "gratis_texto": "You start with <strong>{base}</strong> and earn one more at levels <strong>{niveis}</strong>, reaching <strong>{max}</strong> without paying anything. Your level goes up doing what you already do: rolling, battling, trading, discovering new cards.",
+    "assinando_titulo": "Subscribing to Gold or Master",
+    "assinando_texto": "The subscription gives <strong>+1 charge</strong> that <strong>adds to</strong> the ones from your level, reaching {max_vip}. It's one extra charge, not a level shortcut — a subscriber at level 1 caps at {base_vip}, not {max_vip}.",
+    "quantidade_texto": "<strong>This is an advantage in quantity, not in luck.</strong> One extra charge means one more roll saved for when you come back. The odds of pulling a Legendary or a Master are <strong>exactly the same</strong> for everyone — the rarity table never checks your subscription, and an automated test enforces that.",
+    "mais_escolhido": "most popular",
+    "por_mes": "/month",
+    "plano_cooldown": "⏱️ <strong>−{n}%</strong> off the /roll cooldown",
+    "plano_carga": "🎴 <strong>+{n}</strong> stacked roll charge",
+    "plano_daily": "🎁 <strong>{n}×</strong> bigger daily",
+    "plano_molduras": "🖼️ <strong>{n}</strong> card frame(s)",
+    "plano_desejos": "💭 <strong>{n}</strong> cards on your wishlist",
+    "plano_banner": "🏳️ Profile banner",
+    "plano_ranking": "✨ Highlighted on the leaderboard",
+    "assinar": "Subscribe",
+    "pagamento_nota": "Payment by PIX is still arranged on the support server — automatic checkout is on the way. Activation is done manually, on the spot.",
+    "comparativo": "Comparison",
+    "col_vantagem": "Perk",
+    "col_gratis": "Free",
+    "linha_cooldown": "/roll cooldown",
+    "linha_cargas": "Stacked roll charges",
+    "linha_daily": "Daily reward",
+    "linha_molduras": "Card frames",
+    "linha_desejos": "Wishlist",
+    "linha_cor": "Profile color",
+    "linha_banner": "Profile banner",
+    "linha_ranking": "Leaderboard highlight",
+    "linha_batalha": "Battle advantage",
+    "gratis_normal": "normal",
+    "gratis_padrao": "default",
+    "cartas_n": "{n} cards",
+    "cargas_gratis": "{base} (up to {max} by level)",
+    "cargas_vip": "+{n} (up to {max})",
+    "perguntas": "Questions",
+    "faq": [
+      {
+        "p": "Aren't a shorter cooldown and an extra charge an advantage?",
+        "r": "They are, and they're the only two that touch the economy — rolling more earns more currency. That's why both are about quantity, never luck, and both are capped: the most expensive plan gives 40% off the cooldown and one extra charge. Neither changes the outcome of a battle or the odds of pulling a rare card."
+      },
+      {
+        "p": "Do I need to subscribe to stack rolls?",
+        "r": "No. Stacking is for everyone, and the cap rises with your level — at levels {niveis} you gain one charge each time, reaching {max} without paying anything. Gold and Master add +1 on top of that."
+      },
+      {
+        "p": "Do boxes give better cards to subscribers?",
+        "r": "No. Each box's percentages are fixed, shown openly in /caixa and the same for everyone. A subscription doesn't change box odds, and it doesn't give discounts or free boxes either — the Supporter Box comes from voting for the bot, which is free."
+      },
+      {
+        "p": "Do subscribers get exclusive event cards?",
+        "r": "Not in the way that usually happens. Event cards come from events, and entering an event is free — use /evento on Discord. What a subscription never gives you is a card that only exists for paying players."
+      },
+      {
+        "p": "What happens when the subscription expires?",
+        "r": "You keep every card and coin. Only the perks stop applying, and the equipped frame reverts to the default one. Subscribe again and it comes back just as it was."
+      },
+      {
+        "p": "Do I lose the remaining days if I renew early?",
+        "r": "No. The time left is added to the new period."
+      },
+      {
+        "p": "Can I switch plans?",
+        "r": "You can. Say so on the support server and we'll sort it out."
+      },
+      {
+        "p": "Are the frames animated?",
+        "r": "The Gold and Master ones are — the card becomes a GIF with the frame's effect. It's purely visual and changes no stats at all."
+      },
+      {
+        "p": "Where does the money go?",
+        "r": "The server, the database and development time. AniBattle is a one-person project."
+      }
+    ],
+    "ver_catalogo": "Browse the card catalog"
   },
   "entrar": {
     "titulo": "Sign in to AniBattle",

@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import { RARIDADES, ORDEM_RARIDADES } from '@/lib/raridades';
 
 /**
  * Filtros do catálogo.
@@ -11,14 +10,43 @@ import { RARIDADES, ORDEM_RARIDADES } from '@/lib/raridades';
  * componente. Assim o filtro sobrevive ao recarregar, pode ser
  * compartilhado por link e continua funcionando com o botão voltar do
  * navegador — coisas que estado local não dá de graça.
+ *
+ * É componente de cliente, então NÃO importa `lib/i18n` — os três
+ * dicionários somam mais de 100 KB e iriam parar no bundle do navegador.
+ * Recebe as strings já traduzidas por prop, inclusive os rótulos de
+ * raridade, e o idioma só para montar a URL.
  */
 
 interface Props {
   series: { nome: string; total: number }[];
-  total: number;
+  idioma: string;
+  /** Já formatado no locale certo pelo servidor: 1.234 x 1,234. */
+  totalFormatado: string;
+  raridades: { chave: string; emoji: string; cor: string; label: string }[];
+  textos: {
+    buscar_placeholder: string;
+    buscar_aria: string;
+    buscar: string;
+    todas: string;
+    todas_series: string;
+    filtrar_serie: string;
+    ordenar: string;
+    ordem_numero: string;
+    ordem_overall: string;
+    ordem_nome: string;
+    limpar: string;
+    carregando: string;
+    contagem: string;
+  };
 }
 
-export default function FiltrosCartas({ series, total }: Props) {
+export default function FiltrosCartas({
+  series,
+  idioma,
+  totalFormatado,
+  raridades,
+  textos
+}: Props) {
   const router = useRouter();
   const params = useSearchParams();
   const [pendente, iniciarTransicao] = useTransition();
@@ -37,7 +65,9 @@ export default function FiltrosCartas({ series, total }: Props) {
     }
     // Qualquer mudança de filtro volta para a primeira página.
     novos.delete('pagina');
-    iniciarTransicao(() => router.push(`/cartas?${novos.toString()}`));
+    // O prefixo de idioma é obrigatório: sem ele o middleware redecide o
+    // idioma e cada clique em filtro devolve o visitante ao português.
+    iniciarTransicao(() => router.push(`/${idioma}/cartas?${novos.toString()}`));
   }
 
   const temFiltro = Boolean(raridadeAtual || serieAtual || params.get('busca'));
@@ -56,13 +86,13 @@ export default function FiltrosCartas({ series, total }: Props) {
           type="search"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar por nome do personagem..."
+          placeholder={textos.buscar_placeholder}
           className="flex-1 rounded-lg border border-borda bg-superficie px-4 py-2.5 text-sm
                      outline-none placeholder:text-textoFraco focus:border-marca"
-          aria-label="Buscar carta pelo nome"
+          aria-label={textos.buscar_aria}
         />
         <button type="submit" className="botao-secundario !py-2.5">
-          Buscar
+          {textos.buscar}
         </button>
       </form>
 
@@ -76,15 +106,14 @@ export default function FiltrosCartas({ series, total }: Props) {
               : 'border-borda text-textoFraco hover:text-texto'
           }`}
         >
-          Todas
+          {textos.todas}
         </button>
-        {ORDEM_RARIDADES.map((chave) => {
-          const r = RARIDADES[chave];
-          const ativa = raridadeAtual === chave;
+        {raridades.map((r) => {
+          const ativa = raridadeAtual === r.chave;
           return (
             <button
-              key={chave}
-              onClick={() => atualizar({ raridade: ativa ? null : chave })}
+              key={r.chave}
+              onClick={() => atualizar({ raridade: ativa ? null : r.chave })}
               className="rounded-full border px-3 py-1.5 text-xs transition-colors"
               style={{
                 borderColor: ativa ? r.cor : '#262C35',
@@ -104,9 +133,9 @@ export default function FiltrosCartas({ series, total }: Props) {
           value={serieAtual}
           onChange={(e) => atualizar({ serie: e.target.value || null })}
           className="rounded-lg border border-borda bg-superficie px-3 py-2 text-sm outline-none focus:border-marca"
-          aria-label="Filtrar por série"
+          aria-label={textos.filtrar_serie}
         >
-          <option value="">Todas as séries</option>
+          <option value="">{textos.todas_series}</option>
           {series.map((s) => (
             <option key={s.nome} value={s.nome}>
               {s.nome} ({s.total})
@@ -118,11 +147,11 @@ export default function FiltrosCartas({ series, total }: Props) {
           value={ordemAtual}
           onChange={(e) => atualizar({ ordem: e.target.value })}
           className="rounded-lg border border-borda bg-superficie px-3 py-2 text-sm outline-none focus:border-marca"
-          aria-label="Ordenar"
+          aria-label={textos.ordenar}
         >
-          <option value="numero">Ordem da Pokédex</option>
-          <option value="overall">Melhor overall</option>
-          <option value="nome">Nome (A-Z)</option>
+          <option value="numero">{textos.ordem_numero}</option>
+          <option value="overall">{textos.ordem_overall}</option>
+          <option value="nome">{textos.ordem_nome}</option>
         </select>
 
         {temFiltro && (
@@ -133,12 +162,12 @@ export default function FiltrosCartas({ series, total }: Props) {
             }}
             className="text-sm text-textoFraco underline hover:text-texto"
           >
-            Limpar filtros
+            {textos.limpar}
           </button>
         )}
 
         <span className="ml-auto text-sm text-textoFraco">
-          {pendente ? 'Carregando...' : `${new Intl.NumberFormat('pt-BR').format(total)} carta(s)`}
+          {pendente ? textos.carregando : textos.contagem.replace('{n}', totalFormatado)}
         </span>
       </div>
     </div>
