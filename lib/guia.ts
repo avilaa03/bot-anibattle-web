@@ -1,11 +1,16 @@
 /**
  * O conteúdo do guia do jogador.
  *
- * ## Por que fica em dados e não no JSX
+ * ## Onde mora o quê
  *
- * A página vira um `map`, e acrescentar seção é acrescentar objeto. Mais
- * importante: o índice lateral se monta sozinho a partir daqui, então
- * nunca há uma seção sem link nem um link para seção que não existe.
+ * O TEXTO fica nos dicionários (`guia.*` em `lib/i18n/dicionarios`),
+ * porque é texto e existe em três idiomas. Aqui ficam os NÚMEROS e o
+ * formato — e é este arquivo que junta os dois.
+ *
+ * A página vira um `map`, e acrescentar seção é acrescentar objeto no
+ * dicionário. Mais importante: o índice lateral se monta sozinho a partir
+ * da mesma lista, então nunca há uma seção sem link nem um link para
+ * seção que não existe.
  *
  * ## O tom
  *
@@ -19,9 +24,17 @@
  *    que só elogia o produto não é guia, é propaganda.
  * 3. **Números de verdade.** "As chances ficam à vista" só vale se elas
  *    estiverem à vista.
+ *
+ * ## Nomes de comando não se traduzem
+ *
+ * `/roll`, `/battle`, `/market` aparecem iguais nos três idiomas porque é
+ * o que o jogador digita. Só `/idioma` tem nome localizado no Discord
+ * (`/language`) — os outros comandos não têm `setNameLocalizations`, e
+ * traduzir aqui mandaria a pessoa digitar algo que não existe.
  */
 
 import { CARGAS_BASE, NIVEIS_DE_CARGA, maxCargas } from './nivel';
+import type { Tradutor } from './i18n';
 
 /**
  * Números do guia que TÊM que bater com a regra de verdade.
@@ -30,9 +43,25 @@ import { CARGAS_BASE, NIVEIS_DE_CARGA, maxCargas } from './nivel';
  * vierem do mesmo lugar que o jogo usa. Um "4 cargas" digitado à mão
  * sobrevive à mudança da regra e vira mentira em silêncio — o texto
  * continua bonito e passa a estar errado.
+ *
+ * Por isso o dicionário escreve `{max_cargas}` em vez do número: o
+ * tradutor não tem como congelar um valor que ele nem vê.
  */
 const CARGAS_MAX = maxCargas(NIVEIS_DE_CARGA[NIVEIS_DE_CARGA.length - 1]);
-const MARCOS_DE_CARGA = NIVEIS_DE_CARGA.join(', ');
+
+const VALORES: Record<string, string> = {
+  cargas_base: String(CARGAS_BASE),
+  cargas_base_vip: String(CARGAS_BASE + 1),
+  max_cargas: String(CARGAS_MAX),
+  max_cargas_vip: String(CARGAS_MAX + 1),
+  marcos: NIVEIS_DE_CARGA.join(', '),
+  nivel_carga_1: String(NIVEIS_DE_CARGA[0]),
+  nivel_carga_2: String(NIVEIS_DE_CARGA[1]),
+  nivel_carga_3: String(NIVEIS_DE_CARGA[2]),
+  cargas_nivel_1: String(maxCargas(NIVEIS_DE_CARGA[0])),
+  cargas_nivel_2: String(maxCargas(NIVEIS_DE_CARGA[1])),
+  cargas_nivel_3: String(maxCargas(NIVEIS_DE_CARGA[2]))
+};
 
 export interface Passo {
   titulo: string;
@@ -57,390 +86,44 @@ export interface Secao {
   tabela?: { cabecalho: string[]; linhas: string[][] };
 }
 
-export const PRIMEIROS_PASSOS: Passo[] = [
-  {
-    titulo: 'Role sua primeira carta',
-    texto:
-      'Digite `/roll` em qualquer canal onde o bot esteja. Uma carta aparece e você escolhe: '
-      + 'guardar no inventário ou vender na hora. Guarde — no começo você precisa de cartas, não de moedas.'
-  },
-  {
-    titulo: 'Junte três cartas',
-    texto:
-      'Com três você já pode batalhar. Role de novo a cada 15 minutos, ou use `/daily` todo dia para '
-      + 'ganhar moedas sem esperar.'
-  },
-  {
-    titulo: 'Teste seu time sem risco',
-    texto:
-      'Use `/treino` antes de desafiar alguém. É a mesma batalha de verdade, contra um adversário do bot, '
-      + 'mas não vale moeda nem pontuação. Serve para você ver como suas cartas se comportam.'
-  },
-  {
-    titulo: 'Desafie alguém',
-    texto:
-      '`/battle @pessoa` abre um duelo 3 contra 3 valendo moedas. Vocês montam o time no privado e a luta '
-      + 'é transmitida no canal, golpe a golpe.'
-  },
-  {
-    titulo: 'Complete suas missões',
-    texto:
-      'Use `/missoes` para ver o que dá recompensa hoje. O progresso é automático — você só volta lá para resgatar.'
-  },
-  {
-    titulo: 'Veja se tem evento aberto',
-    texto:
-      '`/evento` mostra o que está rolando e o prêmio de cada um. Entrar é de graça e leva um comando — '
-      + 'é a única forma de conseguir carta de evento, que nunca sai de `/roll` nem de caixa.'
+export interface Duvida {
+  pergunta: string;
+  resposta: string;
+}
+
+/**
+ * Troca os `{marcadores}` numéricos, em profundidade.
+ *
+ * Devolve estrutura nova em vez de escrever por cima: `t.dados` entrega o
+ * objeto do JSON importado, que é o mesmo em toda requisição. Mexer nele
+ * contaminaria as próximas — e só na produção, onde o módulo fica em
+ * cache.
+ */
+function preencher<T>(valor: T): T {
+  if (typeof valor === 'string') {
+    return valor.replace(/\{(\w+)\}/g, (original, nome: string) =>
+      Object.prototype.hasOwnProperty.call(VALORES, nome) ? VALORES[nome] : original
+    ) as unknown as T;
   }
-];
-
-export const SECOES: Secao[] = [
-  {
-    id: 'cartas',
-    icone: '🎴',
-    titulo: 'Cartas e raridade',
-    resumo: 'Como você consegue cartas e o que faz uma valer mais que a outra.',
-    paragrafos: [
-      'Cada `/roll` sorteia uma carta. Você pode rolar uma vez a cada 15 minutos.',
-      'Toda carta tem três atributos: **ATA** pesa na ordem dos turnos, no acerto crítico e na esquiva; '
-      + '**LIF** é a vida; **POW** é o dano. O **overall** é o resumo dos três.',
-      'O que decide o valor de uma carta é a **raridade**, não o overall. Uma Comum excelente nunca chega '
-      + 'perto de uma Mestra ruim — o overall só move o preço dentro da faixa da própria raridade.'
-    ],
-    tabela: {
-      cabecalho: ['Raridade', 'Chance por roll', 'Aparece 1 a cada'],
-      linhas: [
-        ['⚪ Comum', '64%', '2 rolls'],
-        ['🔵 Rara', '25%', '4 rolls'],
-        ['🟣 Ultra Rara', '9,8%', '10 rolls'],
-        ['🟠 Lendária', '1,1%', '91 rolls'],
-        ['🌟 Mestra', '0,1%', '1.000 rolls']
-      ]
-    },
-    atencao: {
-      titulo: 'Sequência ruim tem limite',
-      texto:
-        'Se você passar muitos rolls sem uma Ultra Rara — ou muito mais sem uma Lendária — o jogo garante uma. '
-        + 'A Mestra é a única que nunca vem garantida: ela é sorte, e sorte comprada com espera deixa de ser sorte.'
-    }
-  },
-
-  {
-    id: 'batalhas',
-    icone: '⚔️',
-    titulo: 'Batalhas',
-    resumo: 'Duelos 3 contra 3, com transmissão ao vivo no canal.',
-    paragrafos: [
-      'Cada rodada é um 1 contra 1: sua primeira carta enfrenta a primeira do oponente, a segunda contra a '
-      + 'segunda, e assim por diante. **A ordem que você escolhe importa.** Quem vencer 2 das 3 rodadas leva o duelo.',
-      'Existe dano variável, crítico e esquiva — mas tudo pende para a carta melhor. E quem cai abaixo de 40% '
-      + 'de vida entra em **modo desespero**, com muito mais chance de crítico. Viradas acontecem.',
-      'Vitórias movem sua pontuação de ranking. Ganhar de alguém muito acima de você rende bastante; ganhar de '
-      + 'alguém muito abaixo rende quase nada — então não adianta caçar jogador fraco.'
-    ],
-    comandos: [
-      { nome: '/battle', o_que_faz: 'Desafia outro jogador. Aposta mínima de 10 moedas, o vencedor leva o dobro.' },
-      {
-        nome: '/treino',
-        o_que_faz: 'A mesma batalha, contra um time do bot.',
-        dica: 'Não vale moeda, pontuação, missão nem conquista. É para testar sem risco.'
-      },
-      { nome: '/torneio', o_que_faz: 'Competição com vários jogadores em chaves eliminatórias.' },
-      { nome: '/ranking', o_que_faz: 'Classificação por pontuação, de Bronze a Mestre.' }
-    ]
-  },
-
-  {
-    id: 'economia',
-    icone: '🪙',
-    titulo: 'Moedas e mercado',
-    resumo: 'Como ganhar dinheiro e, principalmente, como não perdê-lo à toa.',
-    paragrafos: [
-      'Você ganha moedas vendendo cartas, cumprindo missões, coletando o `/daily` e vencendo batalhas apostadas.',
-      'Para vender existem dois caminhos, e a diferença entre eles é grande.'
-    ],
-    comandos: [
-      {
-        nome: '/quicksell',
-        o_que_faz: 'Vende na hora, direto para o bot.',
-        dica: 'Paga metade do valor numa Comum, mas só 15% numa Mestra.'
-      },
-      {
-        nome: '/sell',
-        o_que_faz: 'Anuncia no mercado pelo preço que você quiser.',
-        dica: 'Você recebe o preço cheio que outro jogador pagar, menos 5% de taxa.'
-      },
-      { nome: '/market', o_que_faz: 'Procura e compra cartas anunciadas por outros jogadores.' },
-      { nome: '/trocar', o_que_faz: 'Troca carta por carta. Os dois montam a oferta e os dois confirmam.' },
-      { nome: '/daily', o_que_faz: 'Recompensa diária. Quanto mais dias seguidos, mais vale.' }
-    ],
-    atencao: {
-      titulo: 'Tirou algo raro? Não use a venda rápida',
-      texto:
-        'A venda rápida paga bem em carta comum e mal em carta rara — de propósito. Numa Mestra ela devolve só '
-        + '15% do valor. Anuncie no `/market`: você recebe o que outro jogador pagar, e a diferença chega a ser de '
-        + 'dezenas de milhares de moedas. A venda rápida existe para carta repetida, não para tesouro.'
-    }
-  },
-
-  {
-    id: 'caixas',
-    icone: '🎁',
-    titulo: 'Caixas',
-    resumo: 'Sorteios pagos com chances melhores — e por que eles nunca compensam na média.',
-    paragrafos: [
-      'Caixas são compradas com moeda e **guardadas na bolsa**. Você abre quando quiser, com `/caixa abrir`.',
-      'Cada uma tem a própria distribuição, e as porcentagens ficam à vista no `/caixa`. Nada é escondido.',
-      'Uma coisa importante e que o jogo não esconde: **toda caixa é prejuízo na média.** Você paga pela chance, '
-      + 'não pelo retorno. Se abrir cem caixas esperando lucro, você perde dinheiro — é assim que foi desenhado, '
-      + 'porque é isso que tira moeda de circulação e segura os preços do mercado.'
-    ],
-    tabela: {
-      cabecalho: ['Caixa', 'O que ela garante', 'Por dia'],
-      linhas: [
-        ['📦 Comum', 'A mais barata, para tentar a sorte sem doer', '5'],
-        ['🎯 Temática', 'Você escolhe a série. Rara ou melhor garantida', '3'],
-        ['💠 Elite', 'Ultra Rara garantida, boa chance de Lendária', '2'],
-        ['🌟 Lendária', '10% de chance de sair uma Mestra', '1']
-      ]
-    },
-    atencao: {
-      titulo: 'A Caixa Temática é a única que mira',
-      texto:
-        'Ela deixa você escolher a série. Se falta uma carta específica para fechar uma série na Pokédex, é ela '
-        + 'que resolve — as outras sorteiam do catálogo inteiro.'
-    }
-  },
-
-  {
-    id: 'aprimorar',
-    icone: '⬆️',
-    titulo: 'Aprimoramento',
-    resumo: 'Deixe uma carta mais forte gastando gemas. Sem teto, e sem risco de arruinar.',
-    paragrafos: [
-      'Gemas vêm de duas portas: comprar na `/loja` ou desmanchar uma carta que você não quer.',
-      'Cada tentativa tem três desfechos: **sobe um nível**, **não acontece nada**, ou **cai um nível**. Conforme '
-      + 'o nível sobe, acertar fica mais difícil.',
-      '**Não existe teto.** Uma carta de nível alto não é uma carta cara, é uma carta **sortuda** — e é isso que '
-      + 'faz ela valer o que vale no mercado entre jogadores.'
-    ],
-    comandos: [
-      { nome: '/aprimorar', o_que_faz: 'Gasta gemas para tentar subir o nível de uma carta.' },
-      {
-        nome: '/desmanchar',
-        o_que_faz: 'Transforma uma carta em gemas.',
-        dica: 'Rende mais que a venda rápida em tudo — menos na Mestra, onde vender ainda paga melhor.'
-      },
-      { nome: '/bolsa', o_que_faz: 'Mostra os itens e as caixas que você tem guardados.' },
-      { nome: '/loja', o_que_faz: 'Compra gemas, pergaminhos de proteção e rolls extras.' }
-    ],
-    atencao: {
-      titulo: 'Sua carta nunca fica pior do que nasceu',
-      texto:
-        'O overall natural é o chão absoluto. Uma carta que nunca subiu **não pode cair** — a chance de queda no '
-        + 'nível 0 é literalmente zero. E a carta nunca é destruída, em nenhum caso. O pergaminho de proteção segura '
-        + 'a queda quando você já está em nível alto.'
-    }
-  },
-
-  {
-    id: 'nivel',
-    icone: '⭐',
-    titulo: 'Seu nível',
-    resumo: 'Tudo que você faz rende XP. E o que o nível dá não é sorte — é tempo de volta.',
-    paragrafos: [
-      'Rolar, batalhar, trocar, descobrir carta nova, completar missão e coletar o diário: tudo rende XP. Quem usa '
-      + 'o bot inteiro sobe mais rápido que quem só rola.',
-      `Nos níveis **${MARCOS_DE_CARGA}** você passa a **acumular um roll a mais**, chegando a ${CARGAS_MAX}. `
-      + 'Na prática: se você não pode entrar de 15 em 15 minutos, os rolls que passarem enquanto você está fora '
-      + 'deixam de ser perdidos, e você usa vários seguidos quando voltar.',
-      'Repare no que isso **não** é: o nível não encurta seu cooldown e não melhora sua chance de raridade. '
-      + 'O sorteio é igual para todo mundo, do primeiro dia ao nível 50. O nível só evita que você desperdice o que '
-      + 'já era seu.'
-    ],
-    tabela: {
-      cabecalho: ['Nível', 'O que muda'],
-      linhas: [
-        ['5', 'Moedas e uma Caixa Comum'],
-        [String(NIVEIS_DE_CARGA[0]), `Passa a acumular ${maxCargas(NIVEIS_DE_CARGA[0])} rolls`],
-        ['15', 'Uma Caixa Temática'],
-        [String(NIVEIS_DE_CARGA[1]), `Passa a acumular ${maxCargas(NIVEIS_DE_CARGA[1])} rolls`],
-        ['25', 'Uma Caixa de Elite'],
-        [String(NIVEIS_DE_CARGA[2]), `Passa a acumular ${maxCargas(NIVEIS_DE_CARGA[2])} rolls`]
-      ]
-    }
-  },
-
-  {
-    id: 'pokedex',
-    icone: '📖',
-    titulo: 'Pokédex e coleção',
-    resumo: 'Todo carta que passa por você fica registrada para sempre.',
-    paragrafos: [
-      'Mesmo que você venda, troque ou desmanche a carta, a descoberta continua no seu registro. Ela é permanente.',
-      'Cada carta tem um número fixo: a `#042` de hoje é a mesma amanhã, mesmo com o catálogo crescendo.'
-    ],
-    comandos: [
-      { nome: '/pokedex', o_que_faz: 'O que você já descobriu e o que ainda falta. Filtra por série ou raridade.' },
-      { nome: '/ficha', o_que_faz: 'A ficha completa de uma carta, por nome ou número. Funciona mesmo se você já vendeu.' },
-      { nome: '/colecionadores', o_que_faz: 'Ranking de quem descobriu mais cartas.' },
-      { nome: '/desejar', o_que_faz: 'Marca uma carta que você quer. Quando alguém rolar, você é avisado.' },
-      { nome: '/conquistas', o_que_faz: 'Seus troféus. Bronze, Prata, Ouro e a Platina, que exige todos os outros.' }
-    ]
-  },
-
-  {
-    id: 'evento',
-    icone: '🎗️',
-    titulo: 'Cartas de evento',
-    resumo: 'As únicas que o sorteio nunca entrega.',
-    paragrafos: [
-      'Cartas de evento são distribuídas em ocasiões especiais — participação na beta, campanhas, '
-      + 'prêmios de torneio. Elas **nunca saem de `/roll` nem de caixa**, e é justamente isso que as '
-      + 'torna especiais: ter uma significa que você estava lá.',
-      'Elas ficam numa **Pokédex separada**, em `/pokedex dex:evento`. A razão é simples: a Pokédex '
-      + 'normal existe para ser completada, e se as cartas de evento entrassem nela, a barra de todo '
-      + 'mundo cairia a cada distribuição nova — ninguém que perdeu o evento conseguiria fechar 100% '
-      + 'de novo.',
-      'Algumas cartas são **vinculadas**: elas são suas e não podem ser vendidas, trocadas nem '
-      + 'transferidas. Batalham normalmente, e aparecem com um 🔒 nas listagens. Outras são '
-      + 'negociáveis, e essas costumam valer muito no mercado — não existe como conseguir mais depois '
-      + 'que a distribuição fecha.',
-      'Nem todo evento é surpresa. Muitos abrem **inscrição**: use `/evento` para ver o que está '
-      + 'rolando, o prêmio de cada um e quanta gente já entrou. Entrar é de graça, leva um comando e '
-      + 'não custa nada além disso — não há taxa, não há aposta, e você não perde nada se não ganhar.',
-      'Depois de inscrito, não precisa fazer mais nada: o prêmio cai na sua conta quando o evento é '
-      + 'apurado. Nem todo prêmio é carta — muitos são moedas, gemas ou caixas.'
-    ],
-    comandos: [
-      { nome: '/evento', o_que_faz: 'Lista os eventos com inscrição aberta e o prêmio de cada um.' },
-      {
-        nome: '/evento entrar',
-        o_que_faz: 'Confirma sua inscrição num evento.',
-        dica: 'Entrar duas vezes não dobra nada — e não tira sua vaga. Pode conferir à vontade.'
-      },
-      { nome: '/pokedex dex:evento', o_que_faz: 'A Pokédex separada, só de cartas de evento.' }
-    ],
-    atencao: {
-      titulo: 'Carta de evento não pode ser desmanchada',
-      texto:
-        'Nem as negociáveis. Desmanchar é o único clique do jogo que apaga uma carta para sempre, e '
-        + 'essas não voltam a ser distribuídas. Se quiser se desfazer de uma negociável, venda no '
-        + '`/market` — pelo menos ela continua existindo com outra pessoa.'
-    }
-  },
-
-  {
-    id: 'social',
-    icone: '🤝',
-    titulo: 'Trocar e jogar junto',
-    resumo: 'A carta que falta para você quase sempre está sobrando para outra pessoa.',
-    paragrafos: [
-      'A troca é o jeito mais barato de completar a Pokédex. Você propõe, a outra pessoa vê exatamente '
-      + 'o que vai sair e o que vai entrar, e **as duas precisam aceitar** — ninguém perde carta sem '
-      + 'clicar em aceitar.',
-      'Carta **vinculada** (com 🔒) não entra em troca, nem em presente, nem no mercado. Se uma proposta '
-      + 'sua for recusada pelo bot, é quase sempre isso.',
-      'Se a proposta ficar parada, ela expira sozinha em um minuto e nada acontece. Nesse caso é só '
-      + 'propor de novo — não fica carta presa em lugar nenhum.'
-    ],
-    comandos: [
-      {
-        nome: '/trocar',
-        o_que_faz: 'Propõe uma troca de cartas com outro jogador.',
-        dica: 'Olhe a Pokédex da pessoa antes: oferecer o que ela ainda não tem aumenta muito a chance de aceite.'
-      },
-      { nome: '/give', o_que_faz: 'Dá uma carta ou moedas de presente, sem pedir nada em troca.' },
-      { nome: '/torneio', o_que_faz: 'Torneios do servidor, com chaveamento e premiação.' },
-      { nome: '/ranking', o_que_faz: 'Classificação por pontuação de batalha, de Bronze a Mestre.' },
-      { nome: '/magnata', o_que_faz: 'Quem tem o maior patrimônio somando moedas e cartas.' }
-    ],
-    atencao: {
-      titulo: 'Desconfie de troca "muito boa"',
-      texto:
-        'O bot mostra o valor das duas pontas antes de você aceitar — leia. Golpe de troca em jogo de '
-        + 'carta quase sempre é a mesma coisa: alguém oferece muito por algo raro seu e some depois. '
-        + 'Como aqui as duas pontas trocam de mão no mesmo instante, não dá para levar calote, mas dá '
-        + 'para aceitar um negócio ruim sem perceber.'
-    }
-  },
-
-  {
-    id: 'vip',
-    icone: '✨',
-    titulo: 'VIP',
-    resumo: 'O que a assinatura muda — e o que ela nunca vai mudar.',
-    paragrafos: [
-      'O VIP encurta seu tempo de espera entre rolls (até 40% menos), dá **uma carga de roll a mais** '
-      + 'nos planos Ouro e Master, aumenta a recompensa diária e libera molduras, cores e emblemas.',
-      'Sobre a carga a mais, vale ser exato: ela **soma** com as que você ganha subindo de nível, não '
-      + `substitui. Quem joga de graça chega a ${CARGAS_MAX} cargas só jogando, e um assinante no nível 1 `
-      + `tem ${CARGAS_BASE + 1} — não ${CARGAS_MAX + 1}. É uma carga a mais, não um atalho de nível.`,
-      '**Nenhum plano dá vantagem de combate.** Atributos das cartas, chance de raridade e resultado de batalha são '
-      + 'exatamente iguais para todo mundo, pagando ou não. O que a assinatura compra é tempo e aparência, nunca sorte.',
-      'As caixas também não mudam: as porcentagens são as mesmas para assinante e não assinante, e não '
-      + 'há caixa nem carta que só exista para quem paga.',
-      'Isso não é promessa de marketing: existe uma verificação automática no código do bot que impede qualquer '
-      + 'plano de tocar em atributo de combate ou em chance de raridade.'
-    ]
+  if (Array.isArray(valor)) {
+    return valor.map((item) => preencher(item)) as unknown as T;
   }
-];
-
-/** Perguntas que aparecem sempre. */
-export const DUVIDAS = [
-  {
-    pergunta: 'Perdi minha carta favorita numa venda. Dá para desfazer?',
-    resposta:
-      'Se você anunciou no mercado e ninguém comprou ainda, use `/undosell` para cancelar. Se já vendeu para o bot '
-      + 'com a venda rápida, não há como desfazer — mas a descoberta continua na sua Pokédex para sempre.'
-  },
-  {
-    pergunta: 'Quanto tempo até eu conseguir uma Mestra?',
-    resposta:
-      'Ela sai em 1 a cada 1.000 rolls. Para quem rola umas 30 vezes por dia, isso dá mais ou menos um mês — mas é '
-      + 'sorte, então pode vir amanhã ou daqui a três meses. É por isso que quando alguém tira uma, o servidor '
-      + 'inteiro fica sabendo.'
-  },
-  {
-    pergunta: 'Vale a pena abrir caixa?',
-    resposta:
-      'Se o seu objetivo é lucro, não: toda caixa devolve menos do que custa, na média. Vale quando você quer uma '
-      + 'chance concentrada de algo raro, ou quando precisa de uma carta de série específica para fechar a Pokédex.'
-  },
-  {
-    pergunta: 'Meu aprimoramento falhou e a carta caiu de nível. Ela pode ser destruída?',
-    resposta:
-      'Nunca. A carta jamais é destruída, e nunca fica pior do que era quando você a conseguiu. O overall natural é '
-      + 'o mínimo absoluto.'
-  },
-  {
-    pergunta: 'Como eu consigo uma carta de evento?',
-    resposta:
-      'Participando do evento. Elas não saem de `/roll` nem de caixa, em nenhuma circunstância — são '
-      + 'entregues à mão em ocasiões específicas. Se a carta for negociável, ainda dá para comprá-la '
-      + 'de outro jogador no `/market`, e o preço costuma ser alto justamente porque não há como '
-      + 'produzir mais.'
-  },
-  {
-    pergunta: 'Fiquei o dia fora. Perdi todos os rolls?',
-    resposta:
-      `Não mais. Os rolls acumulam até o seu teto, que é ${CARGAS_BASE} no começo e sobe para `
-      + `${CARGAS_MAX} conforme você passa dos níveis ${MARCOS_DE_CARGA}. Passando do teto aí sim para de `
-      + 'acumular — então vale entrar uma vez por dia para usar o que juntou.'
-  },
-  {
-    pergunta: 'Entrei num evento e não recebi nada. Deu errado?',
-    resposta:
-      'Provavelmente não. O prêmio não sai no momento da inscrição: ele é entregue quando o evento é '
-      + 'apurado, o que costuma ser no fim do período. Confira em `/evento` se sua inscrição aparece '
-      + 'com ✅ — se aparecer, está tudo certo e é só esperar.'
-  },
-  {
-    pergunta: 'O bot não respondeu meu comando. E agora?',
-    resposta:
-      'Espere alguns segundos e tente de novo. Se continuar, confira se o bot está online no topo desta página. '
-      + 'Alguns comandos precisam que você aceite mensagens diretas do servidor — é o caso da escolha de time na '
-      + 'batalha e no treino.'
+  if (valor !== null && typeof valor === 'object') {
+    return Object.fromEntries(
+      Object.entries(valor as Record<string, unknown>).map(([k, v]) => [k, preencher(v)])
+    ) as T;
   }
-];
+  return valor;
+}
+
+export function primeirosPassos(t: Tradutor): Passo[] {
+  return preencher(t.dados<Passo[]>('guia.passos'));
+}
+
+export function secoes(t: Tradutor): Secao[] {
+  return preencher(t.dados<Secao[]>('guia.secoes'));
+}
+
+export function duvidas(t: Tradutor): Duvida[] {
+  return preencher(t.dados<Duvida[]>('guia.duvidas'));
+}

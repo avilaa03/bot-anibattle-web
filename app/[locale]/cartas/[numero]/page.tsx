@@ -4,28 +4,43 @@ import { notFound } from 'next/navigation';
 import CartaVisual from '@/components/CartaVisual';
 import { buscarCartaPorNumero, cartasDaMesmaSerie, contarCartas, REVALIDATE } from '@/lib/consultas';
 import { getRaridade, formatarNumero, formatarMoedas } from '@/lib/raridades';
+import { traduzir } from '@/lib/i18n';
+import { ehIdioma, LOCALE_FORMATO, type Idioma } from '@/lib/i18n/config';
 
 export const revalidate = 300;
 
 interface Props {
-  params: Promise<{ numero: string }>;
+  params: Promise<{ locale: string; numero: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { numero } = await params;
+  const { locale, numero } = await params;
+  const t = traduzir(ehIdioma(locale) ? locale : 'pt');
   const carta = await buscarCartaPorNumero(parseInt(numero, 10));
 
-  if (!carta) return { title: 'Carta não encontrada' };
+  if (!carta) return { title: t('carta.nao_encontrada') };
 
   const meta = getRaridade(carta.raridade);
+  const raridade = t(`raridades.${meta.chave}`).toLowerCase();
+
   return {
     title: `${carta.nome} — ${carta.serie}`,
-    description:
-      `${carta.nome} de ${carta.serie} no AniBattle. Carta ${meta.label.toLowerCase()}, `
-      + `overall ${carta.overall}. ATA ${carta.ATA}, LIF ${carta.LIF}, POW ${carta.POW}.`,
+    description: t('carta.descricao', {
+      nome: carta.nome,
+      serie: carta.serie,
+      raridade,
+      overall: carta.overall,
+      ata: carta.ATA,
+      lif: carta.LIF,
+      pow: carta.POW
+    }),
     openGraph: {
-      title: `${carta.nome} — AniBattle`,
-      description: `Carta ${meta.label.toLowerCase()} de ${carta.serie}. Overall ${carta.overall}.`,
+      title: t('carta.og_titulo', { nome: carta.nome }),
+      description: t('carta.og_descricao', {
+        raridade,
+        serie: carta.serie,
+        overall: carta.overall
+      }),
       images: carta.imagem ? [{ url: carta.imagem }] : undefined
     }
   };
@@ -50,7 +65,12 @@ function Atributo({ rotulo, valor, maximo, cor }: {
 }
 
 export default async function PaginaCarta({ params }: Props) {
-  const { numero } = await params;
+  const { locale, numero } = await params;
+  if (!ehIdioma(locale)) notFound();
+  const idioma = locale as Idioma;
+  const t = traduzir(idioma);
+  const href = (c: string) => `/${idioma}${c}`;
+
   const n = parseInt(numero, 10);
 
   if (Number.isNaN(n)) notFound();
@@ -64,16 +84,15 @@ export default async function PaginaCarta({ params }: Props) {
   ]);
 
   const meta = getRaridade(carta.raridade);
+  const raridade = t(`raridades.${meta.chave}`);
+  const serieHref = href(`/cartas?serie=${encodeURIComponent(carta.serie)}`);
 
   return (
     <div className="container-site py-12">
       <nav className="mb-8 text-sm text-textoFraco">
-        <Link href="/cartas" className="hover:text-texto">Catálogo</Link>
+        <Link href={href('/cartas')} className="hover:text-texto">{t('carta.catalogo')}</Link>
         <span className="mx-2">/</span>
-        <Link
-          href={`/cartas?serie=${encodeURIComponent(carta.serie)}`}
-          className="hover:text-texto"
-        >
+        <Link href={serieHref} className="hover:text-texto">
           {carta.serie}
         </Link>
         <span className="mx-2">/</span>
@@ -82,7 +101,7 @@ export default async function PaginaCarta({ params }: Props) {
 
       <div className="grid gap-10 lg:grid-cols-[300px_1fr]">
         <div className="mx-auto w-full max-w-[300px]">
-          <CartaVisual carta={carta} totalCatalogo={totalCatalogo} prioridade />
+          <CartaVisual carta={carta} idioma={idioma} totalCatalogo={totalCatalogo} prioridade />
         </div>
 
         <div>
@@ -94,13 +113,13 @@ export default async function PaginaCarta({ params }: Props) {
               className="rounded-full border px-3 py-1 text-xs font-medium"
               style={{ borderColor: meta.cor, color: meta.corTexto, background: `${meta.cor}22` }}
             >
-              {meta.emoji} {meta.label}
+              {meta.emoji} {raridade}
             </span>
           </div>
 
           <h1 className="mt-3 text-4xl font-bold sm:text-5xl">{carta.nome}</h1>
           <Link
-            href={`/cartas?serie=${encodeURIComponent(carta.serie)}`}
+            href={serieHref}
             className="mt-2 inline-block text-lg text-textoFraco hover:text-texto"
           >
             {carta.serie}
@@ -109,35 +128,39 @@ export default async function PaginaCarta({ params }: Props) {
           <div className="mt-8 grid gap-6 sm:grid-cols-2">
             <div className="cartao p-6">
               <h2 className="text-sm font-medium uppercase tracking-wider text-textoFraco">
-                Atributos
+                {t('carta.atributos')}
               </h2>
               <div className="mt-4 space-y-4">
-                <Atributo rotulo="ATA" valor={carta.ATA} maximo={100} cor="#E53935" />
-                <Atributo rotulo="LIF" valor={carta.LIF} maximo={250} cor="#4CAF50" />
-                <Atributo rotulo="POW" valor={carta.POW} maximo={100} cor="#FF9800" />
+                <Atributo rotulo={t('atributos.ata')} valor={carta.ATA} maximo={100} cor="#E53935" />
+                <Atributo rotulo={t('atributos.lif')} valor={carta.LIF} maximo={250} cor="#4CAF50" />
+                <Atributo rotulo={t('atributos.pow')} valor={carta.POW} maximo={100} cor="#FF9800" />
               </div>
             </div>
 
             <div className="cartao p-6">
               <h2 className="text-sm font-medium uppercase tracking-wider text-textoFraco">
-                Informações
+                {t('carta.informacoes')}
               </h2>
               <dl className="mt-4 space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-textoFraco">Overall</dt>
+                  <dt className="text-textoFraco">{t('carta.overall')}</dt>
                   <dd className="font-bold">{carta.overall}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-textoFraco">Valor de mercado</dt>
-                  <dd className="font-bold">🪙 {formatarMoedas(carta.valorMercado)}</dd>
+                  <dt className="text-textoFraco">{t('carta.valor_mercado')}</dt>
+                  <dd className="font-bold">
+                    🪙 {formatarMoedas(carta.valorMercado, LOCALE_FORMATO[idioma])}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-textoFraco">Venda rápida</dt>
-                  <dd className="font-bold">🪙 {formatarMoedas(carta.valorVenda)}</dd>
+                  <dt className="text-textoFraco">{t('carta.venda_rapida')}</dt>
+                  <dd className="font-bold">
+                    🪙 {formatarMoedas(carta.valorVenda, LOCALE_FORMATO[idioma])}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-textoFraco">Raridade</dt>
-                  <dd className="font-bold" style={{ color: meta.cor }}>{meta.label}</dd>
+                  <dt className="text-textoFraco">{t('carta.raridade')}</dt>
+                  <dd className="font-bold" style={{ color: meta.cor }}>{raridade}</dd>
                 </div>
               </dl>
             </div>
@@ -145,26 +168,31 @@ export default async function PaginaCarta({ params }: Props) {
 
           <div className="cartao mt-6 p-6">
             <h2 className="text-sm font-medium uppercase tracking-wider text-textoFraco">
-              Como conseguir
+              {t('carta.como_conseguir')}
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-textoFraco">
-              Use <code className="rounded bg-superficie2 px-1.5 py-0.5">/roll</code> no Discord para
-              sortear cartas, procure no{' '}
-              <code className="rounded bg-superficie2 px-1.5 py-0.5">/market</code> se alguém estiver
-              vendendo, ou marque com{' '}
-              <code className="rounded bg-superficie2 px-1.5 py-0.5">/desejar {carta.nome}</code> para
-              ser avisado quando alguém rolar esta carta.
-            </p>
+            {/*
+              Os <code> vêm do dicionário porque a frase os intercala. Os
+              nomes dos comandos NÃO se traduzem: só `/idioma` tem nome
+              localizado no Discord (`/language`), então `/roll`, `/market`
+              e `/desejar` são o que o jogador digita nos três idiomas.
+            */}
+            <p
+              className="mt-3 text-sm leading-relaxed text-textoFraco
+                         [&_code]:rounded [&_code]:bg-superficie2 [&_code]:px-1.5 [&_code]:py-0.5"
+              dangerouslySetInnerHTML={{ __html: t('carta.como_texto', { nome: carta.nome }) }}
+            />
           </div>
         </div>
       </div>
 
       {relacionadas.length > 0 && (
         <section className="mt-20">
-          <h2 className="text-2xl font-bold">Outras cartas de {carta.serie}</h2>
+          <h2 className="text-2xl font-bold">
+            {t('carta.outras_da_serie', { serie: carta.serie })}
+          </h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {relacionadas.map((c) => (
-              <CartaVisual key={c.id} carta={c} totalCatalogo={totalCatalogo} />
+              <CartaVisual key={c.id} carta={c} idioma={idioma} totalCatalogo={totalCatalogo} />
             ))}
           </div>
         </section>

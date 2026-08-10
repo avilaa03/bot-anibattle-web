@@ -1,22 +1,46 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import AvisoSoPortugues from '@/components/AvisoSoPortugues';
+import { traduzir } from '@/lib/i18n';
+import { ehIdioma, IDIOMA_PADRAO, type Idioma } from '@/lib/i18n/config';
 
-export const metadata: Metadata = {
-  title: 'Termos de Uso',
-  description: 'Regras de uso do AniBattle.',
-  robots: { index: true, follow: false }
-};
+interface Props {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = traduzir(ehIdioma(locale) ? locale : IDIOMA_PADRAO);
+  return {
+    title: t('legal.termos_titulo'),
+    description: t('legal.termos_descricao'),
+    robots: { index: true, follow: false }
+  };
+}
 
 /**
  * O texto completo vive em `bot_animefight/TERMOS.md`.
  * Mantenha os dois em sincronia.
+ *
+ * O corpo fica em português nos três idiomas — veja o porquê em
+ * `components/AvisoSoPortugues.tsx`. Só o título da aba e a nota do topo
+ * acompanham o idioma do visitante.
  */
-export default function PaginaTermos() {
+export default async function PaginaTermos({ params }: Props) {
+  const { locale } = await params;
+  if (!ehIdioma(locale)) notFound();
+  const idioma = locale as Idioma;
+
   return (
     <div className="container-site max-w-3xl py-16">
-      <h1 className="text-3xl font-bold">Termos de Uso</h1>
-      <p className="mt-2 text-sm text-textoFraco">Última atualização: 2 de agosto de 2026</p>
+      <AvisoSoPortugues idioma={idioma} />
 
-      <div className="mt-10 space-y-8 leading-relaxed text-textoFraco">
+      <h1 className="mt-8 text-3xl font-bold" lang={IDIOMA_PADRAO}>Termos de Uso</h1>
+      <p className="mt-2 text-sm text-textoFraco" lang={IDIOMA_PADRAO}>
+        Última atualização: 2 de agosto de 2026
+      </p>
+
+      <div className="mt-10 space-y-8 leading-relaxed text-textoFraco" lang={IDIOMA_PADRAO}>
         <section>
           <h2 className="text-xl font-semibold text-texto">Quem pode usar</h2>
           <p className="mt-3">

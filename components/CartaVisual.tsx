@@ -2,6 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { CartaSimples } from '@/lib/tipos';
 import { getRaridade, formatarNumero, formatarMoedas } from '@/lib/raridades';
+import { traduzir } from '@/lib/i18n';
+import { LOCALE_FORMATO, type Idioma } from '@/lib/i18n/config';
 
 /**
  * A carta renderizada em HTML/CSS, não como imagem.
@@ -17,16 +19,28 @@ import { getRaridade, formatarNumero, formatarMoedas } from '@/lib/raridades';
 
 interface Props {
   carta: CartaSimples;
+  /**
+   * Obrigatório de propósito. Sem ele o link sairia sem prefixo, e o
+   * middleware jogaria de volta para o português quem clicasse numa carta
+   * no catálogo em inglês.
+   */
+  idioma: Idioma;
   totalCatalogo?: number;
   prioridade?: boolean;
 }
 
-export default function CartaVisual({ carta, totalCatalogo = 0, prioridade = false }: Props) {
+export default function CartaVisual({
+  carta,
+  idioma,
+  totalCatalogo = 0,
+  prioridade = false
+}: Props) {
   const meta = getRaridade(carta.raridade);
+  const t = traduzir(idioma);
 
   return (
     <Link
-      href={carta.numero != null ? `/cartas/${carta.numero}` : '/cartas'}
+      href={carta.numero != null ? `/${idioma}/cartas/${carta.numero}` : `/${idioma}/cartas`}
       className="group block"
     >
       <article
@@ -49,7 +63,7 @@ export default function CartaVisual({ carta, totalCatalogo = 0, prioridade = fal
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-white/40">
-            Sem imagem
+            {t('cartas.sem_imagem')}
           </div>
         )}
 
@@ -63,7 +77,7 @@ export default function CartaVisual({ carta, totalCatalogo = 0, prioridade = fal
           style={{ background: `linear-gradient(135deg, ${meta.corTexto}, ${meta.cor})` }}
         >
           <span className="text-base font-bold leading-none sm:text-lg">{carta.overall}</span>
-          <span className="text-[8px] font-semibold opacity-70">OVR</span>
+          <span className="text-[8px] font-semibold opacity-70">{t('atributos.ovr')}</span>
         </div>
 
         {/* Pílula de raridade */}
@@ -71,7 +85,7 @@ export default function CartaVisual({ carta, totalCatalogo = 0, prioridade = fal
           className="absolute right-2 top-2 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider backdrop-blur-sm sm:text-[10px]"
           style={{ borderColor: meta.cor, color: meta.corTexto, background: 'rgba(0,0,0,0.5)' }}
         >
-          {meta.label}
+          {t(`raridades.${meta.chave}`)}
         </div>
 
         {/* Nome, série e atributos */}
@@ -87,7 +101,11 @@ export default function CartaVisual({ carta, totalCatalogo = 0, prioridade = fal
             className="mt-2 grid grid-cols-3 gap-1 border-t pt-2 text-center"
             style={{ borderColor: `${meta.cor}66` }}
           >
-            {([['ATA', carta.ATA], ['LIF', carta.LIF], ['POW', carta.POW]] as const).map(
+            {([
+              [t('atributos.ata'), carta.ATA],
+              [t('atributos.lif'), carta.LIF],
+              [t('atributos.pow'), carta.POW]
+            ] as const).map(
               ([rotulo, valor]) => (
                 <div key={rotulo}>
                   <div className="text-[8px] tracking-widest" style={{ color: meta.corTexto }}>
@@ -105,7 +123,9 @@ export default function CartaVisual({ carta, totalCatalogo = 0, prioridade = fal
         <span className="font-mono text-textoFraco">
           {formatarNumero(carta.numero, totalCatalogo)}
         </span>
-        <span className="text-textoFraco">🪙 {formatarMoedas(carta.valorMercado)}</span>
+        <span className="text-textoFraco">
+          🪙 {formatarMoedas(carta.valorMercado, LOCALE_FORMATO[idioma])}
+        </span>
       </div>
     </Link>
   );
