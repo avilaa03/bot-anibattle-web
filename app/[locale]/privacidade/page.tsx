@@ -1,10 +1,22 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import AvisoSoPortugues from '@/components/AvisoSoPortugues';
+import { traduzir } from '@/lib/i18n';
+import { ehIdioma, IDIOMA_PADRAO, type Idioma } from '@/lib/i18n/config';
 
-export const metadata: Metadata = {
-  title: 'Política de Privacidade',
-  description: 'Como o AniBattle trata os seus dados.',
-  robots: { index: true, follow: false }
-};
+interface Props {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = traduzir(ehIdioma(locale) ? locale : IDIOMA_PADRAO);
+  return {
+    title: t('legal.privacidade_titulo'),
+    description: t('legal.privacidade_descricao'),
+    robots: { index: true, follow: false }
+  };
+}
 
 /**
  * O texto completo vive em `bot_animefight/PRIVACIDADE.md`.
@@ -12,14 +24,25 @@ export const metadata: Metadata = {
  * Enquanto o site não lê esse arquivo automaticamente, mantenha os dois
  * em sincronia ao mudar qualquer coisa — documento legal desatualizado é
  * pior que documento nenhum.
+ *
+ * O corpo fica em português nos três idiomas — veja o porquê em
+ * `components/AvisoSoPortugues.tsx`.
  */
-export default function PaginaPrivacidade() {
+export default async function PaginaPrivacidade({ params }: Props) {
+  const { locale } = await params;
+  if (!ehIdioma(locale)) notFound();
+  const idioma = locale as Idioma;
+
   return (
     <div className="container-site max-w-3xl py-16">
-      <h1 className="text-3xl font-bold">Política de Privacidade</h1>
-      <p className="mt-2 text-sm text-textoFraco">Última atualização: 2 de agosto de 2026</p>
+      <AvisoSoPortugues idioma={idioma} />
 
-      <div className="mt-10 space-y-8 leading-relaxed text-textoFraco">
+      <h1 className="mt-8 text-3xl font-bold" lang={IDIOMA_PADRAO}>Política de Privacidade</h1>
+      <p className="mt-2 text-sm text-textoFraco" lang={IDIOMA_PADRAO}>
+        Última atualização: 2 de agosto de 2026
+      </p>
+
+      <div className="mt-10 space-y-8 leading-relaxed text-textoFraco" lang={IDIOMA_PADRAO}>
         <section>
           <h2 className="text-xl font-semibold text-texto">Que dados coletamos</h2>
           <p className="mt-3">
