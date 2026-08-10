@@ -24,7 +24,13 @@ export interface TierVip {
   cargasExtras: number;
   /** Multiplicador da recompensa diária. */
   dailyMultiplier: number;
-  /** Molduras de carta liberadas. */
+  /**
+   * Molduras de carta liberadas, por CHAVE.
+   *
+   * Chave e não nome porque "Prata" é "Silver" em inglês. O nome de
+   * exibição sai de `t('vip.molduras.<chave>')`, com o mesmo vocabulário
+   * do `vip_catalogo.molduras` do bot — é a mesma moldura nos dois lugares.
+   */
   molduras: string[];
   /** Quantas cartas cabem na lista de desejos. */
   limiteDesejos: number;
@@ -37,25 +43,25 @@ export const TIERS: Record<string, TierVip> = {
   bronze: {
     key: 'bronze', nome: 'Bronze', emoji: '🥉', precoBRL: 5, ordem: 1, cor: '#CD7F32',
     rollCooldownMultiplier: 0.90, cargasExtras: 0, dailyMultiplier: 1.25,
-    molduras: ['Bronze'], limiteDesejos: 15,
+    molduras: ['bronze'], limiteDesejos: 15,
     podeCorPerfil: true, podeBanner: false, destaqueRanking: false
   },
   prata: {
     key: 'prata', nome: 'Prata', emoji: '🥈', precoBRL: 15, ordem: 2, cor: '#C0C0C0',
     rollCooldownMultiplier: 0.80, cargasExtras: 0, dailyMultiplier: 1.5,
-    molduras: ['Bronze', 'Prata'], limiteDesejos: 20,
+    molduras: ['bronze', 'prata'], limiteDesejos: 20,
     podeCorPerfil: true, podeBanner: true, destaqueRanking: false
   },
   ouro: {
     key: 'ouro', nome: 'Ouro', emoji: '🥇', precoBRL: 30, ordem: 3, cor: '#FFD700',
     rollCooldownMultiplier: 0.70, cargasExtras: 1, dailyMultiplier: 2,
-    molduras: ['Bronze', 'Prata', 'Ouro', 'Sakura'], limiteDesejos: 30,
+    molduras: ['bronze', 'prata', 'ouro', 'sakura'], limiteDesejos: 30,
     podeCorPerfil: true, podeBanner: true, destaqueRanking: true
   },
   master: {
     key: 'master', nome: 'Master', emoji: '🌟', precoBRL: 50, ordem: 4, cor: '#E91E63',
     rollCooldownMultiplier: 0.60, cargasExtras: 1, dailyMultiplier: 3,
-    molduras: ['Bronze', 'Prata', 'Ouro', 'Sakura', 'Holográfica', 'Neon'], limiteDesejos: 50,
+    molduras: ['bronze', 'prata', 'ouro', 'sakura', 'holografica', 'neon'], limiteDesejos: 50,
     podeCorPerfil: true, podeBanner: true, destaqueRanking: true
   }
 };
@@ -71,13 +77,10 @@ export const LIMITE_DESEJOS_GRATIS = 10;
  * antes de pagar. Precisa continuar verdadeira — há um teste no bot
  * (`tests/vip.test.js`) que falha se algum plano ganhar campo de combate.
  */
-export const NUNCA_INCLUSO = [
-  'Atributos melhores nas cartas (ATA, LIF, POW)',
-  'Mais chance de rolar carta rara',
-  'Qualquer vantagem no resultado de uma batalha',
-  'Cartas exclusivas que não dá para conseguir jogando',
-  'Moeda do jogo comprada com dinheiro real'
-];
+/**
+ * A lista mora nos dicionários (`vip.nunca_incluso`) porque é texto, e
+ * precisa existir nos três idiomas.
+ */
 
 /** Redução de cooldown em porcentagem, para exibir. */
 export function reducaoCooldown(tier: TierVip): number {
