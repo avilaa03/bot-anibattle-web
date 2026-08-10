@@ -21,11 +21,19 @@ mexer nisso — inclusive para retomar a tradução das páginas que faltam.
 | `middleware.ts` | põe o idioma na URL e grava o cookie |
 | `components/SeletorIdioma.tsx` | os três botões do cabeçalho |
 | `app/[locale]/layout.tsx` | `<html lang>`, metadados e `hreflang` |
+| `scripts/conferirIdiomas.mjs` | `npm run idiomas:conferir` |
 
 ## Traduzir uma página
 
 O padrão é sempre o mesmo. Use `app/[locale]/cartas/page.tsx` como
-modelo — ela tem os dois casos (página e `generateMetadata`).
+modelo — ela tem os dois casos (página e `generateMetadata`), e passa
+strings prontas para um componente de cliente.
+
+Para conteúdo que é estrutura — o guia inteiro, o FAQ do VIP — o modelo é
+`lib/guia.ts`: o texto vai para o dicionário como lista de objetos, os
+números ficam no código, e um `preencher` troca os `{marcadores}`. O
+dicionário nunca escreve um número do jogo à mão; se escrevesse, ele
+sobreviveria à mudança da regra e viraria mentira em silêncio.
 
 **1.** Adicione as chaves nos **três** JSONs, com o mesmo caminho.
 
@@ -53,7 +61,7 @@ export default async function Pagina({
 **3.** Troque o texto por `t('chave')` e **todo link interno** por
 `href('/caminho')`.
 
-## Cinco armadilhas
+## Sete armadilhas
 
 **Link sem idioma desfaz a escolha do visitante.** Um `<Link href="/cartas">`
 cai no middleware, que redecide o idioma e joga a pessoa de volta para o
@@ -80,53 +88,74 @@ dica de desenvolvimento fica em inglês nos três idiomas: é a mensagem
 exata que o Discord devolve, e traduzir faria a pessoa procurar no portal
 por um texto que não existe.
 
+**Nome de comando é termo literal.** `/roll`, `/market`, `/desejar` são
+iguais nos três idiomas porque é o que o jogador digita. Só `/idioma` tem
+`setNameLocalizations` no bot (`/language`); nenhum outro comando tem.
+Escrever `/wish` numa página em inglês manda a pessoa digitar um comando
+que não existe.
+
+**Rótulo que vem de catálogo do código vazava português.** Raridade,
+etiqueta de notícia, nome de plano e nome de moldura eram strings em
+`lib/raridades.ts`, `lib/noticias.ts` e `lib/vip.ts`. Agora o catálogo
+guarda só a mecânica — chave, cor, emoji, peso, preço — e o nome sai do
+dicionário. Mesma regra do bot. O `label` em português continua em
+`lib/raridades.ts` só para o `/admin`, que é interno; página pública que
+usar `meta.label` está errada.
+
 ## Conferir antes de abrir PR
 
 ```bash
-npx tsc --noEmit
+npm run typecheck && npm run idiomas:conferir
 ```
 
-E a paridade das chaves nos três dicionários:
+O `idiomas:conferir` pega os três erros silenciosos: chave faltando num
+idioma, lista com número diferente de itens, e marcador `{valor}`
+presente só de um lado. Nenhum dos três quebra o build — chave que falta
+cai no português, e a página fica no ar com uma frase em português no
+meio do inglês.
 
-```bash
-node -e "
-const l=['pt','en','es'].map(x=>require('./lib/i18n/dicionarios/'+x+'.json'));
-const k=(o,p='')=>Object.entries(o).flatMap(([x,v])=>
-  v&&typeof v==='object'&&!Array.isArray(v)?k(v,p+x+'.'):[p+x]);
-const [a,b,c]=l.map(k);
-const faltam=[...a.filter(x=>!b.includes(x)),...a.filter(x=>!c.includes(x))];
-console.log(faltam.length?'FALTAM: '+faltam.join(', '):'paridade ok ('+a.length+' chaves)');
-"
-```
-
-Chave que falta num idioma não quebra nada — cai no português. É
-justamente por isso que precisa ser conferido: o erro é silencioso.
+A conferência anterior era um `node -e` colado neste documento, e estava
+quebrada: `l.map(k)` passava o índice do array como prefixo de chave, então
+ela reportava 100% das chaves como faltando, sempre. Por isso agora é
+script no repositório, com teste de que ele realmente reprova.
 
 ## O que ainda falta traduzir
 
-- `app/[locale]/guia/page.tsx` e `lib/guia.ts` (o maior, ~446 linhas)
-- `app/[locale]/vip/page.tsx` (~39 strings, boa parte FAQ)
-- `app/[locale]/termos` e `app/[locale]/privacidade` — ver abaixo
-- Campos por idioma nas notícias, no editor do painel
+As páginas públicas estão todas prontas. Sobra uma coisa:
+
+- **Campos por idioma nas notícias**, no editor do painel. Hoje a notícia
+  tem um título e um resumo só, e eles aparecem iguais nos três idiomas —
+  é o único texto do site que ainda escapa do dicionário, porque vem do
+  banco. A etiqueta (Novidade, Atualização…) já é traduzida.
 
 O `/admin` fica em português por decisão de escopo: é uso interno.
 
-## Decisão pendente: páginas legais
+O `next lint` deste repositório não está configurado — abre um prompt
+interativo pedindo para escolher o preset. Não tem a ver com tradução,
+mas atrapalha quem tentar rodar a suíte inteira.
 
-`/termos` e `/privacidade` são prosa jurídica. A chave
-`legal.aviso_traducao` já existe nos três dicionários ("em caso de
-divergência, prevalece o texto em português"), mas o corpo ainda não foi
-traduzido.
+## Páginas legais: decidido, ficam em português
 
-**O aviso e a tradução precisam entrar juntos.** Uma página em português
-exibindo "esta é uma tradução de cortesia" confunde mais do que ajuda.
+`/termos` e `/privacidade` são prosa jurídica, e o corpo dos dois fica em
+português nos três idiomas. Foi decisão de risco, não de esforço: uma
+imprecisão de tradução numa política de privacidade pode valer contra
+quem a publicou.
 
-Duas saídas, e a escolha é de risco, não técnica:
+A alternativa — traduzir e avisar que "em caso de divergência prevalece o
+português" — resolve no papel e piora na prática: a pessoa lê a versão
+que a própria página avisa não ser a que vale. A chave
+`legal.aviso_traducao`, que existia para essa saída, foi removida para
+não convidar a usá-la.
 
-1. Traduzir por inteiro, com o aviso — mais trabalho, e uma imprecisão
-   numa política de privacidade pode valer contra você
-2. Manter o corpo em português nos três idiomas, com uma nota explicando
-   que o documento existe só nesse idioma
+Como está montado:
+
+- `components/AvisoSoPortugues.tsx` abre a página fora do português, e a
+  **nota vai no idioma do visitante** — avisar em português que o
+  documento só existe em português não avisa ninguém
+- O bloco do documento leva `lang="pt"`, senão o leitor de tela lê o
+  português inteiro com a fonética do outro idioma
+- Só o título da aba e a descrição acompanham o idioma, porque é o que
+  aparece no buscador e no link do rodapé
 
 ## Por que algumas decisões são assim
 
