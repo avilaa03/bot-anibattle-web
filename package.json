@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "idiomas:conferir": "node scripts/conferirIdiomas.mjs",
     "vip:conferir": "node scripts/conferirVip.mjs",
     "valores:conferir": "node scripts/conferirValores.mjs"
   },
