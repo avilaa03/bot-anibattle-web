@@ -179,7 +179,7 @@
     "venda_rapida": "Quick sell",
     "raridade": "Rarity",
     "como_conseguir": "How to get it",
-    "como_texto": "Use <code>/roll</code> on Discord to draw cards, check <code>/market</code> in case someone is selling, or mark it with <code>/desejar {nome}</code> to be notified when someone rolls this card.",
+    "como_texto": "Use <code>/roll</code> on Discord to draw cards, check <code>/market</code> in case someone is selling, or mark it with <code>/wish {nome}</code> to be notified when someone rolls this card.",
     "outras_da_serie": "More cards from {serie}"
   },
   "guia": {
@@ -208,7 +208,7 @@
       },
       {
         "titulo": "Test your team risk-free",
-        "texto": "Use `/treino` before challenging anyone. It's the same real battle, against a bot opponent, but nothing is at stake — no coins, no rating. It's there so you can see how your cards behave."
+        "texto": "Use `/training` before challenging anyone. It's the same real battle, against a bot opponent, but nothing is at stake — no coins, no rating. It's there so you can see how your cards behave."
       },
       {
         "titulo": "Challenge someone",
@@ -216,11 +216,11 @@
       },
       {
         "titulo": "Finish your missions",
-        "texto": "Use `/missoes` to see what pays today. Progress is automatic — you only come back to claim."
+        "texto": "Use `/missions` to see what pays today. Progress is automatic — you only come back to claim."
       },
       {
         "titulo": "Check for an open event",
-        "texto": "`/evento` shows what's running and the prize for each one. Entering is free and takes one command — it's the only way to get an event card, which never comes from `/roll` or from a box."
+        "texto": "`/event` shows what's running and the prize for each one. Entering is free and takes one command — it's the only way to get an event card, which never comes from `/roll` or from a box."
       }
     ],
     "secoes": [
@@ -262,11 +262,11 @@
         "comandos": [
           { "nome": "/battle", "o_que_faz": "Challenges another player. Minimum stake of 10 coins, the winner takes double." },
           {
-            "nome": "/treino",
+            "nome": "/training",
             "o_que_faz": "The same battle, against a bot team.",
             "dica": "No coins, no rating, no missions and no achievements. It's for testing without risk."
           },
-          { "nome": "/torneio", "o_que_faz": "A competition with several players in knockout brackets." },
+          { "nome": "/tournament", "o_que_faz": "A competition with several players in knockout brackets." },
           { "nome": "/ranking", "o_que_faz": "Standings by score, from Bronze to Master." }
         ]
       },
@@ -291,7 +291,7 @@
             "dica": "You get the full price another player pays, minus a 5% fee."
           },
           { "nome": "/market", "o_que_faz": "Search and buy cards listed by other players." },
-          { "nome": "/trocar", "o_que_faz": "Card-for-card trade. Both build the offer and both confirm." },
+          { "nome": "/trade", "o_que_faz": "Card-for-card trade. Both build the offer and both confirm." },
           { "nome": "/daily", "o_que_faz": "Daily reward. The more days in a row, the more it's worth." }
         ],
         "atencao": {
@@ -305,8 +305,8 @@
         "titulo": "Boxes",
         "resumo": "Paid draws with better odds — and why they never pay off on average.",
         "paragrafos": [
-          "Boxes are bought with coins and **kept in your bag**. You open them whenever you want, with `/caixa abrir`.",
-          "Each one has its own distribution, and the percentages are in plain sight in `/caixa`. Nothing is hidden.",
+          "Boxes are bought with coins and **kept in your bag**. You open them whenever you want, with `/box open`.",
+          "Each one has its own distribution, and the percentages are in plain sight in `/box`. Nothing is hidden.",
           "One important thing the game doesn't hide: **every box loses money on average.** You're paying for the chance, not for the return. Open a hundred boxes expecting profit and you'll lose money — it was designed that way, because that's what takes coins out of circulation and holds market prices down."
         ],
         "tabela": {
@@ -329,19 +329,19 @@
         "titulo": "Upgrading",
         "resumo": "Make a card stronger by spending gems. No ceiling, and no risk of ruining it.",
         "paragrafos": [
-          "Gems come from two doors: buying them in the `/loja` or salvaging a card you don't want.",
+          "Gems come from two doors: buying them in the `/shop` or salvaging a card you don't want.",
           "Each attempt has three outcomes: **it goes up a level**, **nothing happens**, or **it drops a level**. As the level rises, succeeding gets harder.",
           "**There is no ceiling.** A high-level card isn't an expensive card, it's a **lucky** one — and that's what makes it worth what it's worth on the player market."
         ],
         "comandos": [
-          { "nome": "/aprimorar", "o_que_faz": "Spends gems to try to raise a card's level." },
+          { "nome": "/upgrade", "o_que_faz": "Spends gems to try to raise a card's level." },
           {
-            "nome": "/desmanchar",
+            "nome": "/salvage",
             "o_que_faz": "Turns a card into gems.",
             "dica": "Pays more than quick sell on everything — except the Master, where selling still pays better."
           },
-          { "nome": "/bolsa", "o_que_faz": "Shows the items and boxes you have stored." },
-          { "nome": "/loja", "o_que_faz": "Buy gems, protection scrolls and extra rolls." }
+          { "nome": "/bag", "o_que_faz": "Shows the items and boxes you have stored." },
+          { "nome": "/shop", "o_que_faz": "Buy gems, protection scrolls and extra rolls." }
         ],
         "atencao": {
           "titulo": "Your card never ends up worse than it was born",
@@ -381,10 +381,10 @@
         ],
         "comandos": [
           { "nome": "/pokedex", "o_que_faz": "What you've discovered and what's still missing. Filters by series or rarity." },
-          { "nome": "/ficha", "o_que_faz": "A card's full sheet, by name or number. Works even if you've already sold it." },
-          { "nome": "/colecionadores", "o_que_faz": "Leaderboard of who has discovered the most cards." },
-          { "nome": "/desejar", "o_que_faz": "Marks a card you want. When someone rolls it, you get pinged." },
-          { "nome": "/conquistas", "o_que_faz": "Your trophies. Bronze, Silver, Gold and the Platinum, which requires all the others." }
+          { "nome": "/cardinfo", "o_que_faz": "A card's full sheet, by name or number. Works even if you've already sold it." },
+          { "nome": "/collectors", "o_que_faz": "Leaderboard of who has discovered the most cards." },
+          { "nome": "/wish", "o_que_faz": "Marks a card you want. When someone rolls it, you get pinged." },
+          { "nome": "/achievements", "o_que_faz": "Your trophies. Bronze, Silver, Gold and the Platinum, which requires all the others." }
         ]
       },
       {
@@ -396,13 +396,13 @@
           "Event cards are handed out on special occasions — beta participation, campaigns, tournament prizes. They **never come from `/roll` or from a box**, and that's exactly what makes them special: having one means you were there.",
           "They live in a **separate Pokédex**, at `/pokedex dex:evento`. The reason is simple: the normal Pokédex exists to be completed, and if event cards went into it, everyone's bar would drop with each new handout — nobody who missed the event could ever hit 100% again.",
           "Some cards are **bound**: they're yours and can't be sold, traded or transferred. They battle normally, and show up with a 🔒 in listings. Others are tradeable, and those tend to be worth a lot on the market — there's no way to get more once the handout closes.",
-          "Not every event is a surprise. Many open **sign-ups**: use `/evento` to see what's running, the prize for each one and how many people have joined. Entering is free, takes one command and costs nothing beyond that — no fee, no stake, and you lose nothing if you don't win.",
+          "Not every event is a surprise. Many open **sign-ups**: use `/event` to see what's running, the prize for each one and how many people have joined. Entering is free, takes one command and costs nothing beyond that — no fee, no stake, and you lose nothing if you don't win.",
           "Once you're signed up, there's nothing else to do: the prize lands in your account when the event is settled. Not every prize is a card — many are coins, gems or boxes."
         ],
         "comandos": [
-          { "nome": "/evento", "o_que_faz": "Lists the events with open sign-ups and the prize for each." },
+          { "nome": "/event", "o_que_faz": "Lists the events with open sign-ups and the prize for each." },
           {
-            "nome": "/evento entrar",
+            "nome": "/event join",
             "o_que_faz": "Confirms your sign-up for an event.",
             "dica": "Entering twice doesn't double anything — and doesn't cost you your spot. Check as often as you like."
           },
@@ -425,14 +425,14 @@
         ],
         "comandos": [
           {
-            "nome": "/trocar",
+            "nome": "/trade",
             "o_que_faz": "Proposes a card trade with another player.",
             "dica": "Check their Pokédex first: offering something they don't have yet greatly raises your chances."
           },
           { "nome": "/give", "o_que_faz": "Gifts a card or coins, asking nothing in return." },
-          { "nome": "/torneio", "o_que_faz": "Server tournaments, with brackets and prizes." },
+          { "nome": "/tournament", "o_que_faz": "Server tournaments, with brackets and prizes." },
           { "nome": "/ranking", "o_que_faz": "Standings by battle rating, from Bronze to Master." },
-          { "nome": "/magnata", "o_que_faz": "Who holds the largest fortune, counting coins and cards together." }
+          { "nome": "/tycoon", "o_que_faz": "Who holds the largest fortune, counting coins and cards together." }
         ],
         "atencao": {
           "titulo": "Be suspicious of a trade that looks too good",
@@ -480,7 +480,7 @@
       },
       {
         "pergunta": "I joined an event and got nothing. Did something break?",
-        "resposta": "Probably not. The prize doesn't come out at sign-up: it's delivered when the event is settled, which is usually at the end of the period. Check in `/evento` whether your sign-up shows a ✅ — if it does, you're all set and it's just a matter of waiting."
+        "resposta": "Probably not. The prize doesn't come out at sign-up: it's delivered when the event is settled, which is usually at the end of the period. Check in `/event` whether your sign-up shows a ✅ — if it does, you're all set and it's just a matter of waiting."
       },
       {
         "pergunta": "The bot didn't answer my command. Now what?",
@@ -564,11 +564,11 @@
       },
       {
         "p": "Do boxes give better cards to subscribers?",
-        "r": "No. Each box's percentages are fixed, shown openly in /caixa and the same for everyone. A subscription doesn't change box odds, and it doesn't give discounts or free boxes either — the Supporter Box comes from voting for the bot, which is free."
+        "r": "No. Each box's percentages are fixed, shown openly in /box and the same for everyone. A subscription doesn't change box odds, and it doesn't give discounts or free boxes either — the Supporter Box comes from voting for the bot, which is free."
       },
       {
         "p": "Do subscribers get exclusive event cards?",
-        "r": "Not in the way that usually happens. Event cards come from events, and entering an event is free — use /evento on Discord. What a subscription never gives you is a card that only exists for paying players."
+        "r": "Not in the way that usually happens. Event cards come from events, and entering an event is free — use /event on Discord. What a subscription never gives you is a card that only exists for paying players."
       },
       {
         "p": "What happens when the subscription expires?",

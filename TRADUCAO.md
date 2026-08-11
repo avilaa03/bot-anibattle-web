@@ -88,11 +88,25 @@ dica de desenvolvimento fica em inglês nos três idiomas: é a mensagem
 exata que o Discord devolve, e traduzir faria a pessoa procurar no portal
 por um texto que não existe.
 
-**Nome de comando é termo literal.** `/roll`, `/market`, `/desejar` são
-iguais nos três idiomas porque é o que o jogador digita. Só `/idioma` tem
-`setNameLocalizations` no bot (`/language`); nenhum outro comando tem.
-Escrever `/wish` numa página em inglês manda a pessoa digitar um comando
-que não existe.
+**Nome de comando MUDA com o idioma — isto se inverteu.**
+
+Antes havia um nome só para todos, e a regra aqui era repetir esse nome
+nos três idiomas. Hoje o bot tem o canônico em inglês e **um apelido por
+idioma** no Discord: quem usa o Discord em português vê `/loja`, em
+inglês vê `/shop`, em espanhol vê `/tienda`.
+
+Então cada dicionário cita o nome do SEU idioma. Escrever `/shop` na
+página em português manda a pessoa digitar um comando que, para ela, não
+existe — o mesmo erro de antes, agora ao contrário.
+
+`/roll`, `/market` e `/daily` continuam iguais nos três: nunca tiveram
+nome em português, e por isso não têm apelido.
+
+A lista mora em `Commands/utils/nomesDeComando.js`, no repositório do
+bot. Aqui não há import possível — os dois projetos são separados —,
+então o que segura os dois juntos é o `npm run idiomas:conferir`, que
+reprova nome em português nos dicionários `en` e `es`. Há teste de que
+ele reprova.
 
 **Rótulo que vem de catálogo do código vazava português.** Raridade,
 etiqueta de notícia, nome de plano e nome de moldura eram strings em
@@ -108,7 +122,7 @@ usar `meta.label` está errada.
 npm run typecheck && npm run idiomas:conferir
 ```
 
-O `idiomas:conferir` pega os três erros silenciosos: chave faltando num
+O `idiomas:conferir` pega os erros silenciosos: chave faltando num
 idioma, lista com número diferente de itens, e marcador `{valor}`
 presente só de um lado. Nenhum dos três quebra o build — chave que falta
 cai no português, e a página fica no ar com uma frase em português no
