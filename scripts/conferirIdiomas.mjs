@@ -101,6 +101,49 @@ for (const idioma of IDIOMAS.filter((i) => i !== PADRAO)) {
     }
 }
 
+// ---------------------------------------------------------------------
+// Nome de comando em português fora do dicionário português
+// ---------------------------------------------------------------------
+//
+// Os comandos do bot têm nome canônico em inglês e um apelido por idioma:
+// quem usa o Discord em português digita `/loja`, em inglês `/shop`, em
+// espanhol `/tienda`. Cada dicionário tem que citar o nome do SEU idioma.
+//
+// Citar `/loja` na página em inglês manda a pessoa digitar um comando
+// que, para ela, não existe — e nada quebra: a página fica no ar,
+// bonita, ensinando errado.
+//
+// A lista mora em `Commands/utils/nomesDeComando.js`, no repositório do
+// bot. Como os dois projetos são separados e não compartilham código, é
+// esta conferência que os mantém juntos.
+const SO_EM_PORTUGUES = {
+    en: ['aprimorar', 'bolsa', 'caixa', 'colecionadores', 'conquistas', 'cosmeticos',
+        'desejar', 'desejos', 'desmanchar', 'evento', 'ficha', 'idioma', 'loja',
+        'magnata', 'missoes', 'torneio', 'treino', 'trocar'],
+    // O espanhol compartilha vários nomes com o português (`/bolsa`,
+    // `/evento`, `/ficha` são iguais nos dois), então só entram aqui os
+    // que o espanhol tem próprios.
+    es: ['aprimorar', 'colecionadores', 'conquistas', 'desejar', 'desejos',
+        'desmanchar', 'loja', 'magnata', 'missoes', 'torneio', 'treino', 'trocar']
+};
+
+for (const [idioma, proibidos] of Object.entries(SO_EM_PORTUGUES)) {
+    // O dicionário é lido como objeto e volta a texto: a citação pode
+    // estar em qualquer chave, e serializar é mais simples (e mais
+    // difícil de furar) do que descer a árvore atrás de strings.
+    const bruto = JSON.stringify(require(`../lib/i18n/dicionarios/${idioma}.json`));
+    for (const nome of proibidos) {
+        const re = new RegExp(`/${nome}\\b`, 'g');
+        const quantos = (bruto.match(re) || []).length;
+        if (quantos > 0) {
+            problemas.push(
+                `${idioma}: cita /${nome} ${quantos}x — esse é o nome em português, `
+                + `e quem lê em ${idioma} não tem esse comando`
+            );
+        }
+    }
+}
+
 console.log('\nConferindo os dicionários de idioma:\n');
 
 if (problemas.length === 0) {

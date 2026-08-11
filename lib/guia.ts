@@ -25,12 +25,29 @@
  * 3. **Números de verdade.** "As chances ficam à vista" só vale se elas
  *    estiverem à vista.
  *
- * ## Nomes de comando não se traduzem
+ * ## Nome de comando agora MUDA com o idioma
  *
- * `/roll`, `/battle`, `/market` aparecem iguais nos três idiomas porque é
- * o que o jogador digita. Só `/idioma` tem nome localizado no Discord
- * (`/language`) — os outros comandos não têm `setNameLocalizations`, e
- * traduzir aqui mandaria a pessoa digitar algo que não existe.
+ * Isto se inverteu, e é a armadilha mais fácil de cair aqui.
+ *
+ * Antes havia um nome só para todos, e o guia repetia esse nome nos três
+ * idiomas. Hoje o canônico é inglês e **cada idioma tem o seu apelido** no
+ * Discord (`setNameLocalizations`): quem usa o Discord em português vê
+ * `/loja`, em inglês vê `/shop`, em espanhol vê `/tienda`.
+ *
+ * Então cada dicionário tem que citar o nome do SEU idioma. Escrever
+ * `/shop` no guia em português manda a pessoa digitar um comando que,
+ * para ela, não existe — exatamente o erro que a regra antiga evitava,
+ * só que agora ao contrário.
+ *
+ * `/roll`, `/battle`, `/market` e os outros que já nasceram em inglês
+ * continuam iguais nos três: eles nunca tiveram nome em português, e por
+ * isso não têm apelido.
+ *
+ * A lista completa está em `Commands/utils/nomesDeComando.js`, no
+ * repositório do bot. Aqui não há import possível — os dois projetos são
+ * separados —, então o que segura os dois juntos é o
+ * `npm run idiomas:conferir`, que reprova nome em português nos
+ * dicionários `en` e `es`.
  */
 
 import { CARGAS_BASE, NIVEIS_DE_CARGA, maxCargas } from './nivel';

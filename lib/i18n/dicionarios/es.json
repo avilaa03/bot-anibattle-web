@@ -179,7 +179,7 @@
     "venda_rapida": "Venta rápida",
     "raridade": "Rareza",
     "como_conseguir": "Cómo conseguirla",
-    "como_texto": "Usa <code>/roll</code> en Discord para sortear cartas, busca en <code>/market</code> por si alguien la vende, o márcala con <code>/desejar {nome}</code> para que te avisen cuando alguien la saque.",
+    "como_texto": "Usa <code>/roll</code> en Discord para sortear cartas, busca en <code>/market</code> por si alguien la vende, o márcala con <code>/desear {nome}</code> para que te avisen cuando alguien la saque.",
     "outras_da_serie": "Otras cartas de {serie}"
   },
   "guia": {
@@ -208,7 +208,7 @@
       },
       {
         "titulo": "Prueba tu equipo sin riesgo",
-        "texto": "Usa `/treino` antes de desafiar a alguien. Es la misma batalla de verdad, contra un rival del bot, pero no vale monedas ni puntuación. Sirve para ver cómo se comportan tus cartas."
+        "texto": "Usa `/entrenamiento` antes de desafiar a alguien. Es la misma batalla de verdad, contra un rival del bot, pero no vale monedas ni puntuación. Sirve para ver cómo se comportan tus cartas."
       },
       {
         "titulo": "Desafía a alguien",
@@ -216,7 +216,7 @@
       },
       {
         "titulo": "Completa tus misiones",
-        "texto": "Usa `/missoes` para ver qué da recompensa hoy. El progreso es automático — solo vuelves para reclamar."
+        "texto": "Usa `/misiones` para ver qué da recompensa hoy. El progreso es automático — solo vuelves para reclamar."
       },
       {
         "titulo": "Mira si hay algún evento abierto",
@@ -262,11 +262,11 @@
         "comandos": [
           { "nome": "/battle", "o_que_faz": "Desafía a otro jugador. Apuesta mínima de 10 monedas, el ganador se lleva el doble." },
           {
-            "nome": "/treino",
+            "nome": "/entrenamiento",
             "o_que_faz": "La misma batalla, contra un equipo del bot.",
             "dica": "No vale monedas, puntuación, misiones ni logros. Es para probar sin riesgo."
           },
-          { "nome": "/torneio", "o_que_faz": "Competición con varios jugadores en cuadros eliminatorios." },
+          { "nome": "/torneo", "o_que_faz": "Competición con varios jugadores en cuadros eliminatorios." },
           { "nome": "/ranking", "o_que_faz": "Clasificación por puntuación, de Bronce a Master." }
         ]
       },
@@ -291,7 +291,7 @@
             "dica": "Recibes el precio completo que pague otro jugador, menos un 5% de comisión."
           },
           { "nome": "/market", "o_que_faz": "Busca y compra cartas anunciadas por otros jugadores." },
-          { "nome": "/trocar", "o_que_faz": "Intercambio carta por carta. Los dos arman la oferta y los dos confirman." },
+          { "nome": "/intercambiar", "o_que_faz": "Intercambio carta por carta. Los dos arman la oferta y los dos confirman." },
           { "nome": "/daily", "o_que_faz": "Recompensa diaria. Cuantos más días seguidos, más vale." }
         ],
         "atencao": {
@@ -305,8 +305,8 @@
         "titulo": "Cajas",
         "resumo": "Sorteos de pago con mejores probabilidades — y por qué nunca compensan de media.",
         "paragrafos": [
-          "Las cajas se compran con monedas y se **guardan en la bolsa**. Las abres cuando quieras, con `/caixa abrir`.",
-          "Cada una tiene su propia distribución, y los porcentajes están a la vista en `/caixa`. No se esconde nada.",
+          "Las cajas se compran con monedas y se **guardan en la bolsa**. Las abres cuando quieras, con `/caja abrir`.",
+          "Cada una tiene su propia distribución, y los porcentajes están a la vista en `/caja`. No se esconde nada.",
           "Algo importante que el juego no esconde: **toda caja pierde dinero de media.** Pagas por la probabilidad, no por el retorno. Si abres cien cajas esperando ganancia, pierdes dinero — está diseñado así, porque es lo que saca monedas de circulación y contiene los precios del mercado."
         ],
         "tabela": {
@@ -329,19 +329,19 @@
         "titulo": "Mejora",
         "resumo": "Haz una carta más fuerte gastando gemas. Sin tope, y sin riesgo de arruinarla.",
         "paragrafos": [
-          "Las gemas vienen de dos puertas: comprarlas en la `/loja` o desguazar una carta que no quieres.",
+          "Las gemas vienen de dos puertas: comprarlas en la `/tienda` o desguazar una carta que no quieres.",
           "Cada intento tiene tres desenlaces: **sube un nivel**, **no pasa nada**, o **baja un nivel**. Conforme sube el nivel, acertar se vuelve más difícil.",
           "**No existe tope.** Una carta de nivel alto no es una carta cara, es una carta **con suerte** — y eso es lo que hace que valga lo que vale en el mercado entre jugadores."
         ],
         "comandos": [
-          { "nome": "/aprimorar", "o_que_faz": "Gasta gemas para intentar subir el nivel de una carta." },
+          { "nome": "/mejorar", "o_que_faz": "Gasta gemas para intentar subir el nivel de una carta." },
           {
-            "nome": "/desmanchar",
+            "nome": "/desmontar",
             "o_que_faz": "Convierte una carta en gemas.",
             "dica": "Renta más que la venta rápida en todo — menos en la Maestra, donde vender todavía paga mejor."
           },
           { "nome": "/bolsa", "o_que_faz": "Muestra los objetos y las cajas que tienes guardados." },
-          { "nome": "/loja", "o_que_faz": "Compra gemas, pergaminos de protección y rolls extra." }
+          { "nome": "/tienda", "o_que_faz": "Compra gemas, pergaminos de protección y rolls extra." }
         ],
         "atencao": {
           "titulo": "Tu carta nunca queda peor de lo que nació",
@@ -382,9 +382,9 @@
         "comandos": [
           { "nome": "/pokedex", "o_que_faz": "Lo que ya descubriste y lo que todavía falta. Filtra por serie o rareza." },
           { "nome": "/ficha", "o_que_faz": "La ficha completa de una carta, por nombre o número. Funciona aunque ya la hayas vendido." },
-          { "nome": "/colecionadores", "o_que_faz": "Clasificación de quién ha descubierto más cartas." },
-          { "nome": "/desejar", "o_que_faz": "Marca una carta que quieres. Cuando alguien la saque, te avisan." },
-          { "nome": "/conquistas", "o_que_faz": "Tus trofeos. Bronce, Plata, Oro y el Platino, que exige todos los demás." }
+          { "nome": "/coleccionistas", "o_que_faz": "Clasificación de quién ha descubierto más cartas." },
+          { "nome": "/desear", "o_que_faz": "Marca una carta que quieres. Cuando alguien la saque, te avisan." },
+          { "nome": "/logros", "o_que_faz": "Tus trofeos. Bronce, Plata, Oro y el Platino, que exige todos los demás." }
         ]
       },
       {
@@ -425,14 +425,14 @@
         ],
         "comandos": [
           {
-            "nome": "/trocar",
+            "nome": "/intercambiar",
             "o_que_faz": "Propone un intercambio de cartas con otro jugador.",
             "dica": "Mira antes la Pokédex de la persona: ofrecer lo que todavía no tiene aumenta mucho la probabilidad de que acepte."
           },
           { "nome": "/give", "o_que_faz": "Regala una carta o monedas, sin pedir nada a cambio." },
-          { "nome": "/torneio", "o_que_faz": "Torneos del servidor, con cuadro y premios." },
+          { "nome": "/torneo", "o_que_faz": "Torneos del servidor, con cuadro y premios." },
           { "nome": "/ranking", "o_que_faz": "Clasificación por puntuación de batalla, de Bronce a Master." },
-          { "nome": "/magnata", "o_que_faz": "Quién tiene el mayor patrimonio sumando monedas y cartas." }
+          { "nome": "/magnate", "o_que_faz": "Quién tiene el mayor patrimonio sumando monedas y cartas." }
         ],
         "atencao": {
           "titulo": "Desconfía del intercambio \"demasiado bueno\"",
@@ -564,7 +564,7 @@
       },
       {
         "p": "¿Las cajas dan mejores cartas a quien se suscribe?",
-        "r": "No. Los porcentajes de cada caja son fijos, están a la vista en /caixa y son iguales para todos. La suscripción no cambia la probabilidad de una caja, y tampoco da descuento ni cajas gratis — la Caja del Apoyador sale de votar por el bot, que es gratuito."
+        "r": "No. Los porcentajes de cada caja son fijos, están a la vista en /caja y son iguales para todos. La suscripción no cambia la probabilidad de una caja, y tampoco da descuento ni cajas gratis — la Caja del Apoyador sale de votar por el bot, que es gratuito."
       },
       {
         "p": "¿Quien se suscribe tiene cartas de evento exclusivas?",
