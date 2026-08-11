@@ -102,7 +102,7 @@ existe — o mesmo erro de antes, agora ao contrário.
 `/roll`, `/market` e `/daily` continuam iguais nos três: nunca tiveram
 nome em português, e por isso não têm apelido.
 
-A lista mora em `Commands/utils/nomesDeComando.js`, no repositório do
+A lista mora em `Commands/utils/commandNames.js`, no repositório do
 bot. Aqui não há import possível — os dois projetos são separados —,
 então o que segura os dois juntos é o `npm run idiomas:conferir`, que
 reprova nome em português nos dicionários `en` e `es`. Há teste de que

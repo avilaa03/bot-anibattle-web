@@ -43,7 +43,7 @@
  * continuam iguais nos três: eles nunca tiveram nome em português, e por
  * isso não têm apelido.
  *
- * A lista completa está em `Commands/utils/nomesDeComando.js`, no
+ * A lista completa está em `Commands/utils/commandNames.js`, no
  * repositório do bot. Aqui não há import possível — os dois projetos são
  * separados —, então o que segura os dois juntos é o
  * `npm run idiomas:conferir`, que reprova nome em português nos
