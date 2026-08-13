@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "idiomas:conferir": "node scripts/conferirIdiomas.mjs",
     "vip:conferir": "node scripts/conferirVip.mjs",
+    "codigos:conferir": "node scripts/conferirCodigos.mjs",
     "valores:conferir": "node scripts/conferirValores.mjs"
   },
   "dependencies": {
