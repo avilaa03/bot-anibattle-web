@@ -76,7 +76,9 @@ data/
 
 **A carta é HTML, não imagem.** O bot desenha em canvas porque o Discord só aceita imagem. Na web isso seria erro: pesaria mais, não seria responsivo, não daria para o Google ler o texto, e obrigaria instalar o `canvas` (dependência nativa) na Vercel — justamente onde ele dá mais problema.
 
-**O site nunca escreve no banco.** Toda escrita passa pelo bot. Isso impede que um bug aqui corrompa a economia do jogo.
+**O site quase nunca escreve no banco.** A regra original era "toda escrita passa pelo bot", e ela vale para tudo que é jogo. As exceções são o painel administrativo (`lib/admin/`) e os **códigos de resgate** — e vale entender por que os códigos são exceção:
+
+o site cria o código, o bot o consome. O que o site nunca faz é **resgatar**. A trava contra resgate duplo é o índice único `(codigo, userId)` da coleção `resgates`, e uma trava dessas precisa de um dono só — duas implementações da mesma regra viram duas regras que discordam no pior momento.
 
 **Filtros ficam na URL.** `?raridade=master&serie=Naruto` sobrevive ao recarregar, pode ser compartilhado e funciona com o botão voltar.
 
@@ -87,6 +89,17 @@ npm run vip:conferir
 ```
 
 Ele compara `lib/vip.ts` com o `vip.js` do bot campo a campo e confere que nenhum plano ganhou campo de combate.
+
+**São quatro conferidores, e todos existem pelo mesmo motivo: divergência entre site e bot não quebra nada — só passa a mentir.**
+
+```bash
+npm run idiomas:conferir    # os 3 dicionários têm as mesmas chaves
+npm run vip:conferir        # planos e vantagens batem com o bot
+npm run valores:conferir    # preço de carta bate com o bot
+npm run codigos:conferir    # o código gerado aqui é aceito lá
+```
+
+O de códigos é o mais crítico dos quatro: se o alfabeto, o formato ou a lista de chaves de item e caixa divergirem, o erro só aparece quando um **cliente pagante** tenta resgatar — com o dinheiro já recebido. Ele também confere que nenhum tipo de recompensa mexe em atributo de carta, porque agora existe algo comprado com dinheiro real.
 
 **Três arquivos espelham o bot** e precisam ser atualizados junto se o bot mudar: `lib/raridades.ts` (cores e rótulos), `lib/tipos.ts` (schemas) e as páginas legais (`PRIVACIDADE.md` / `TERMOS.md`).
 
@@ -154,16 +167,29 @@ Trocar o `SESSION_SECRET` invalida todas as sessões — útil em emergência.
 
 ## Painel administrativo
 
-`/admin` tem seis telas:
+`/admin` tem oito telas:
 
 | Tela | O que faz |
 |---|---|
 | **Visão geral** | Números do jogo, se o bot está no ar, últimas ações administrativas |
 | **Jogadores** | Busca por ID → ficha completa → dar/remover cartas, moedas, VIP, Pokédex, banir, resetar |
 | **Cartas** | Cadastrar carta nova, corrigir atributos, trocar imagem, apagar do catálogo |
+| **Economia** | Variáveis em vigor, chances de raridade, preços derivados |
+| **Eventos** | Criar evento, escolher participantes e distribuir prêmios em lote |
+| **Códigos** | Gerar código de resgate (VIP, caixa, item, moeda, carta), cancelar, ver quem usou |
 | **Notícias** | Escrever, editar e despublicar as notícias da home |
 | **Sistema** | Servidores conectados, saúde do banco, latência, coleções |
 | **Auditoria** | Histórico de tudo que foi escrito pelo painel |
+
+### Códigos de resgate
+
+É o caminho para vender antes do checkout automático existir: recebe o PIX, gera o código em `/admin/codigos`, manda para o comprador. Ele ativa com `/redeem` no Discord — **sem precisar te passar o ID dele**, que era o passo em que mais gente errava.
+
+Um código entrega uma **lista** de recompensas, então o mesmo mecanismo serve para vender caixa, dar prêmio de evento e rodar campanha de influenciador (`usos > 1`). Três coisas que valem saber:
+
+- **A validação roda na criação, não no resgate.** Um código com uma chave de caixa errada falharia na cara de quem já pagou; aqui ele falha na sua tela.
+- **Entrega parcial não devolve o uso.** Se o código dá três coisas e a segunda falha, o resgate fica marcado como travado e aparece no topo da tela. Devolver o uso faria o jogador resgatar de novo e receber em dobro o que deu certo — o certo é reprocessar de onde parou.
+- **Cancelar não desfaz resgates.** Quem já recebeu continua com tudo. Cancelar só impede novos usos.
 
 ### As camadas de segurança
 

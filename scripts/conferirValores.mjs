@@ -21,10 +21,17 @@
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const require = createRequire(import.meta.url);
-const RAIZ = new URL('..', import.meta.url).pathname;
+
+// `fileURLToPath` e não `.pathname`: no Windows o pathname vem como
+// "/C:/Users/.../Projeto%20Pessoal/", com barra à frente e espaço
+// percent-encoded. O `readdirSync` então procurava por "C:\C:\...%20..."
+// e o script morria com ENOENT — ou seja, este conferidor nunca rodou
+// numa máquina Windows, e ninguém percebeu porque ele falha alto.
+const RAIZ = fileURLToPath(new URL('..', import.meta.url));
 
 let divergencias = 0;
 
@@ -99,13 +106,19 @@ console.log(`  ${pegaTudo ? 'OK     ' : 'DIVERGE'} a varredura pega as formas qu
 // 2. As constantes batem com as do bot (só se o bot estiver por perto)
 // ---------------------------------------------------------------------
 
-const CAMINHO_BOT = process.env.CAMINHO_BOT || '../bot_animefight';
-const valoresDoBot = path.resolve(CAMINHO_BOT, 'Commands/utils/valores.js');
+const CAMINHO_BOT = process.env.CAMINHO_BOT || '../bot_anibattle';
+
+// `cardValues.js`, não `valores.js`: o arquivo foi renomeado quando os
+// utils passaram a ter nome em inglês, e este caminho ficou para trás.
+// O script não quebrou — ele passou a PULAR a comparação de constantes em
+// silêncio, que é justamente a metade que importa. A parte 1 continuava
+// rodando, então a saída parecia saudável.
+const valoresDoBot = path.resolve(CAMINHO_BOT, 'Commands/utils/cardValues.js');
 
 if (!existsSync(valoresDoBot)) {
     console.log(`\n⚠️  Não achei o bot em "${CAMINHO_BOT}" — pulando a comparação de constantes.`);
     console.log('   Os repositórios são separados, então esta parte é opcional.');
-    console.log('   Para rodar: CAMINHO_BOT=/caminho/do/bot_animefight npm run valores:conferir');
+    console.log('   Para rodar: CAMINHO_BOT=/caminho/do/bot_anibattle npm run valores:conferir');
 } else {
     const bot = require(valoresDoBot);
     const site = readFileSync(PERMITIDO, 'utf8');
