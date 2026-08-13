@@ -445,8 +445,8 @@
         "titulo": "VIP",
         "resumo": "O que a assinatura muda — e o que ela nunca vai mudar.",
         "paragrafos": [
-          "O VIP encurta seu tempo de espera entre rolls (até 40% menos), dá **uma carga de roll a mais** nos planos Ouro e Master, aumenta a recompensa diária e libera molduras, cores e emblemas.",
-          "Sobre a carga a mais, vale ser exato: ela **soma** com as que você ganha subindo de nível, não substitui. Quem joga de graça chega a {max_cargas} cargas só jogando, e um assinante no nível 1 tem {cargas_base_vip} — não {max_cargas_vip}. É uma carga a mais, não um atalho de nível.",
+          "O VIP encurta seu tempo de espera entre rolls (até {cooldown_max_vip}% menos), dá até **{cargas_extras_vip} cargas de roll a mais**, entrega até {roll_extra_vip} rolls extras por dia no `/daily`, reduz ou zera a taxa do mercado, melhora a venda rápida, aumenta a recompensa diária e libera molduras, cores e emblemas.",
+          "Sobre as cargas a mais, vale ser exato: elas **somam** com as que você ganha subindo de nível, não substituem. Quem joga de graça chega a {max_cargas} cargas só jogando, e quem assina o plano mais caro no nível 1 tem {cargas_base_vip} — não {max_cargas_vip}. São cargas a mais, não um atalho de nível.",
           "**Nenhum plano dá vantagem de combate.** Atributos das cartas, chance de raridade e resultado de batalha são exatamente iguais para todo mundo, pagando ou não. O que a assinatura compra é tempo e aparência, nunca sorte.",
           "As caixas também não mudam: as porcentagens são as mesmas para assinante e não assinante, e não há caixa nem carta que só exista para quem paga.",
           "Isso não é promessa de marketing: existe uma verificação automática no código do bot que impede qualquer plano de tocar em atributo de combate ou em chance de raridade."
@@ -490,9 +490,9 @@
   },
   "vip": {
     "meta_titulo": "Planos VIP",
-    "meta_descricao": "Apoie o AniBattle e leve molduras animadas, cooldown menor, uma carga de roll a mais e recompensa diária maior. Nenhum plano dá vantagem de combate nem chance de carta rara.",
+    "meta_descricao": "Apoie o AniBattle e jogue mais: cooldown menor, cargas de roll acumuladas, rolls extras todo dia, mercado sem taxa e molduras animadas. Nenhum plano dá vantagem de combate nem chance de carta rara.",
     "titulo": "Apoie o AniBattle",
-    "subtitulo": "O jogo é de graça e continua sendo. Quem assina leva aparência e conveniência — e ajuda a pagar o servidor.",
+    "subtitulo": "O jogo é de graça e continua sendo. Quem assina joga mais vezes e paga menos pedágio — e ajuda a pagar o servidor.",
     "tiers": {
       "bronze": "Bronze",
       "prata": "Prata",
@@ -521,14 +521,18 @@
     "cargas_texto": "Antes, um <code>/roll</code> não usado simplesmente evaporava: se você ficasse o dia fora, perdia o dia todo. Agora os rolls <strong>acumulam</strong> — o cooldown continua correndo enquanto você não está, e as cargas ficam esperando.",
     "gratis_titulo": "Jogando de graça",
     "gratis_texto": "Você começa com <strong>{base}</strong> e ganha mais uma nos níveis <strong>{niveis}</strong>, chegando a <strong>{max}</strong> sem pagar nada. O nível sobe com o que você já faz: rolar, batalhar, trocar, descobrir carta nova.",
-    "assinando_titulo": "Assinando Ouro ou Master",
-    "assinando_texto": "A assinatura dá <strong>+1 carga</strong> que <strong>soma</strong> com as do nível, chegando a {max_vip}. É uma carga a mais, não um atalho de nível — o teto do assinante no nível 1 é {base_vip}, não {max_vip}.",
+    "assinando_titulo": "Assinando",
+    "assinando_texto": "A assinatura dá de <strong>+{min_extra}</strong> a <strong>+{max_extra} cargas</strong>, conforme o plano, e elas <strong>somam</strong> com as do nível — chegando a {max_vip}. São cargas a mais, não um atalho de nível: o teto de quem assina o plano mais caro no nível 1 é {base_vip}, não {max_vip}.",
     "quantidade_texto": "<strong>Isso é vantagem de quantidade, não de sorte.</strong> Uma carga a mais significa um roll a mais guardado para quando você voltar. A chance de sair Lendária ou Mestra é <strong>exatamente a mesma</strong> para todo mundo — a tabela de raridade não consulta assinatura, e há teste automatizado que garante isso.",
     "mais_escolhido": "mais escolhido",
     "por_mes": "/mês",
     "plano_cooldown": "⏱️ <strong>−{n}%</strong> no cooldown do /roll",
     "plano_carga": "🎴 <strong>+{n}</strong> carga de roll acumulada",
     "plano_daily": "🎁 Daily <strong>{n}×</strong> maior",
+    "plano_roll_extra": "🎟️ <strong>{n}</strong> roll(s) extra(s) por dia",
+    "plano_taxa": "🏪 Taxa do mercado <strong>{n}%</strong>",
+    "plano_taxa_zero": "🏪 Mercado <strong>sem taxa</strong>",
+    "plano_venda_rapida": "🪙 Venda rápida <strong>+{n}%</strong>",
     "plano_molduras": "🖼️ <strong>{n}</strong> moldura(s) de carta",
     "plano_desejos": "💭 <strong>{n}</strong> cartas na lista de desejos",
     "plano_banner": "🏳️ Banner no perfil",
@@ -541,6 +545,11 @@
     "linha_cooldown": "Cooldown do /roll",
     "linha_cargas": "Cargas de roll acumuladas",
     "linha_daily": "Recompensa diária",
+    "linha_roll_extra": "Rolls extras por dia",
+    "linha_taxa": "Taxa do mercado",
+    "linha_venda_rapida": "Venda rápida",
+    "por_dia": "{n} por dia",
+    "sem_taxa": "sem taxa",
     "linha_molduras": "Molduras de carta",
     "linha_desejos": "Lista de desejos",
     "linha_cor": "Cor do perfil",
@@ -555,12 +564,16 @@
     "perguntas": "Perguntas",
     "faq": [
       {
-        "p": "Cooldown menor e carga a mais não são vantagem?",
-        "r": "São, e são as duas únicas que encostam na economia — rolar mais gera mais moeda. Por isso as duas são de quantidade, nunca de sorte, e são limitadas: no plano mais caro são 40% de cooldown e uma carga a mais. Nenhuma das duas muda o resultado de uma batalha nem a chance de sair carta rara."
+        "p": "Cooldown menor, cargas e rolls extras não são vantagem?",
+        "r": "São — e são vantagem de QUANTIDADE, nunca de sorte. Quem assina joga mais vezes; a chance de cada carta sair continua idêntica para todo mundo. E são limitadas: no plano mais caro são {cooldown_max}% de cooldown e {cargas_max} cargas a mais. Nenhuma delas muda o resultado de uma batalha nem a chance de sair carta rara."
+      },
+      {
+        "p": "Mercado sem taxa não quebra a economia?",
+        "r": "A taxa de 5% existe para destruir moeda e segurar a inflação, e quem assina paga menos ou nada. Como assinante é minoria, o efeito é pequeno — mas ele é acompanhado. Se a inflação apertar, o desconto do plano é o primeiro lugar a ser revisto, nunca a taxa de quem joga de graça."
       },
       {
         "p": "Preciso assinar para acumular rolls?",
-        "r": "Não. Acumular é de todo mundo, e o teto sobe com o seu nível — nos níveis {niveis} você ganha uma carga cada vez, chegando a {max} sem pagar nada. A assinatura Ouro e Master soma +1 em cima disso."
+        "r": "Não. Acumular é de todo mundo, e o teto sobe com o seu nível — nos níveis {niveis} você ganha uma carga cada vez, chegando a {max} sem pagar nada. A assinatura soma cargas em cima disso, conforme o plano."
       },
       {
         "p": "As caixas dão carta melhor para quem assina?",

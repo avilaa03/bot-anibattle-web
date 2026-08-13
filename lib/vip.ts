@@ -24,6 +24,15 @@ export interface TierVip {
   cargasExtras: number;
   /** Multiplicador da recompensa diária. */
   dailyMultiplier: number;
+  /** Bilhetes de roll extra entregues junto com o /daily. */
+  rollExtraDiario: number;
+  /**
+   * Multiplicador da taxa do mercado. 0.6 = paga 60% da taxa normal,
+   * 0 = isento.
+   */
+  taxaMercadoMultiplier: number;
+  /** Multiplicador da venda rápida. 1.15 = recebe 15% a mais. */
+  bonusVendaRapida: number;
   /**
    * Molduras de carta liberadas, por CHAVE.
    *
@@ -42,32 +51,56 @@ export interface TierVip {
 export const TIERS: Record<string, TierVip> = {
   bronze: {
     key: 'bronze', nome: 'Bronze', emoji: '🥉', precoBRL: 5, ordem: 1, cor: '#CD7F32',
-    rollCooldownMultiplier: 0.90, cargasExtras: 0, dailyMultiplier: 1.25,
-    molduras: ['bronze'], limiteDesejos: 15,
+    rollCooldownMultiplier: 0.85, cargasExtras: 1, dailyMultiplier: 1.5,
+    rollExtraDiario: 0, taxaMercadoMultiplier: 0.8, bonusVendaRapida: 1.05,
+    molduras: ['bronze'], limiteDesejos: 25,
     podeCorPerfil: true, podeBanner: false, destaqueRanking: false
   },
   prata: {
     key: 'prata', nome: 'Prata', emoji: '🥈', precoBRL: 15, ordem: 2, cor: '#C0C0C0',
-    rollCooldownMultiplier: 0.80, cargasExtras: 0, dailyMultiplier: 1.5,
-    molduras: ['bronze', 'prata'], limiteDesejos: 20,
+    rollCooldownMultiplier: 0.75, cargasExtras: 1, dailyMultiplier: 2,
+    rollExtraDiario: 1, taxaMercadoMultiplier: 0.6, bonusVendaRapida: 1.10,
+    molduras: ['bronze', 'prata'], limiteDesejos: 40,
     podeCorPerfil: true, podeBanner: true, destaqueRanking: false
   },
   ouro: {
     key: 'ouro', nome: 'Ouro', emoji: '🥇', precoBRL: 30, ordem: 3, cor: '#FFD700',
-    rollCooldownMultiplier: 0.70, cargasExtras: 1, dailyMultiplier: 2,
-    molduras: ['bronze', 'prata', 'ouro', 'sakura'], limiteDesejos: 30,
+    rollCooldownMultiplier: 0.65, cargasExtras: 2, dailyMultiplier: 2.5,
+    rollExtraDiario: 2, taxaMercadoMultiplier: 0.3, bonusVendaRapida: 1.15,
+    molduras: ['bronze', 'prata', 'ouro', 'sakura'], limiteDesejos: 60,
     podeCorPerfil: true, podeBanner: true, destaqueRanking: true
   },
   master: {
     key: 'master', nome: 'Master', emoji: '🌟', precoBRL: 50, ordem: 4, cor: '#E91E63',
-    rollCooldownMultiplier: 0.60, cargasExtras: 1, dailyMultiplier: 3,
-    molduras: ['bronze', 'prata', 'ouro', 'sakura', 'holografica', 'neon'], limiteDesejos: 50,
+    rollCooldownMultiplier: 0.55, cargasExtras: 3, dailyMultiplier: 3,
+    rollExtraDiario: 3, taxaMercadoMultiplier: 0, bonusVendaRapida: 1.20,
+    molduras: ['bronze', 'prata', 'ouro', 'sakura', 'holografica', 'neon'], limiteDesejos: 100,
     podeCorPerfil: true, podeBanner: true, destaqueRanking: true
   }
 };
 
 /** Limite da lista de desejos para quem não assina. */
 export const LIMITE_DESEJOS_GRATIS = 10;
+
+/**
+ * A taxa do mercado que todo mundo paga, antes do desconto do plano.
+ *
+ * Espelha `MARKET_TAX_RATE` de `utils/economy.js` no bot, que lê do
+ * ambiente com este mesmo padrão. O site não tem como consultar o .env do
+ * bot, então este número é o único ponto do projeto que precisa ser
+ * mudado à mão se você mexer em `MARKET_TAX_RATE` na VPS.
+ */
+export const TAXA_MERCADO_BASE = 0.05;
+
+/** A taxa efetiva de um plano, já com o desconto. `0.015` = 1,5%. */
+export function taxaMercadoDe(tier: TierVip | null): number {
+  return TAXA_MERCADO_BASE * (tier ? tier.taxaMercadoMultiplier : 1);
+}
+
+/** O bônus de venda rápida em porcentagem inteira: `1.15` vira `15`. */
+export function bonusVendaEmPorcento(tier: TierVip): number {
+  return Math.round((tier.bonusVendaRapida - 1) * 100);
+}
 
 /**
  * O que NENHUM plano dá.
@@ -106,7 +139,12 @@ export function getPerks(vip: VipDoJogador | null | undefined) {
   const tier = ativo && vip?.tier ? TIERS[vip.tier] : null;
 
   if (!tier) {
-    return { vip: false, tier: null, rollCooldownMultiplier: 1, cargasExtras: 0, dailyMultiplier: 1 };
+    return {
+      vip: false, tier: null,
+      rollCooldownMultiplier: 1, cargasExtras: 0, dailyMultiplier: 1,
+      rollExtraDiario: 0, taxaMercadoMultiplier: 1, bonusVendaRapida: 1,
+      limiteDesejos: LIMITE_DESEJOS_GRATIS
+    };
   }
 
   return {
@@ -114,7 +152,11 @@ export function getPerks(vip: VipDoJogador | null | undefined) {
     tier,
     rollCooldownMultiplier: tier.rollCooldownMultiplier,
     cargasExtras: tier.cargasExtras || 0,
-    dailyMultiplier: tier.dailyMultiplier
+    dailyMultiplier: tier.dailyMultiplier,
+    rollExtraDiario: tier.rollExtraDiario || 0,
+    taxaMercadoMultiplier: tier.taxaMercadoMultiplier ?? 1,
+    bonusVendaRapida: tier.bonusVendaRapida ?? 1,
+    limiteDesejos: tier.limiteDesejos || LIMITE_DESEJOS_GRATIS
   };
 }
 

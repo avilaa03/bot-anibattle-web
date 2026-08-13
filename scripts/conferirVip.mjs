@@ -19,24 +19,21 @@ import path from 'node:path';
 
 const require = createRequire(import.meta.url);
 
-const CAMINHO_BOT = process.env.CAMINHO_BOT || '../bot_animefight';
+const CAMINHO_BOT = process.env.CAMINHO_BOT || '../bot_anibattle';
 const utils = path.resolve(CAMINHO_BOT, 'Commands/utils');
 
 if (!existsSync(path.join(utils, 'vip.js'))) {
     console.log(`\n⚠️  Não achei o bot em "${CAMINHO_BOT}".`);
     console.log('   Os repositórios são separados, então esta conferência é opcional.');
-    console.log('   Para rodar: CAMINHO_BOT=/caminho/do/bot_animefight npm run vip:conferir\n');
+    console.log('   Para rodar: CAMINHO_BOT=/caminho/do/bot_anibattle npm run vip:conferir\n');
     process.exit(0);
 }
 
-const { TIERS: DO_BOT } = require(path.join(utils, 'vip.js'));
-
-// A wishlist guarda os limites por plano fora do vip.js.
-const wishlist = readFileSync(path.join(utils, 'wishlist.js'), 'utf8');
-const limitesDesejo = JSON.parse(
-    wishlist.match(/LIMITE_VIP = (\{[^}]+\})/)[1].replace(/(\w+):/g, '"$1":')
-);
-const desejosGratis = Number(wishlist.match(/LIMITE_BASE = (\d+)/)[1]);
+// Tudo que define um plano mora no `vip.js` do bot — inclusive o limite da
+// lista de desejos, que antes tinha uma cópia própria em `wishlist.js` e
+// uma terceira aqui no site. Três cópias do mesmo número era exatamente o
+// que este script existia para pegar; agora ele confere uma fonte só.
+const { TIERS: DO_BOT, LIMITE_DESEJOS_GRATIS: desejosGratis } = require(path.join(utils, 'vip.js'));
 
 const site = readFileSync(new URL('../lib/vip.ts', import.meta.url), 'utf8');
 
@@ -65,9 +62,13 @@ for (const [chave, tier] of Object.entries(DO_BOT)) {
 
     conferir(`${chave}.preço`, tier.precoBRL, campo('precoBRL'));
     conferir(`${chave}.cooldown`, tier.rollCooldownMultiplier, campo('rollCooldownMultiplier'));
+    conferir(`${chave}.cargas`, tier.cargasExtras, campo('cargasExtras'));
     conferir(`${chave}.daily`, tier.dailyMultiplier, campo('dailyMultiplier'));
+    conferir(`${chave}.rollExtra`, tier.rollExtraDiario, campo('rollExtraDiario'));
+    conferir(`${chave}.taxa`, tier.taxaMercadoMultiplier, campo('taxaMercadoMultiplier'));
+    conferir(`${chave}.vendaRápida`, tier.bonusVendaRapida, campo('bonusVendaRapida'));
     conferir(`${chave}.molduras`, tier.molduras.length, molduras);
-    conferir(`${chave}.desejos`, limitesDesejo[chave], campo('limiteDesejos'));
+    conferir(`${chave}.desejos`, tier.limiteDesejos, campo('limiteDesejos'));
 }
 
 conferir('desejos (grátis)', desejosGratis, (site.match(/LIMITE_DESEJOS_GRATIS = (\d+)/) || [])[1]);

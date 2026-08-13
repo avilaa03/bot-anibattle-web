@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { TIERS, ORDEM_TIERS, LIMITE_DESEJOS_GRATIS, reducaoCooldown } from '@/lib/vip';
+import {
+  TIERS, ORDEM_TIERS, LIMITE_DESEJOS_GRATIS, reducaoCooldown,
+  TAXA_MERCADO_BASE, taxaMercadoDe, bonusVendaEmPorcento
+} from '@/lib/vip';
 import { CARGAS_BASE, NIVEIS_DE_CARGA, maxCargas } from '@/lib/nivel';
-import { traduzir, type Tradutor } from '@/lib/i18n';
-import { ehIdioma, type Idioma } from '@/lib/i18n/config';
+import { traduzir, formatarNumero, type Tradutor } from '@/lib/i18n';
+import { ehIdioma, LOCALE_FORMATO, type Idioma } from '@/lib/i18n/config';
 
 // A página é estática: preço e vantagens vêm do código, não do banco.
 export const revalidate = 3600;
@@ -13,6 +16,28 @@ const SUPORTE = process.env.NEXT_PUBLIC_SUPPORT_URL || '#';
 
 /** O teto de cargas de quem joga de graça no nível mais alto de carga. */
 const CARGAS_MAX_GRATIS = maxCargas(NIVEIS_DE_CARGA[NIVEIS_DE_CARGA.length - 1]);
+
+// Quanto o plano mais barato e o mais caro somam em cargas. Derivado do
+// TIERS em vez de escrito no texto: o dicionário diz "de {min} a {max}",
+// e mexer num plano reescreve a página nos três idiomas sozinho.
+const CARGAS_EXTRAS = ORDEM_TIERS.map((c) => TIERS[c].cargasExtras);
+const CARGAS_EXTRAS_MIN = Math.min(...CARGAS_EXTRAS);
+const CARGAS_EXTRAS_MAX = Math.max(...CARGAS_EXTRAS);
+
+/** A maior redução de cooldown vendida, para o FAQ não citar número solto. */
+const COOLDOWN_MAX = Math.max(...ORDEM_TIERS.map((c) => reducaoCooldown(TIERS[c])));
+
+/**
+ * Uma fração como porcentagem legível, sem o sinal de `%`.
+ *
+ * Casa decimal só quando existe: a taxa do Ouro é 1,5% e arredondar para
+ * "2%" faria a página de vendas prometer um número que a tela do bot não
+ * confirma. O separador segue o idioma da página, igual ao `ui.percent`
+ * do bot — "1.5" em inglês, "1,5" nos outros dois.
+ */
+function formatarPct(fracao: number, idioma: Idioma): string {
+  return (fracao * 100).toLocaleString(LOCALE_FORMATO[idioma], { maximumFractionDigits: 1 });
+}
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -40,6 +65,8 @@ function montarLinhas(t: Tradutor) {
     max: CARGAS_MAX_GRATIS
   });
 
+  const pct = (fracao: number) => formatarPct(fracao, t.idioma);
+
   return [
     {
       rotulo: t('vip.linha_cooldown'),
@@ -63,7 +90,33 @@ function montarLinhas(t: Tradutor) {
     {
       rotulo: t('vip.linha_daily'),
       gratis: '1×',
-      valor: (tier: typeof TIERS[string]) => `${tier.dailyMultiplier}×`
+      // Formatado pelo idioma: "2,5×" em português e espanhol, "2.5×" em
+      // inglês. O número cru sairia com ponto nos três.
+      valor: (tier: typeof TIERS[string]) =>
+        `${formatarNumero(tier.dailyMultiplier, t.idioma)}×`
+    },
+    {
+      // O eixo de quantidade mais direto que existe: bilhetes que já dão
+      // para comprar na /loja, entregues de graça todo dia no /daily.
+      rotulo: t('vip.linha_roll_extra'),
+      gratis: '—',
+      valor: (tier: typeof TIERS[string]) =>
+        tier.rollExtraDiario > 0 ? t('vip.por_dia', { n: tier.rollExtraDiario }) : '—'
+    },
+    {
+      // Conveniência pura: não cria carta nem moeda nova, só devolve ao
+      // vendedor um pedaço do pedágio que ele já pagaria.
+      rotulo: t('vip.linha_taxa'),
+      gratis: `${pct(TAXA_MERCADO_BASE)}%`,
+      valor: (tier: typeof TIERS[string]) =>
+        tier.taxaMercadoMultiplier === 0
+          ? t('vip.sem_taxa')
+          : `${pct(taxaMercadoDe(tier))}%`
+    },
+    {
+      rotulo: t('vip.linha_venda_rapida'),
+      gratis: t('vip.gratis_normal'),
+      valor: (tier: typeof TIERS[string]) => `+${bonusVendaEmPorcento(tier)}%`
     },
     {
       rotulo: t('vip.linha_molduras'),
@@ -111,7 +164,9 @@ export default async function PaginaVip({ params }: Props) {
   const preencher = (texto: string) =>
     texto
       .replace('{niveis}', NIVEIS_DE_CARGA.join(', '))
-      .replace('{max}', String(CARGAS_MAX_GRATIS));
+      .replace('{max}', String(CARGAS_MAX_GRATIS))
+      .replace('{cooldown_max}', String(COOLDOWN_MAX))
+      .replace('{cargas_max}', String(CARGAS_EXTRAS_MAX));
 
   const PERGUNTAS = t.dados<Pergunta[]>('vip.faq');
 
@@ -177,8 +232,10 @@ export default async function PaginaVip({ params }: Props) {
               className="mt-2 text-sm leading-relaxed text-textoFraco [&_strong]:text-texto"
               dangerouslySetInnerHTML={{
                 __html: t('vip.assinando_texto', {
-                  max_vip: CARGAS_MAX_GRATIS + 1,
-                  base_vip: CARGAS_BASE + 1
+                  min_extra: CARGAS_EXTRAS_MIN,
+                  max_extra: CARGAS_EXTRAS_MAX,
+                  max_vip: CARGAS_MAX_GRATIS + CARGAS_EXTRAS_MAX,
+                  base_vip: CARGAS_BASE + CARGAS_EXTRAS_MAX
                 })
               }}
             />
@@ -200,12 +257,20 @@ export default async function PaginaVip({ params }: Props) {
 
             // Cada item é uma frase com <strong> no meio, então vem
             // montado do dicionário em vez de costurado em JSX.
+            // Ordem: quantidade, conveniência, cosmético. É a mesma ordem
+            // do /vip no Discord e a mesma do `vip.js` — quem compara as
+            // duas telas precisa achar as vantagens no mesmo lugar.
             const itens = [
               t('vip.plano_cooldown', { n: reducaoCooldown(tier) }),
               tier.cargasExtras > 0 ? t('vip.plano_carga', { n: tier.cargasExtras }) : null,
-              t('vip.plano_daily', { n: tier.dailyMultiplier }),
-              t('vip.plano_molduras', { n: tier.molduras.length }),
+              t('vip.plano_daily', { n: formatarNumero(tier.dailyMultiplier, idioma) }),
+              tier.rollExtraDiario > 0 ? t('vip.plano_roll_extra', { n: tier.rollExtraDiario }) : null,
+              tier.taxaMercadoMultiplier === 0
+                ? t('vip.plano_taxa_zero')
+                : t('vip.plano_taxa', { n: formatarPct(taxaMercadoDe(tier), idioma) }),
+              t('vip.plano_venda_rapida', { n: bonusVendaEmPorcento(tier) }),
               t('vip.plano_desejos', { n: tier.limiteDesejos }),
+              t('vip.plano_molduras', { n: tier.molduras.length }),
               tier.podeBanner ? t('vip.plano_banner') : null,
               tier.destaqueRanking ? t('vip.plano_ranking') : null
             ].filter((x): x is string => x !== null);

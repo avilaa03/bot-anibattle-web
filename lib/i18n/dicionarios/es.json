@@ -445,8 +445,8 @@
         "titulo": "VIP",
         "resumo": "Qué cambia la suscripción — y qué no va a cambiar nunca.",
         "paragrafos": [
-          "El VIP acorta tu tiempo de espera entre rolls (hasta un 40% menos), da **una carga de roll más** en los planes Oro y Master, aumenta la recompensa diaria y desbloquea marcos, colores y emblemas.",
-          "Sobre esa carga de más, conviene ser exacto: **se suma** a las que ganas subiendo de nivel, no las sustituye. Quien juega gratis llega a {max_cargas} cargas solo jugando, y quien está suscrito en el nivel 1 tiene {cargas_base_vip} — no {max_cargas_vip}. Es una carga más, no un atajo de nivel.",
+          "El VIP acorta tu tiempo de espera entre rolls (hasta un {cooldown_max_vip}% menos), da hasta **{cargas_extras_vip} cargas de roll más**, entrega hasta {roll_extra_vip} tiradas extras al día en `/daily`, reduce o elimina la comisión del mercado, mejora la venta rápida, aumenta la recompensa diaria y desbloquea marcos, colores y emblemas.",
+          "Sobre esas cargas de más, conviene ser exacto: **se suman** a las que ganas subiendo de nivel, no las sustituyen. Quien juega gratis llega a {max_cargas} cargas solo jugando, y quien tiene el plan más caro en el nivel 1 tiene {cargas_base_vip} — no {max_cargas_vip}. Son cargas de más, no un atajo de nivel.",
           "**Ningún plan da ventaja de combate.** Los atributos de las cartas, la probabilidad de rareza y el resultado de una batalla son exactamente iguales para todos, pagando o no. Lo que compra la suscripción es tiempo y estética, nunca suerte.",
           "Las cajas tampoco cambian: los porcentajes son los mismos para quien se suscribe y para quien no, y no hay caja ni carta que exista solo para quien paga.",
           "Esto no es una promesa de marketing: hay una verificación automática en el código del bot que impide que cualquier plan toque un atributo de combate o una probabilidad de rareza."
@@ -490,9 +490,9 @@
   },
   "vip": {
     "meta_titulo": "Planes VIP",
-    "meta_descricao": "Apoya a AniBattle y llévate marcos animados, menos cooldown, una carga de roll más y una recompensa diaria mayor. Ningún plan da ventaja de combate ni más probabilidad de carta rara.",
+    "meta_descricao": "Apoya a AniBattle y juega más: menos cooldown, cargas de tirada acumuladas, tiradas extras cada día, mercado sin comisión y marcos animados. Ningún plan da ventaja de combate ni más probabilidad de carta rara.",
     "titulo": "Apoya a AniBattle",
-    "subtitulo": "El juego es gratis y lo seguirá siendo. Quien se suscribe se lleva estética y comodidad — y ayuda a pagar el servidor.",
+    "subtitulo": "El juego es gratis y lo seguirá siendo. Quien se suscribe juega más veces y paga menos peaje — y ayuda a pagar el servidor.",
     "tiers": {
       "bronze": "Bronce",
       "prata": "Plata",
@@ -521,14 +521,18 @@
     "cargas_texto": "Antes, un <code>/roll</code> sin usar simplemente se evaporaba: si pasabas el día fuera, perdías el día entero. Ahora los rolls <strong>se acumulan</strong> — el cooldown sigue corriendo mientras no estás, y las cargas te esperan.",
     "gratis_titulo": "Jugando gratis",
     "gratis_texto": "Empiezas con <strong>{base}</strong> y ganas una más en los niveles <strong>{niveis}</strong>, llegando a <strong>{max}</strong> sin pagar nada. El nivel sube con lo que ya haces: sacar cartas, batallar, intercambiar, descubrir cartas nuevas.",
-    "assinando_titulo": "Con Oro o Master",
-    "assinando_texto": "La suscripción da <strong>+1 carga</strong> que <strong>se suma</strong> a las del nivel, llegando a {max_vip}. Es una carga más, no un atajo de nivel — el tope de quien se suscribe en el nivel 1 es {base_vip}, no {max_vip}.",
+    "assinando_titulo": "Suscribiéndote",
+    "assinando_texto": "La suscripción da de <strong>+{min_extra}</strong> a <strong>+{max_extra} cargas</strong> según el plan, y <strong>se suman</strong> a las del nivel — llegando a {max_vip}. Son cargas de más, no un atajo de nivel: el tope de quien tiene el plan más caro en el nivel 1 es {base_vip}, no {max_vip}.",
     "quantidade_texto": "<strong>Esto es ventaja de cantidad, no de suerte.</strong> Una carga más significa un roll más guardado para cuando vuelvas. La probabilidad de que salga Legendaria o Maestra es <strong>exactamente la misma</strong> para todos — la tabla de rareza no consulta la suscripción, y hay una prueba automatizada que lo garantiza.",
     "mais_escolhido": "el más elegido",
     "por_mes": "/mes",
     "plano_cooldown": "⏱️ <strong>−{n}%</strong> en el cooldown del /roll",
     "plano_carga": "🎴 <strong>+{n}</strong> carga de roll acumulada",
     "plano_daily": "🎁 Daily <strong>{n}×</strong> mayor",
+    "plano_roll_extra": "🎟️ <strong>{n}</strong> tirada(s) extra(s) al día",
+    "plano_taxa": "🏪 Comisión del mercado <strong>{n}%</strong>",
+    "plano_taxa_zero": "🏪 Mercado <strong>sin comisión</strong>",
+    "plano_venda_rapida": "🪙 Venta rápida <strong>+{n}%</strong>",
     "plano_molduras": "🖼️ <strong>{n}</strong> marco(s) de carta",
     "plano_desejos": "💭 <strong>{n}</strong> cartas en la lista de deseos",
     "plano_banner": "🏳️ Banner en el perfil",
@@ -541,6 +545,11 @@
     "linha_cooldown": "Cooldown del /roll",
     "linha_cargas": "Cargas de roll acumuladas",
     "linha_daily": "Recompensa diaria",
+    "linha_roll_extra": "Tiradas extras al día",
+    "linha_taxa": "Comisión del mercado",
+    "linha_venda_rapida": "Venta rápida",
+    "por_dia": "{n} al día",
+    "sem_taxa": "sin comisión",
     "linha_molduras": "Marcos de carta",
     "linha_desejos": "Lista de deseos",
     "linha_cor": "Color del perfil",
@@ -555,12 +564,16 @@
     "perguntas": "Preguntas",
     "faq": [
       {
-        "p": "¿Menos cooldown y una carga más no son ventaja?",
-        "r": "Lo son, y son las dos únicas que rozan la economía — sacar más cartas genera más moneda. Por eso ambas son de cantidad, nunca de suerte, y están limitadas: en el plan más caro son 40% de cooldown y una carga más. Ninguna de las dos cambia el resultado de una batalla ni la probabilidad de que salga una carta rara."
+        "p": "¿Menos cooldown, cargas y tiradas extras no son ventaja?",
+        "r": "Lo son — y son ventaja de CANTIDAD, nunca de suerte. Quien se suscribe juega más veces; la probabilidad de cada carta sigue siendo idéntica para todo el mundo. Y están limitadas: en el plan más caro son {cooldown_max}% de cooldown y {cargas_max} cargas más. Ninguna de ellas cambia el resultado de una batalla ni la probabilidad de que salga una carta rara."
+      },
+      {
+        "p": "¿Un mercado sin comisión no rompe la economía?",
+        "r": "La comisión del 5% existe para destruir moneda y contener la inflación, y quien se suscribe paga menos o nada. Como los suscriptores son minoría, el efecto es pequeño — pero se vigila. Si la inflación aprieta, el descuento del plan es lo primero que se revisa, nunca la comisión de quien juega gratis."
       },
       {
         "p": "¿Necesito suscribirme para acumular rolls?",
-        "r": "No. Acumular es de todos, y el tope sube con tu nivel — en los niveles {niveis} ganas una carga cada vez, llegando a {max} sin pagar nada. Oro y Master suman +1 encima de eso."
+        "r": "No. Acumular es de todos, y el tope sube con tu nivel — en los niveles {niveis} ganas una carga cada vez, llegando a {max} sin pagar nada. La suscripción suma cargas encima de eso, según el plan."
       },
       {
         "p": "¿Las cajas dan mejores cartas a quien se suscribe?",
