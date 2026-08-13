@@ -51,6 +51,7 @@
  */
 
 import { CARGAS_BASE, NIVEIS_DE_CARGA, maxCargas } from './nivel';
+import { ORDEM_TIERS, TIERS, reducaoCooldown } from './vip';
 import type { Tradutor } from './i18n';
 
 /**
@@ -66,11 +67,25 @@ import type { Tradutor } from './i18n';
  */
 const CARGAS_MAX = maxCargas(NIVEIS_DE_CARGA[NIVEIS_DE_CARGA.length - 1]);
 
+/**
+ * As vantagens do plano mais caro, lidas da tabela.
+ *
+ * Mesmo motivo das cargas: o guia promete "até 40% menos espera" e, no
+ * dia em que o plano mudar, esse 40% continua escrito — bonito, traduzido
+ * nos três idiomas, e errado.
+ */
+const CARGAS_EXTRAS_VIP = Math.max(...ORDEM_TIERS.map((c) => TIERS[c].cargasExtras));
+const COOLDOWN_MAX_VIP = Math.max(...ORDEM_TIERS.map((c) => reducaoCooldown(TIERS[c])));
+const ROLL_EXTRA_VIP = Math.max(...ORDEM_TIERS.map((c) => TIERS[c].rollExtraDiario));
+
 const VALORES: Record<string, string> = {
   cargas_base: String(CARGAS_BASE),
-  cargas_base_vip: String(CARGAS_BASE + 1),
+  cargas_base_vip: String(CARGAS_BASE + CARGAS_EXTRAS_VIP),
   max_cargas: String(CARGAS_MAX),
-  max_cargas_vip: String(CARGAS_MAX + 1),
+  max_cargas_vip: String(CARGAS_MAX + CARGAS_EXTRAS_VIP),
+  cargas_extras_vip: String(CARGAS_EXTRAS_VIP),
+  cooldown_max_vip: String(COOLDOWN_MAX_VIP),
+  roll_extra_vip: String(ROLL_EXTRA_VIP),
   marcos: NIVEIS_DE_CARGA.join(', '),
   nivel_carga_1: String(NIVEIS_DE_CARGA[0]),
   nivel_carga_2: String(NIVEIS_DE_CARGA[1]),

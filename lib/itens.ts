@@ -62,6 +62,23 @@ export const ITENS: Record<string, Item> = {
     preco: 25000,
     consumivel: true,
     ordem: 2
+  },
+  /**
+   * `preco: null` porque ele não é comprado no `/loja comprar`: o preço
+   * escalona dentro do dia (ver `utils/extraRoll.js` no bot), e um item de
+   * preço fixo não representaria isso. A compra tem porta própria.
+   *
+   * Estava faltando neste espelho, o que impedia o painel de colocá-lo num
+   * código de resgate — o bot conhece a chave desde sempre.
+   */
+  roll_extra: {
+    chave: 'roll_extra',
+    nome: 'Roll extra',
+    emoji: '🎟️',
+    descricao: 'Adianta um /roll sem esperar o cooldown. Use com /roll extra:True.',
+    preco: null,
+    consumivel: true,
+    ordem: 3
   }
 };
 

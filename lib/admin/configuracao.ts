@@ -1,6 +1,10 @@
 import { CHANCE_MESTRA, CHANCE_MESTRA_PADRAO, PROTECOES, tabelaDeChances, umACada } from '@/lib/sorteio';
 import { PRECO_GEMA } from '@/lib/itens';
 import { VALOR_BASE } from '@/lib/valores';
+import { ORDEM_TIERS, TIERS, reducaoCooldown } from '@/lib/vip';
+
+/** A maior redução de cooldown vendida hoje, lida da tabela de planos. */
+const REDUCAO_MAXIMA_VIP = Math.max(...ORDEM_TIERS.map((c) => reducaoCooldown(TIERS[c])));
 
 /**
  * As variáveis de ambiente que mudam o jogo sem precisar de deploy.
@@ -138,7 +142,8 @@ export function listarConfiguracao(): VariavelDeConfig[] {
       valorEmVigor: `${texto(cooldown / 60000, 1)} min`,
       padrao: '15 min',
       usandoPadrao: doEnv('ROLL_COOLDOWN_MS') === null,
-      efeito: `Teto de ${texto(Math.floor((24 * 60) / (cooldown / 60000)))} rolls por dia (VIP chega a 40% menos espera).`,
+      efeito: `Teto de ${texto(Math.floor((24 * 60) / (cooldown / 60000)))} rolls por dia `
+        + `(VIP chega a ${REDUCAO_MAXIMA_VIP}% menos espera).`,
       quandoMexer:
         'Mexe em tudo ao mesmo tempo: quantas cartas entram, quanto a Mestra demora e quanto '
         + 'vantagem um macro tem sobre quem dorme.',

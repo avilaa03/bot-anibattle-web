@@ -15,6 +15,7 @@ const MENU = [
   { href: '/admin/cartas', label: 'Cartas' },
   { href: '/admin/economia', label: 'Economia' },
   { href: '/admin/eventos', label: 'Eventos' },
+  { href: '/admin/codigos', label: 'Códigos' },
   { href: '/admin/noticias', label: 'Notícias' },
   { href: '/admin/sistema', label: 'Sistema' },
   { href: '/admin/auditoria', label: 'Auditoria' }

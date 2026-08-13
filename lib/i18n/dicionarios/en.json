@@ -445,8 +445,8 @@
         "titulo": "VIP",
         "resumo": "What the subscription changes — and what it will never change.",
         "paragrafos": [
-          "VIP shortens your wait between rolls (up to 40% less), gives **one extra roll charge** on the Gold and Master plans, increases the daily reward and unlocks frames, colors and badges.",
-          "About that extra charge, it's worth being exact: it **adds to** the ones you earn by levelling up, it doesn't replace them. A free player reaches {max_cargas} charges just by playing, and a subscriber at level 1 has {cargas_base_vip} — not {max_cargas_vip}. It's one extra charge, not a level shortcut.",
+          "VIP shortens your wait between rolls (up to {cooldown_max_vip}% less), gives up to **{cargas_extras_vip} extra roll charges**, hands you up to {roll_extra_vip} extra rolls a day from `/daily`, cuts or removes the market fee, improves quick sell, increases the daily reward and unlocks frames, colors and badges.",
+          "About those extra charges, it's worth being exact: they **add to** the ones you earn by levelling up, they don't replace them. A free player reaches {max_cargas} charges just by playing, and a top-plan subscriber at level 1 has {cargas_base_vip} — not {max_cargas_vip}. They're extra charges, not a level shortcut.",
           "**No plan grants a combat advantage.** Card stats, rarity odds and battle outcomes are exactly the same for everyone, paying or not. What the subscription buys is time and looks, never luck.",
           "Boxes don't change either: the percentages are the same for subscribers and non-subscribers, and there's no box or card that exists only for paying players.",
           "This isn't a marketing promise: there's an automated check in the bot's code that stops any plan from touching a combat stat or a rarity chance."
@@ -490,9 +490,9 @@
   },
   "vip": {
     "meta_titulo": "VIP plans",
-    "meta_descricao": "Support AniBattle and get animated frames, a shorter cooldown, one extra roll charge and a bigger daily reward. No plan grants any combat advantage or better odds at rare cards.",
+    "meta_descricao": "Support AniBattle and play more: shorter cooldown, stored roll charges, free extra rolls every day, no market fee and animated frames. No plan grants any combat advantage or better odds at rare cards.",
     "titulo": "Support AniBattle",
-    "subtitulo": "The game is free and stays free. Subscribers get looks and convenience — and help pay for the server.",
+    "subtitulo": "The game is free and stays free. Subscribers get more turns and pay less toll — and help pay for the server.",
     "tiers": {
       "bronze": "Bronze",
       "prata": "Silver",
@@ -521,14 +521,18 @@
     "cargas_texto": "An unused <code>/roll</code> used to simply evaporate: stay away for a day and you lost the whole day. Now rolls <strong>stack</strong> — the cooldown keeps running while you're gone, and the charges wait for you.",
     "gratis_titulo": "Playing for free",
     "gratis_texto": "You start with <strong>{base}</strong> and earn one more at levels <strong>{niveis}</strong>, reaching <strong>{max}</strong> without paying anything. Your level goes up doing what you already do: rolling, battling, trading, discovering new cards.",
-    "assinando_titulo": "Subscribing to Gold or Master",
-    "assinando_texto": "The subscription gives <strong>+1 charge</strong> that <strong>adds to</strong> the ones from your level, reaching {max_vip}. It's one extra charge, not a level shortcut — a subscriber at level 1 caps at {base_vip}, not {max_vip}.",
+    "assinando_titulo": "Subscribing",
+    "assinando_texto": "The subscription gives <strong>+{min_extra}</strong> to <strong>+{max_extra} charges</strong> depending on the plan, and they <strong>add to</strong> the ones from your level — reaching {max_vip}. They're extra charges, not a level shortcut: a top-plan subscriber at level 1 caps at {base_vip}, not {max_vip}.",
     "quantidade_texto": "<strong>This is an advantage in quantity, not in luck.</strong> One extra charge means one more roll saved for when you come back. The odds of pulling a Legendary or a Master are <strong>exactly the same</strong> for everyone — the rarity table never checks your subscription, and an automated test enforces that.",
     "mais_escolhido": "most popular",
     "por_mes": "/month",
     "plano_cooldown": "⏱️ <strong>−{n}%</strong> off the /roll cooldown",
     "plano_carga": "🎴 <strong>+{n}</strong> stacked roll charge",
     "plano_daily": "🎁 <strong>{n}×</strong> bigger daily",
+    "plano_roll_extra": "🎟️ <strong>{n}</strong> extra roll(s) per day",
+    "plano_taxa": "🏪 Market fee <strong>{n}%</strong>",
+    "plano_taxa_zero": "🏪 <strong>No market fee</strong>",
+    "plano_venda_rapida": "🪙 Quick sell <strong>+{n}%</strong>",
     "plano_molduras": "🖼️ <strong>{n}</strong> card frame(s)",
     "plano_desejos": "💭 <strong>{n}</strong> cards on your wishlist",
     "plano_banner": "🏳️ Profile banner",
@@ -541,6 +545,11 @@
     "linha_cooldown": "/roll cooldown",
     "linha_cargas": "Stacked roll charges",
     "linha_daily": "Daily reward",
+    "linha_roll_extra": "Extra rolls per day",
+    "linha_taxa": "Market fee",
+    "linha_venda_rapida": "Quick sell",
+    "por_dia": "{n} per day",
+    "sem_taxa": "no fee",
     "linha_molduras": "Card frames",
     "linha_desejos": "Wishlist",
     "linha_cor": "Profile color",
@@ -555,12 +564,16 @@
     "perguntas": "Questions",
     "faq": [
       {
-        "p": "Aren't a shorter cooldown and an extra charge an advantage?",
-        "r": "They are, and they're the only two that touch the economy — rolling more earns more currency. That's why both are about quantity, never luck, and both are capped: the most expensive plan gives 40% off the cooldown and one extra charge. Neither changes the outcome of a battle or the odds of pulling a rare card."
+        "p": "Aren't a shorter cooldown, charges and extra rolls an advantage?",
+        "r": "They are — and they're an advantage of QUANTITY, never of luck. Subscribers play more often; the odds of any given card are identical for everyone. And they're capped: the most expensive plan gives {cooldown_max}% off the cooldown and {cargas_max} extra charges. None of them changes the outcome of a battle or the odds of pulling a rare card."
+      },
+      {
+        "p": "Doesn't a fee-free market break the economy?",
+        "r": "The 5% fee exists to destroy currency and hold inflation down, and subscribers pay less or nothing. Since subscribers are a minority the effect is small — but it is watched. If inflation gets tight, the plan discount is the first thing to be revisited, never the fee paid by free players."
       },
       {
         "p": "Do I need to subscribe to stack rolls?",
-        "r": "No. Stacking is for everyone, and the cap rises with your level — at levels {niveis} you gain one charge each time, reaching {max} without paying anything. Gold and Master add +1 on top of that."
+        "r": "No. Stacking is for everyone, and the cap rises with your level — at levels {niveis} you gain one charge each time, reaching {max} without paying anything. A subscription adds charges on top of that, depending on the plan."
       },
       {
         "p": "Do boxes give better cards to subscribers?",
